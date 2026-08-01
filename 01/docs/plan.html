@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iBD 팀 갤러리 — S01 기획서</title>
+<style>
+  body { font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; max-width: 720px;
+         margin: 0 auto; padding: 40px 24px; line-height: 1.7; color: #1a1d24; }
+  h1 { font-size: 24px; } h2 { font-size: 17px; margin-top: 28px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; }
+  td { border: 1px solid #ddd; padding: 8px 12px; font-size: 14px; }
+  td:first-child { font-weight: 700; width: 130px; background: #f7f8fa; }
+  li { margin: 4px 0; }
+</style>
+<h1>S01 · 팀 갤러리 — 1페이지 기획서</h1>
+<p>※ 팀 템플릿이 확정되면 이 문서를 템플릿 양식으로 옮긴다. <code>data-f</code> 필드 규약은 유지.</p>
+
+<table>
+  <tr><td>스프린트</td><td data-f="sprint">S01</td></tr>
+  <tr><td>제목</td><td data-f="title">iBD 팀 갤러리</td></tr>
+  <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+  <tr><td>스택 카드</td><td data-f="card">배포 / 호스팅</td></tr>
+  <tr><td>내 옵션</td><td data-f="option">Vercel</td></tr>
+  <tr><td>한 줄 소개</td><td data-f="intro">배포 URL을 드랍하면 기획서를 읽어 카드로 정리되는 팀 갤러리</td></tr>
+</table>
+
+<h2>누가 쓰나</h2>
+<p>iBD 팀원 3~5명. 금요일 데모데이에 프로젝터로 다 같이 띄워놓고 발표 순서대로 연다. 18주 내내 같은 화면.</p>
+
+<h2>없앨 동작 하나</h2>
+<p>제출이라는 동작 자체. report 복사 → 시트 붙여넣기를 "URL 드랍 5초"로 줄인다.</p>
+
+<h2>핵심 기능 1개</h2>
+<p>배포 URL을 드랍하면 그 사이트의 기획서(<code>/docs/plan.html</code>)를 읽어 카드로 저장된다. 폴더 규약이 곧 데이터 소스다. 기획서가 없는 URL도 도메인 카드로 저장된다 — 드랍 실패는 없다.</p>
+
+<h2>안 만드는 것 3개</h2>
+<ul>
+  <li>스택별 필터 — 갤러리 v2 과제</li>
+  <li>검색 — 100장 남짓, 스크롤로 충분</li>
+  <li>수정·삭제 UI — 로그인 없는 사이트에 삭제 버튼은 무방비</li>
+</ul>
+
+<h2>내 옵션 + 이유</h2>
+<p>Vercel — 서버 함수(기획서 읽기)가 필요하고, 주 1회 열리는 화면이라 콜드스타트 없는 호스트여야 한다(Render 탈락). 레지스트리는 가이드 허용 조항에 따라 시트 → DB(Supabase)로 교체.</p>
+
+<h2>리스크 + 검증법</h2>
+<p>스파이크로 검증 완료: 서버 함수의 외부 fetch / DB insert·select / 키 비노출. 남은 리스크는 팀 템플릿 미확정 — <code>&lt;title&gt;</code> 폴백으로 대응.</p>
+</html>

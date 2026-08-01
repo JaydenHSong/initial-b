@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iBD 바이브 코딩 · Season 1</title>
+<style>
+  :root {
+    --bg: #0c0e13; --panel: #151923; --line: #232936;
+    --text: #e8ecf4; --dim: #8b94a7; --accent: #7aa2ff;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, sans-serif;
+  }
+  header {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    padding: 28px 32px; border-bottom: 1px solid var(--line);
+  }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  h1 small { color: var(--dim); font-weight: 500; font-size: 14px; margin-left: 10px; }
+  #dropform { display: flex; gap: 8px; margin-left: auto; flex: 1 1 320px; max-width: 520px; }
+  #dropform input {
+    flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--text); font-size: 14px; outline: none;
+  }
+  #dropform input:focus { border-color: var(--accent); }
+  #dropform button {
+    padding: 11px 18px; border-radius: 10px; border: 0; background: var(--accent);
+    color: #0b1020; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap;
+  }
+  #dropform button:disabled { opacity: .5; cursor: wait; }
+  #msg { width: 100%; font-size: 13px; color: var(--dim); min-height: 1em; }
+  #msg.err { color: #ff8f8f; }
+  main { padding: 28px 32px 64px; max-width: 1200px; margin: 0 auto; }
+  .sprint-label {
+    font-size: 15px; font-weight: 700; color: var(--dim);
+    margin: 34px 0 14px; letter-spacing: .06em;
+  }
+  .sprint-label:first-child { margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .card {
+    display: block; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 20px; text-decoration: none; color: inherit;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .card .who { color: var(--dim); font-size: 13px; margin-bottom: 10px; }
+  .badge {
+    display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px;
+    border-radius: 999px; background: rgba(122,162,255,.14); color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .badge.none { background: rgba(139,148,167,.14); color: var(--dim); font-weight: 500; }
+  .card p { font-size: 13.5px; color: var(--dim); line-height: 1.5; min-height: 2.6em; }
+  .doclinks { margin-top: 12px; font-size: 12.5px; }
+  .doclinks a { color: var(--dim); text-decoration: none; margin-right: 12px; }
+  .doclinks a:hover { color: var(--accent); }
+  .state { color: var(--dim); font-size: 15px; padding: 48px 0; text-align: center; }
+  .state a { color: var(--accent); }
+  @media (max-width: 640px) {
+    header { padding: 20px 16px; } main { padding: 20px 16px 48px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+<header>
+  <h1>iBD 바이브 코딩 <small id="count">Season 1</small></h1>
+  <form id="dropform">
+    <input id="url" type="url" placeholder="배포 URL을 붙여넣고 엔터 — 그게 제출이다" required>
+    <button id="go">드랍</button>
+    <div id="msg"></div>
+  </form>
+</header>
+<main id="main"><div class="state">불러오는 중…</div></main>
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const KEY = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 공개 키
+const $ = id => document.getElementById(id);
+
+const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function card(r) {
+  const badge = r.stack_option
+    ? `<span class="badge">${esc(r.stack_option)}</span>`
+    : `<span class="badge none">기획서 없음</span>`;
+  return `<a class="card" href="${esc(r.url)}" target="_blank" rel="noopener">
+    <h2>${esc(r.title || new URL(r.url).hostname)}</h2>
+    <div class="who">${esc(r.author || '만든 사람 미상')}</div>
+    ${badge}
+    <p>${esc(r.intro || '')}</p>
+    <div class="doclinks">
+      <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
+      <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
+    </div>
+  </a>`;
+}
+
+function render(rows) {
+  $('count').textContent = `Season 1 · ${rows.length} site${rows.length === 1 ? '' : 's'}`;
+  if (!rows.length) {
+    $('main').innerHTML = '<div class="state">아직 제출이 없다. 첫 URL을 드랍해보자.</div>';
+    return;
+  }
+  // 스프린트별 묶음, 최신 스프린트 먼저. 미분류는 맨 아래. 같은 묶음 안은 드랍 순서.
+  const groups = new Map();
+  rows.forEach(r => {
+    const k = r.sprint || '미분류';
+    (groups.get(k) || groups.set(k, []).get(k)).push(r);
+  });
+  const keys = [...groups.keys()].sort((a, b) =>
+    a === '미분류' ? 1 : b === '미분류' ? -1 : b.localeCompare(a));
+  $('main').innerHTML = keys.map(k =>
+    `<div class="sprint-label">${esc(k)}</div><div class="grid">${groups.get(k).map(card).join('')}</div>`
+  ).join('');
+}
+
+async function load() {
+  try {
+    const r = await fetch(`${SUPA}/rest/v1/sites?select=*&order=created_at.asc`, {
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+    });
+    if (!r.ok) throw new Error(r.status);
+    render(await r.json());
+  } catch (e) {
+    $('main').innerHTML = '<div class="state">레지스트리를 못 읽었다. 잠시 뒤 새로고침하거나 관리자에게.</div>';
+  }
+}
+
+$('dropform').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('go'), msg = $('msg');
+  btn.disabled = true; msg.className = ''; msg.textContent = '기획서를 읽는 중…';
+  try {
+    const r = await fetch('/api/drop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: $('url').value }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || r.status);
+    msg.textContent = data.duplicate ? '이미 등록된 URL이다.' : '등록됐다.';
+    $('url').value = '';
+    load();
+  } catch (err) {
+    msg.className = 'err'; msg.textContent = '실패: ' + err.message;
+  } finally { btn.disabled = false; }
+});
+
+load();
+</script>
