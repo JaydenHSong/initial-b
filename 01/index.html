@@ -41,7 +41,7 @@
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
   .card {
     display: block; background: var(--panel); border: 1px solid var(--line);
-    border-radius: 14px; padding: 20px; text-decoration: none; color: inherit;
+    border-radius: 14px; padding: 20px; color: inherit; cursor: pointer;
     transition: border-color .15s, transform .15s;
   }
   .card:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -84,7 +84,8 @@ function card(r) {
   const badge = r.stack_option
     ? `<span class="badge">${esc(r.stack_option)}</span>`
     : `<span class="badge none">기획서 없음</span>`;
-  return `<a class="card" href="${esc(r.url)}" target="_blank" rel="noopener">
+  // <a> 중첩은 유효하지 않은 HTML — 카드는 div, 본체 클릭은 위임으로 처리
+  return `<div class="card" data-url="${esc(r.url)}">
     <h2>${esc(r.title || new URL(r.url).hostname)}</h2>
     <div class="who">${esc(r.author || '만든 사람 미상')}</div>
     ${badge}
@@ -93,7 +94,7 @@ function card(r) {
       <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
       <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
     </div>
-  </a>`;
+  </div>`;
 }
 
 function render(rows) {
@@ -145,6 +146,12 @@ $('dropform').addEventListener('submit', async e => {
   } catch (err) {
     msg.className = 'err'; msg.textContent = '실패: ' + err.message;
   } finally { btn.disabled = false; }
+});
+
+// 카드 본체 클릭 → 사이트 새 탭 (문서 링크 클릭은 제외)
+document.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
 });
 
 load();
