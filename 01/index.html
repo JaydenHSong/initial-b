@@ -188,12 +188,19 @@ async function load() {
 $('dropform').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('go'), msg = $('msg');
-  btn.disabled = true; msg.className = ''; msg.textContent = '기획서를 읽고 스크린샷을 찍는 중… (10초쯤 걸린다)';
+  btn.disabled = true; msg.className = ''; msg.textContent = '스크린샷을 찍는 중… (10초쯤 걸린다)';
   try {
+    // 캡처는 브라우저 쿼터로 — 실패해도 카드에는 지장 없음
+    let shot_src = null;
+    try {
+      const cap = await fetch(`https://api.microlink.io/?url=${encodeURIComponent($('url').value)}&screenshot=true`);
+      shot_src = (await cap.json())?.data?.screenshot?.url || null;
+    } catch { /* 썸네일 없이 진행 */ }
+    msg.textContent = '기획서를 읽는 중…';
     const r = await fetch('/api/drop', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: $('url').value }),
+      body: JSON.stringify({ url: $('url').value, shot_src }),
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || r.status);

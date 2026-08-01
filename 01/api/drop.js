@@ -19,12 +19,18 @@ const pickTitle = html => {
   return m ? m[1].trim() : null;
 };
 
-// 드랍 시 1회: microlink로 찍고 → Storage에 복사 → 우리 URL을 반환
-async function capture(target) {
-  const api = `https://api.microlink.io/?url=${encodeURIComponent(target)}&screenshot=true`;
-  const meta = await fetchWithTimeout(api, 15000).then(r => r.json());
-  const src = meta?.data?.screenshot?.url;
+// 드랍 시 1회: 스크린샷을 Storage에 복사해 우리 URL을 반환.
+// 캡처 자체는 브라우저가 microlink를 호출해 src를 넘긴다 (Vercel 공유 IP는 무료 쿼터가 늘 소진돼 있음).
+// src 없이 오면 서버가 직접 시도한다 (API 직접 호출용 폴백).
+async function capture(target, src) {
+  if (!src) {
+    const api = `https://api.microlink.io/?url=${encodeURIComponent(target)}&screenshot=true`;
+    const meta = await fetchWithTimeout(api, 15000).then(r => r.json());
+    src = meta?.data?.screenshot?.url;
+  }
   if (!src) return null;
+  // 서버가 fetch하는 건 microlink CDN만 — 임의 URL 프록시 방지
+  if (!/\.microlink\.io$/.test(new URL(src).hostname)) return null;
   const img = await fetchWithTimeout(src, 10000);
   if (!img.ok) return null;
   const buf = await img.arrayBuffer();
@@ -73,7 +79,7 @@ export default async function handler(req, res) {
   }
   if (!row.title) row.title = target.hostname;
 
-  try { row.shot_url = await capture(base); } catch { /* 썸네일 없이 저장 */ }
+  try { row.shot_url = await capture(base, (req.body || {}).shot_src); } catch { /* 썸네일 없이 저장 */ }
 
   const ins = await fetch(`${SUPA}/rest/v1/sites?on_conflict=url`, {
     method: 'POST',
