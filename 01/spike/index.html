@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>spike</title>
+<pre id="out">loading…</pre>
+<script>
+// 버릴 코드. 판정: fetch한 CSV에서 더미 3줄이 레코드로 나오나.
+const CSV_URL = './registry-dummy.csv'; // 게시 URL 나오면 이 줄만 교체
+
+// 따옴표 필드 최소 대응 CSV 파서
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQ = false; }
+      else field += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field.replace(/\r$/, '')); rows.push(row); row = []; field = ''; }
+    else field += c;
+  }
+  if (field || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+fetch(CSV_URL)
+  .then(r => r.text())
+  .then(text => {
+    const rows = parseCSV(text);
+    // 함정 1: 헤더가 1행이 아니다 → '스프린트'로 시작하는 행을 찾는다
+    const h = rows.findIndex(r => r[0] === '스프린트');
+    // 함정 2: 시트 뒤쪽 빈 행 40줄 → 스프린트 칸이 빈 행은 버린다
+    const records = rows.slice(h + 1)
+      .filter(r => r[0] && r[0].trim())
+      .map(r => ({ sprint: r[0], who: r[1], title: r[2], url: r[3], card: r[4], option: r[5], desc: r[6] }));
+    console.log('HEADER_ROW_INDEX:', h);
+    console.log('RECORD_COUNT:', records.length);
+    records.forEach(r => console.log('RECORD:', r.sprint, r.who, r.title, r.url));
+    document.getElementById('out').textContent =
+      `header@row ${h + 1} / records: ${records.length}\n` + JSON.stringify(records, null, 2);
+  })
+  .catch(e => {
+    console.error('FETCH_FAIL:', e.message);
+    document.getElementById('out').textContent = 'FAIL: ' + e.message;
+  });
+</script>
