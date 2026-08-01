@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.local
+*.log
+
+# 팀 내부 훈련 문서 — 공개 리포에 올리지 않는다 (로컬에는 그대로 있음)
+CLAUDE.md
+vibe-coding-guide.html
+iBD_바이브코딩_레지스트리.xlsx
