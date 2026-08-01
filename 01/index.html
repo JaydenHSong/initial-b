@@ -107,9 +107,7 @@
 <footer>
   <div>
     <a href="/guide.html">훈련 가이드</a>·
-    <a href="/docs/plan.html">기획서</a>·
-    <a href="/docs/report.html">스택 리포트</a>·
-    <a href="https://github.com/JaydenHSong/initial-b" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/JaydenHSong/initial-b" target="_blank" rel="noopener">갤러리 소스</a>
   </div>
   <span class="copy">© 2026 iBD · initial-B — Season 1 · 매주 금요일, 시작이 모인다</span>
 </footer>
@@ -148,6 +146,7 @@ function entry(r, side) {
       <div class="doclinks docs">
         <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
         <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
+        ${r.repo ? `<a href="${esc(r.repo)}" target="_blank" rel="noopener">소스 ↗</a>` : ''}
       </div>
     </div>
   </div>`;

@@ -59,7 +59,7 @@ export default async function handler(req, res) {
   }
   const base = target.origin + target.pathname.replace(/\/+$/, '');
 
-  const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null };
+  const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null, repo: null };
   try {
     const plan = await fetchWithTimeout(`${base}/docs/plan.html`, 6000);
     if (plan.ok) {
@@ -69,6 +69,9 @@ export default async function handler(req, res) {
       row.stack_option = pick(html, 'option');
       row.intro = pick(html, 'intro');
       row.title = pick(html, 'title') || pickTitle(html);
+      // 기획서에 data-f="repo"로 소스 저장소를 적으면 카드에 링크가 붙는다
+      const m = html.match(/data-f="repo"[^>]*(?:href="([^"]+)"[^>]*>|>\s*(https?:\/\/[^\s<]+))/i);
+      row.repo = m ? (m[1] || m[2]) : null;
     }
   } catch { /* 기획서 없음 — 폴백 */ }
   if (!row.title) {
