@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iBD 바이브 코딩 훈련 · 시즌 1</title>
+<style>
+:root{
+  --ink:#1d1d1f; --ink2:#4e4e53; --ink3:#6e6e73;
+  --bg:#ffffff; --bg2:#f5f5f7; --card:#ffffff; --line:#d2d2d7;
+  --acc:#bf4800; --acc2:#e8730c;
+  --blue:#0071e3; --green:#177d3f; --amber:#9a6700; --rose:#b3123c;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+  --r:18px;
+}
+html[data-theme="dark"]{
+  --ink:#f5f5f7; --ink2:#a1a1a6; --ink3:#86868b;
+  --bg:#000000; --bg2:#101012; --card:#1c1c1e; --line:#38383c;
+  --acc:#ff8a3d; --acc2:#ffa666;
+  --blue:#2997ff; --green:#4ad07d; --amber:#f5c451; --rose:#ff5f7e;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Apple SD Gothic Neo","Pretendard",system-ui,sans-serif;
+  font-size:17px;line-height:1.6;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s}
+
+/* ── nav ── */
+.nav{position:sticky;top:0;z-index:80;height:52px;
+  background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.nav .in{max-width:1024px;margin:0 auto;padding:0 22px;height:100%;display:flex;align-items:center;gap:8px}
+.nav .bd{font-size:15px;font-weight:600;letter-spacing:-.02em;margin-right:14px;white-space:nowrap}
+.nav a{font-size:13px;color:var(--ink2);text-decoration:none;padding:8px 10px;border-radius:6px;white-space:nowrap}
+.nav a:hover{color:var(--ink)}
+.nav .sp{margin-left:auto;display:flex;gap:8px}
+.nav button{border:none;background:transparent;color:var(--ink2);font-size:13px;cursor:pointer;
+  font-family:inherit;padding:8px 12px;border-radius:99px}
+.nav button:hover{background:var(--bg2);color:var(--ink)}
+.nlinks{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.nlinks::-webkit-scrollbar{display:none}
+
+/* ── band ── */
+.band{padding:100px 22px}
+.band.alt{background:var(--bg2)}
+.inner{max-width:980px;margin:0 auto}
+.narrow{max-width:700px;margin:0 auto}
+.center{text-align:center}
+
+/* ── type ── */
+.eyebrow{font-size:19px;font-weight:600;color:var(--acc);letter-spacing:-.01em;margin:0 0 6px;max-width:none}
+h1{font-size:clamp(40px,7vw,72px);line-height:1.05;letter-spacing:-.035em;font-weight:700;margin:0 0 22px}
+h2{font-size:clamp(30px,4.6vw,44px);line-height:1.1;letter-spacing:-.032em;font-weight:700;margin:0 0 18px}
+h3{font-size:clamp(21px,2.6vw,26px);line-height:1.2;letter-spacing:-.024em;font-weight:700;margin:0 0 12px}
+h4{font-size:19px;font-weight:700;letter-spacing:-.02em;margin:52px 0 14px}
+.lead{font-size:clamp(18px,2.1vw,21px);line-height:1.5;color:var(--ink2);margin:0;letter-spacing:-.014em}
+p{margin:0 0 18px;color:var(--ink2);max-width:66ch}
+p.tight{margin-bottom:10px}
+strong,b{color:var(--ink);font-weight:600}
+.small{font-size:15px;color:var(--ink3);line-height:1.55}
+.narrow,.center > *,.shead.c > *{margin-left:auto;margin-right:auto}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:13px;background:var(--bg2);padding:2px 7px;border-radius:6px;color:var(--ink)}
+html[data-theme="dark"] code{background:#2c2c2e}
+
+/* ── hero ── */
+.hero{padding:120px 22px 90px;text-align:center}
+.hero .lead{max-width:620px;margin:0 auto}
+.stats{display:flex;justify-content:center;flex-wrap:wrap;gap:0;margin-top:64px}
+.stat{padding:0 34px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:none}
+.stat .v{font-size:40px;font-weight:700;letter-spacing:-.035em;line-height:1}
+.stat .l{font-size:13px;color:var(--ink3);margin-top:7px}
+
+/* ── section head ── */
+.shead{margin-bottom:56px}
+.shead.c{text-align:center}
+.shead .k{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:12px}
+
+/* ── big statement ── */
+.state{font-size:clamp(28px,4.4vw,44px);line-height:1.25;letter-spacing:-.03em;font-weight:700;text-align:center;
+  max-width:840px;margin:0 auto}
+.state s{text-decoration:none;color:var(--ink3);font-weight:600}
+
+/* ── tiles ── */
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.tile{background:var(--card);border-radius:var(--r);padding:34px 30px}
+.band.alt .tile{background:var(--bg)}
+html[data-theme="dark"] .tile{background:var(--card)}
+html[data-theme="dark"] .band.alt .tile{background:var(--card)}
+.tile .n{font-size:13px;font-weight:600;color:var(--acc);margin-bottom:14px;letter-spacing:.02em}
+.tile h3{margin-bottom:10px}
+.tile p{font-size:17px;margin-bottom:0}
+.tile .foot{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
+
+/* ── big number list ── */
+.steps{counter-reset:s}
+.steps > div{counter-increment:s;position:relative;padding:26px 0 26px 62px;
+  border-top:1px solid var(--line)}
+.steps > div:last-child{border-bottom:1px solid var(--line)}
+.steps > div::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:28px;
+  font-family:var(--mono);font-size:15px;color:var(--ink3);font-weight:600}
+.steps h4{margin:0 0 6px;font-size:19px;border:none;padding:0}
+.steps p{margin:0;font-size:17px;max-width:62ch}
+
+/* ── plain rows ── */
+.rows{border-top:1px solid var(--line)}
+.rows > div{display:grid;grid-template-columns:150px 1fr;gap:24px;padding:20px 0;border-bottom:1px solid var(--line)}
+.rows .k{font-size:15px;font-weight:600;color:var(--ink)}
+.rows .v{font-size:17px;color:var(--ink2);max-width:64ch}
+.rows .v b{color:var(--ink)}
+
+/* ── table ── */
+.tw{overflow-x:auto;margin:32px 0}
+table{width:100%;border-collapse:collapse;font-size:17px;min-width:460px}
+th{text-align:left;font-size:13px;color:var(--ink3);font-weight:600;padding:0 16px 12px;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:16px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink2);line-height:1.55}
+td b,td strong{color:var(--ink);font-weight:600}
+th:first-child,td:first-child{padding-left:0}
+th:last-child,td:last-child{padding-right:0}
+tbody tr:last-child td{border-bottom:none}
+
+/* ── checklist ── */
+.check{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+.check li{position:relative;padding:18px 0 18px 40px;border-bottom:1px solid var(--line);
+  font-size:17px;color:var(--ink2);line-height:1.5}
+.check li b{color:var(--ink);font-weight:600}
+.check li::before{content:"";position:absolute;left:0;top:21px;width:18px;height:18px;
+  border:1.5px solid var(--line);border-radius:50%}
+.nolist{list-style:none;padding:0;margin:0}
+.nolist li{position:relative;padding:11px 0 11px 30px;font-size:17px;color:var(--ink2);line-height:1.5}
+.nolist li::before{content:"";position:absolute;left:6px;top:20px;width:12px;height:1.5px;background:var(--rose)}
+ol.plain{padding-left:0;list-style:none;counter-reset:o;margin:0}
+ol.plain li{counter-increment:o;position:relative;padding:16px 0 16px 42px;border-bottom:1px solid var(--line);
+  font-size:17px;color:var(--ink2);line-height:1.55}
+ol.plain li::before{content:counter(o);position:absolute;left:0;top:16px;font-family:var(--mono);
+  font-size:15px;color:var(--acc);font-weight:600}
+ol.plain li b{color:var(--ink);font-weight:600}
+ul.dash{list-style:none;padding:0;margin:0}
+ul.dash li{position:relative;padding:9px 0 9px 22px;font-size:17px;color:var(--ink2);line-height:1.55}
+ul.dash li::before{content:"";position:absolute;left:2px;top:20px;width:10px;height:1.5px;background:var(--ink3)}
+ul.dash li b{color:var(--ink);font-weight:600}
+
+/* ── pull quote / callout ── */
+.pull{margin:36px 0;padding:30px 34px;background:var(--bg2);border-radius:var(--r);font-size:17px;
+  line-height:1.6;color:var(--ink2)}
+.band.alt .pull{background:var(--bg)}
+html[data-theme="dark"] .pull,html[data-theme="dark"] .band.alt .pull{background:var(--card)}
+.pull b{color:var(--ink)}
+.pull .k{display:block;font-size:13px;font-weight:600;color:var(--acc);margin-bottom:10px;letter-spacing:.03em}
+
+/* ── chips ── */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.chip{font-size:15px;background:var(--bg2);padding:6px 14px;border-radius:99px;color:var(--ink2)}
+html[data-theme="dark"] .chip{background:#2c2c2e}
+.chip.on{background:var(--acc);color:#fff}
+html[data-theme="dark"] .chip.on{color:#1d1d1f}
+.chip.mute{opacity:.62}
+/* chip surface must contrast with whatever it sits on */
+.tile .chip{background:var(--bg2)}                 /* 흰 타일 위 → 회색 */
+.band.alt .chip{background:var(--bg)}              /* 회색 밴드 위 → 흰색 */
+.band.alt .tile .chip{background:var(--bg2)}       /* 회색 밴드의 흰 타일 위 → 회색 */
+html[data-theme="dark"] .tile .chip,
+html[data-theme="dark"] .band.alt .tile .chip{background:#2c2c2e}
+html[data-theme="dark"] .band.alt .chip{background:#2c2c2e}
+.tile .chip.on,.band.alt .chip.on,.band.alt .tile .chip.on{background:var(--acc);color:#fff}
+html[data-theme="dark"] .tile .chip.on,
+html[data-theme="dark"] .band.alt .chip.on{background:var(--acc);color:#1d1d1f}
+
+/* ── figure ── */
+figure{margin:40px 0}
+figure svg{width:100%;height:auto;display:block}
+figcaption{margin-top:16px;text-align:center;font-size:15px;color:var(--ink3)}
+
+/* ── deadlines ── */
+.dls{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:36px 0}
+.dlc{background:var(--bg2);border-radius:var(--r);padding:32px 30px}
+.band.alt .dlc{background:var(--bg)}
+html[data-theme="dark"] .dlc,html[data-theme="dark"] .band.alt .dlc{background:var(--card)}
+.dlc .tm{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.dlc.s .tm{color:var(--green)} .dlc.h .tm{color:var(--acc)}
+.dlc .lb{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-top:10px;color:var(--ink3)}
+.dlc .ti{font-size:19px;font-weight:600;margin:12px 0 10px}
+.dlc p{font-size:15px;margin:0}
+
+/* ── accordion ── */
+.acc{border-top:1px solid var(--line)}
+details.sp{border-bottom:1px solid var(--line)}
+details.sp summary{cursor:pointer;list-style:none;padding:20px 14px 20px 0;display:grid;
+  grid-template-columns:48px minmax(140px,1fr) minmax(112px,.72fr) 1.35fr 16px;gap:16px;align-items:center;
+  border-radius:10px;transition:background .15s}
+details.sp summary:hover{background:var(--bg2)}
+html[data-theme="dark"] details.sp summary:hover{background:var(--card)}
+details.sp summary::-webkit-details-marker{display:none}
+.sid{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink3);padding-left:2px}
+.snm{font-size:19px;font-weight:600;letter-spacing:-.022em;color:var(--ink)}
+.scd{font-size:15px;color:var(--ink2)}
+.sgl{font-size:15px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arw{color:var(--ink3);font-size:17px;text-align:right;transition:transform .2s}
+details.sp[open] .arw{transform:rotate(90deg)}
+details.sp[open] .sid,details.sp[open] .scd{color:var(--acc)}
+details.sp[open] summary{background:transparent}
+.sbody{padding:2px 0 26px}
+.sbody .rows{border-top:none;background:var(--bg2);border-radius:18px;padding:30px 34px;display:grid;gap:24px}
+html[data-theme="dark"] .sbody .rows{background:var(--card)}
+.sbody .rows > div{border-bottom:none;padding:0;grid-template-columns:78px 1fr;gap:24px;align-items:start}
+.sbody .rows .k{font-size:13px;color:var(--ink3);font-weight:600;padding-top:4px;letter-spacing:0}
+.sbody .rows .v{font-size:17px;color:var(--ink2);max-width:62ch;line-height:1.62}
+.sbody .rows > div:nth-child(2) .v{color:var(--ink)}
+.sbody .rows > div:nth-child(2) .v .small{color:var(--ink3)}
+.sbody .chip{background:var(--bg);color:var(--ink2);box-shadow:inset 0 0 0 1px var(--line);font-weight:400}
+.sbody .chip.on{background:var(--bg);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
+html[data-theme="dark"] .sbody .chip,html[data-theme="dark"] .sbody .chip.on{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+html[data-theme="dark"] .sbody .chip.on{color:var(--ink)}
+.tagm{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:99px;
+  background:color-mix(in srgb,var(--blue) 13%,transparent);color:var(--blue);
+  margin-left:7px;vertical-align:2px;letter-spacing:0}
+.tagm.h{background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc)}
+.phase{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);
+  margin:56px 0 8px}
+.phase:first-of-type{margin-top:0}
+
+/* ── calendar strip ── */
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin:32px 0}
+.cw{background:var(--card);border-radius:18px;padding:16px 12px;text-align:center}
+.band.alt .cw{background:var(--bg)}
+html[data-theme="dark"] .cw,html[data-theme="dark"] .band.alt .cw{background:var(--card)}
+.cw .i{font-family:var(--mono);font-size:15px;font-weight:600}
+.cw .d{font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-top:3px}
+.cw .t{font-size:13px;color:var(--ink2);margin-top:9px;line-height:1.35;min-height:32px}
+.cw.mg .i{color:var(--blue)} .cw.hot .i{color:var(--acc)} .cw.sh .i{color:var(--amber)}
+.cw.rest{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.cw.rest .i{color:var(--ink3);font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:24px;font-size:15px;color:var(--ink3);justify-content:center;margin-top:26px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px;vertical-align:1px}
+/* month calendar */
+.months{margin:36px 0 0}
+.mo{display:grid;grid-template-columns:104px 1fr;gap:24px;padding:26px 0;border-top:1px solid var(--line);align-items:start}
+.mo:last-child{border-bottom:1px solid var(--line)}
+.mh{padding-top:4px}
+.me{display:block;font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--acc)}
+.mk{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--ink);margin-top:2px}
+.mw{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.wc{background:var(--bg2);border-radius:18px;padding:16px;min-height:118px;display:flex;flex-direction:column}
+html[data-theme="dark"] .wc{background:var(--card)}
+.wtop{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.ws{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink3);letter-spacing:-.02em}
+.wd{font-family:var(--mono);font-size:11.5px;color:var(--ink3)}
+.wt{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:-.018em;line-height:1.35}
+.wk2{font-size:13px;color:var(--ink2);margin-top:auto;padding-top:8px;line-height:1.35}
+.wc.hot{background:color-mix(in srgb,var(--acc) 9%,transparent)}
+.wc.hot .ws{color:var(--acc)}
+.wc.mg{background:color-mix(in srgb,var(--blue) 10%,transparent)}
+.wc.mg .ws{color:var(--blue)}
+.wc.mg .wk2::after{content:" · 통합";color:var(--blue);font-weight:600;white-space:nowrap}
+.wc.sh .wk2::after{content:" · 단축";color:var(--amber);font-weight:600;white-space:nowrap}
+.wc.rest{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.wc.rest .wt,.wc.rest .ws{color:var(--ink3);font-weight:500}
+.wc.rest .wk2{color:var(--ink3)}
+
+/* ── part ── */
+.part{padding:130px 22px 0;text-align:center}
+.part .k{font-size:13px;font-weight:600;letter-spacing:.14em;color:var(--acc);text-transform:uppercase}
+.part h2{margin:16px 0 14px}
+.part .lead{max-width:560px;margin:0 auto}
+
+footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3);border-top:1px solid var(--line)}
+
+@media(max-width:820px){
+  body{font-size:17px}
+  .band{padding:70px 20px}
+  .hero{padding:80px 20px 60px}
+  .stats{gap:24px 0}
+  .stat{padding:0 20px}
+  .stat .v{font-size:32px}
+  .steps > div{grid-template-columns:1fr;gap:8px}
+  .steps > div::before{display:none}
+  .rows > div{grid-template-columns:1fr;gap:8px}
+  details.sp summary{grid-template-columns:46px 1fr 18px;gap:16px}
+  .scd,.sgl{display:none}
+  .nlinks{display:none}
+  .part{padding-top:80px}
+  .mo{grid-template-columns:1fr;gap:16px;padding:24px 0}
+  .mh{display:flex;align-items:baseline;gap:10px;padding-top:0}
+  .me{font-size:13px} .mk{font-size:21px;margin-top:0}
+  .mw{grid-template-columns:repeat(2,1fr);gap:8px}
+  .wc{min-height:0;padding:14px}
+}
+@media print{
+  @page{margin:15mm}
+  html[data-theme]{--bg:#fff;--bg2:#fafafa;--card:#fff;--ink:#000;--ink2:#333;--ink3:#666;--line:#ddd}
+  .nav{display:none}
+  .band{padding:34px 0;break-inside:auto}
+  .part{padding-top:0;break-before:page}
+  .tile,.dlc,details.sp,.cw{break-inside:avoid}
+  details.sp .sbody{display:block!important}
+  .arw{display:none}
+  .hero{padding:0 0 30px}
+}
+</style>
+</head>
+<body>
+
+<div class="nav"><div class="in">
+  <span class="bd">iBD 바이브 코딩</span>
+  <div class="nlinks">
+    <a href="#purpose">목적</a><a href="#policy">스택 정책</a><a href="#rhythm">주간 리듬</a>
+    <a href="#dod">완료 기준</a><a href="#forms">두 장</a><a href="#demo">데모데이</a>
+    <a href="#cal">캘린더</a><a href="#sprints">18 스프린트</a>
+  </div>
+  <div class="sp">
+    <button id="th">다크</button><button onclick="window.print()">인쇄</button>
+  </div>
+</div></div>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <p class="eyebrow">Season 1 · Aug 3 — Dec 18, 2026</p>
+  <h1>매주 하나씩.<br>주제는 같고,<br>스택은 다르게.</h1>
+  <p class="lead">18주 동안 각자 18개의 사이트를 만들고 배포한다. MVP까지만.</p>
+  <div class="stats">
+    <div class="stat"><div class="v">18</div><div class="l">스프린트</div></div>
+    <div class="stat"><div class="v">5일</div><div class="l">월 → 금</div></div>
+    <div class="stat"><div class="v">1개</div><div class="l">핵심 기능</div></div>
+    <div class="stat"><div class="v">60분</div><div class="l">금요일 데모</div></div>
+  </div>
+</div>
+
+<!-- ══ 목적 ══ -->
+<div class="band alt" id="purpose">
+  <div class="inner">
+    <div class="shead c">
+      <div class="k">Why</div>
+      <h2>코딩 실력을 키우는 게<br>아닙니다.</h2>
+      <p class="lead narrow">세 가지를 훈련합니다. 결과물은 그 훈련의 부산물입니다.</p>
+    </div>
+    <div class="grid g3">
+      <div class="tile">
+        <div class="n">01</div>
+        <h3>기획력</h3>
+        <p>같은 주제를 각자 다르게 해석한다. 데모데이에서 그 차이를 눈으로 비교한다.</p>
+        <div class="foot">남의 결과물을 보고 "왜 저렇게 잘랐는지" 설명할 수 있다</div>
+      </div>
+      <div class="tile">
+        <div class="n">02</div>
+        <h3>스택 판단력</h3>
+        <p>매주 스택 요소 하나를 정하고, 각자 다른 선택지를 골라 만든 뒤 실측을 비교한다.</p>
+        <div class="foot">"이 요구사항엔 이 스택" 판단이 근거와 함께 선다</div>
+      </div>
+      <div class="tile">
+        <div class="n">03</div>
+        <h3>순발력</h3>
+        <p>7일 고정 사이클. 금요일 오전에 하드 마감. 그 시점의 상태로 발표한다.</p>
+        <div class="foot">완벽하지 않은 채로 내보내는 게 익숙해진다</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 한 문장 ══ -->
+<div class="band">
+  <div class="inner">
+    <p class="state"><s>못 끝내는 건 괜찮다.</s><br>안 내보내는 건 안 된다.</p>
+  </div>
+</div>
+
+<!-- ══ 툴의 정의 ══ -->
+<div class="band alt" id="terms">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">용어</div>
+      <h2>"툴"은 스택을 뜻합니다.</h2>
+      <p class="lead">코딩 도구를 바꾸는 게 아닙니다. 두 층을 분리합니다.</p>
+    </div>
+    <div class="grid g2">
+      <div class="tile">
+        <div class="n" style="color:var(--ink3)">고정 · 훈련 대상 아님</div>
+        <h3>코딩 도구 &amp; LLM</h3>
+        <p>코딩 도구는 각자 편한 걸 계속 쓴다. LLM은 Claude로 고정한다 — 모델 쇼핑은 이 훈련의 목적이 아니다.</p>
+        <div class="chips">
+          <span class="chip mute">Claude Code</span><span class="chip mute">Cursor</span>
+          <span class="chip mute">Lovable</span><span class="chip mute">v0</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="n">매주 로테이션 · 이게 훈련 대상</div>
+        <h3>스택</h3>
+        <p>매주 한 요소를 정하고, 각자 다른 선택지를 골라 만든다.</p>
+        <div class="chips">
+          <span class="chip on">DB</span><span class="chip on">인증</span><span class="chip on">스토리지</span>
+          <span class="chip on">크롤링</span><span class="chip on">실시간</span><span class="chip on">큐</span>
+          <span class="chip on">검색</span><span class="chip on">벡터DB</span><span class="chip on">캐시</span>
+          <span class="chip on">배포</span><span class="chip on">관측</span>
+        </div>
+      </div>
+    </div>
+    <div class="pull narrow" style="text-align:center;margin-top:40px">
+      Firebase 대신 <b>Postgres</b>를 써본다 · <b>Playwright</b>로 크롤링해본다 · <b>pgvector</b>로 RAG를 붙여본다
+    </div>
+    <p class="small narrow center" style="margin-top:24px">
+      예외 하나 — Claude에는 임베딩 API가 없다. S13 RAG에서 검색용 임베딩은 Voyage AI를 쓰고, 답변 생성만 Claude가 맡는다.
+    </p>
+  </div>
+</div>
+
+<!-- ══ 스택 정책 ══ -->
+<div class="band" id="policy">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">정책</div>
+      <h2>같은 주제,<br>사람마다 다른 스택.</h2>
+      <p class="lead">한 방식만으로는 깊이와 폭을 동시에 못 얻습니다. 그래서 두 방식을 번갈아 씁니다.</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 980 330" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <rect x="0" y="118" width="230" height="94" rx="18" fill="var(--acc)"/>
+        <text x="115" y="152" text-anchor="middle" fill="#fff" font-size="13" opacity=".8">주제 1개 · 전원 동일</text>
+        <text x="115" y="180" text-anchor="middle" fill="#fff" font-size="21" font-weight="600" letter-spacing="-.5">ASIN 스크랩북</text>
+        <text x="115" y="200" text-anchor="middle" fill="#fff" font-size="13" opacity=".8">스택 카드: 데이터 저장</text>
+
+        <g stroke="var(--line)" stroke-width="2" fill="none">
+          <path d="M230,165 C280,165 280,45 330,45"/>
+          <path d="M230,165 C280,165 280,125 330,125"/>
+          <path d="M230,165 C280,165 280,205 330,205"/>
+          <path d="M230,165 C280,165 280,285 330,285"/>
+        </g>
+
+        <g font-size="17" font-weight="600" letter-spacing="-.3">
+          <rect x="330" y="18" width="286" height="54" rx="14" fill="var(--bg2)"/>
+          <text x="356" y="43" fill="var(--ink3)" font-size="13" font-weight="500">A</text>
+          <text x="382" y="43" fill="var(--ink)">Supabase (Postgres)</text>
+          <text x="382" y="60" fill="var(--ink3)" font-size="13" font-weight="400">관계형 · JOIN · RLS</text>
+
+          <rect x="330" y="98" width="286" height="54" rx="14" fill="var(--bg2)"/>
+          <text x="356" y="123" fill="var(--ink3)" font-size="13" font-weight="500">B</text>
+          <text x="382" y="123" fill="var(--ink)">Firebase (Firestore)</text>
+          <text x="382" y="140" fill="var(--ink3)" font-size="13" font-weight="400">문서형 · 실시간 기본</text>
+
+          <rect x="330" y="178" width="286" height="54" rx="14" fill="var(--bg2)"/>
+          <text x="356" y="203" fill="var(--ink3)" font-size="13" font-weight="500">C</text>
+          <text x="382" y="203" fill="var(--ink)">Airtable을 백엔드로</text>
+          <text x="382" y="220" fill="var(--ink3)" font-size="13" font-weight="400">노코드 DB · API</text>
+
+          <rect x="330" y="258" width="286" height="54" rx="14" fill="var(--bg2)"/>
+          <text x="356" y="283" fill="var(--ink3)" font-size="13" font-weight="500">D</text>
+          <text x="382" y="283" fill="var(--ink)">localStorage + JSON</text>
+          <text x="382" y="300" fill="var(--ink3)" font-size="13" font-weight="400">서버 없음 · 최소</text>
+        </g>
+
+        <g stroke="var(--line)" stroke-width="2" fill="none">
+          <path d="M616,45 C666,45 666,165 716,165"/>
+          <path d="M616,125 C666,125 666,165 716,165"/>
+          <path d="M616,205 C666,205 666,165 716,165"/>
+          <path d="M616,285 C666,285 666,165 716,165"/>
+        </g>
+
+        <rect x="716" y="108" width="264" height="114" rx="18" fill="var(--ink)"/>
+        <text x="848" y="142" text-anchor="middle" fill="var(--bg)" font-size="13" opacity=".7">금요일 데모데이</text>
+        <text x="848" y="172" text-anchor="middle" fill="var(--bg)" font-size="21" font-weight="600" letter-spacing="-.5">스택 비교 세미나</text>
+        <text x="848" y="196" text-anchor="middle" fill="var(--bg)" font-size="13" opacity=".7">같은 요구사항 → 4가지 답</text>
+      </svg>
+      <figcaption>한 주 = 스택 지식 4개가 팀에 들어온다</figcaption>
+    </figure>
+
+    <div class="tw"><table>
+      <thead><tr><th>방식</th><th>깊이</th><th>폭</th><th>팀 지식</th><th>운영</th></tr></thead>
+      <tbody>
+        <tr><td><strong>스택 카드 분담</strong><br><span class="small">같은 주제 / 각자 다른 선택지</span></td>
+          <td>중</td><td>상</td><td>상</td><td style="color:var(--acc)"><strong>기본 · 14주</strong></td></tr>
+        <tr><td><strong>전원 동일 스택</strong><br><span class="small">4주마다 하나를 같이 깊게</span></td>
+          <td>상</td><td>하</td><td>상</td><td style="color:var(--blue)"><strong>통합 주 · 4회</strong></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="pull">
+      <span class="k">통합 주 4회</span>
+      S05 Postgres 관계 모델링 · S09 서버리스와 크론 · S13 pgvector RAG · S17 같은 앱을 Postgres와 Firebase 양쪽으로.<br><br>
+      분담 방식만 18주 하면 아는 건 넓은데 깊게 판 게 하나도 없는 상태가 된다. 4주에 한 번은 전원이 같은 스택을 붙잡고 끝까지 간다.
+    </div>
+
+    <p class="small">왜 "각자 편한 스택 자유 선택"이 아닌가 — 3주쯤 지나면 전원이 익숙한 것 하나만 쓴다. 비교 데이터가 안 쌓여서 "Firebase가 더 빠르다"를 근거 없이 믿게 된다. 반대로 각자 다른 걸 하나씩 배우면 데모데이에서 서로 이야기를 못 알아듣고 "그거 뭐야?"로 끝난다. 둘 다 검토했고 채택하지 않았다.</p>
+  </div>
+</div>
+
+<!-- ══ PART 2 ══ -->
+<div class="part">
+  <div class="k">Part Two</div>
+  <h2>매주 도는 법</h2>
+  <p class="lead">이것만 알면 참여할 수 있습니다.</p>
+</div>
+
+<!-- ══ 주간 리듬 ══ -->
+<div class="band" id="rhythm">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">주간 리듬</div>
+      <h2>사이클은 평일 안에서<br>닫힙니다.</h2>
+      <p class="lead">투입 가능한 시간은 사람마다 다릅니다. 절대 시간이 아니라 비율을 맞춥니다.</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 980 260" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <rect x="0" y="46" width="118" height="108" rx="16" fill="var(--bg2)"/>
+        <text x="59" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink3)">주말</text>
+        <text x="59" y="116" text-anchor="middle" font-size="11.5" fill="var(--ink3)">작업 없음</text>
+        <rect x="862" y="46" width="118" height="108" rx="16" fill="var(--bg2)"/>
+        <text x="921" y="96" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink3)">주말</text>
+        <text x="921" y="116" text-anchor="middle" font-size="11.5" fill="var(--ink3)">작업 없음</text>
+
+        <g font-size="15" font-weight="600" fill="var(--ink3)" text-anchor="middle">
+          <text x="205" y="30">월</text><text x="352" y="30">화</text>
+          <text x="500" y="30">수</text><text x="648" y="30">목</text><text x="810" y="30">금</text>
+        </g>
+
+        <rect x="134" y="46" width="142" height="108" rx="16" fill="var(--bg2)"/>
+        <text x="205" y="88" text-anchor="middle" font-size="32" font-weight="700" fill="var(--ink)" letter-spacing="-1">20%</text>
+        <text x="205" y="114" text-anchor="middle" font-size="15" fill="var(--ink2)">기획서 초안</text>
+        <text x="205" y="133" text-anchor="middle" font-size="11.5" fill="var(--ink3)">90분 타이머</text>
+
+        <rect x="288" y="46" width="142" height="108" rx="16" fill="var(--green)" opacity=".12"/>
+        <text x="359" y="88" text-anchor="middle" font-size="32" font-weight="700" fill="var(--green)" letter-spacing="-1">20%</text>
+        <text x="359" y="114" text-anchor="middle" font-size="15" fill="var(--ink2)">스택 스파이크</text>
+        <text x="359" y="133" text-anchor="middle" font-size="11.5" fill="var(--ink3)">가장 작은 것 하나</text>
+
+        <rect x="442" y="46" width="142" height="108" rx="16" fill="var(--bg2)"/>
+        <text x="513" y="88" text-anchor="middle" font-size="32" font-weight="700" fill="var(--ink)" letter-spacing="-1">25%</text>
+        <text x="513" y="114" text-anchor="middle" font-size="15" fill="var(--ink2)">구현</text>
+        <text x="513" y="133" text-anchor="middle" font-size="11.5" fill="var(--ink3)">happy path</text>
+
+        <rect x="596" y="46" width="170" height="108" rx="16" fill="var(--acc)" opacity=".12"/>
+        <text x="681" y="88" text-anchor="middle" font-size="32" font-weight="700" fill="var(--acc)" letter-spacing="-1">35%</text>
+        <text x="681" y="114" text-anchor="middle" font-size="15" fill="var(--ink2)">마무리 · 배포</text>
+        <text x="681" y="133" text-anchor="middle" font-size="11.5" fill="var(--ink3)">스택 리포트 작성</text>
+
+        <rect x="778" y="46" width="72" height="108" rx="16" fill="none" stroke="var(--line)" stroke-width="1.5"/>
+        <text x="814" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink2)">데모</text>
+        <text x="814" y="115" text-anchor="middle" font-size="11.5" fill="var(--ink3)">30~60분</text>
+
+        <line x1="430" y1="46" x2="430" y2="186" stroke="var(--green)" stroke-width="2.5"/>
+        <rect x="316" y="192" width="228" height="52" rx="14" fill="var(--green)" opacity=".12"/>
+        <text x="430" y="216" text-anchor="middle" font-size="15" font-weight="600" fill="var(--green)">화 18:00 · 소프트</text>
+        <text x="430" y="234" text-anchor="middle" font-size="13" fill="var(--ink2)">기획서 업로드 · 옵션 확정</text>
+
+        <line x1="766" y1="46" x2="766" y2="186" stroke="var(--acc)" stroke-width="3"/>
+        <rect x="648" y="192" width="236" height="52" rx="14" fill="var(--acc)" opacity=".14"/>
+        <text x="766" y="216" text-anchor="middle" font-size="15" font-weight="600" fill="var(--acc)">금 09:00 · 하드</text>
+        <text x="766" y="234" text-anchor="middle" font-size="13" fill="var(--ink2)">배포 URL + 스택 리포트</text>
+      </svg>
+      <figcaption>주제는 직전 금요일 데모 끝에 공개된다. 주말은 작업일이 아니다.</figcaption>
+    </figure>
+
+    <div class="rows">
+      <div><div class="k">월</div><div class="v">문제 정의. <b>1페이지 기획서 초안</b>을 90분 안에 닫는다 (제출 없음)</div></div>
+      <div><div class="k">화</div><div class="v"><b>스택 스파이크</b> — 가장 작은 것 하나만 되게. 그 결과로 "내 옵션"을 확정하고 18:00까지 기획서를 올린다</div></div>
+      <div><div class="k">수</div><div class="v">구현 메인. 핵심 기능 1개의 happy path</div></div>
+      <div><div class="k">목</div><div class="v">구현 마무리 + 배포 + 첫 화면 + 스택 리포트 작성</div></div>
+      <div><div class="k">금 09:00</div><div class="v"><b>하드 마감.</b> 배포 URL과 스택 리포트 제출. 오후에 데모데이</div></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:36px">
+      <div class="pull" style="margin:0">
+        <span class="k">주말</span>
+        <b>주말 작업은 지침에 없다.</b> 하고 싶은 사람은 하되 전제하지 않는다. 주제를 금요일에 미리 공개하는 건 주말에 일하라는 뜻이 아니라, 월요일에 백지에서 시작하지 않게 하려는 것이다.
+      </div>
+      <div class="pull" style="margin:0">
+        <span class="k">비율이지 시간이 아니다</span>
+        시간이 적은 사람은 <b>기능을 더 줄인다.</b> 비율은 그대로 둔다. 기획과 스파이크 40%를 시간이 부족하다고 깎으면 남는 건 그냥 코딩 연습이다.
+      </div>
+    </div>
+
+    <h4>마감은 두 개뿐입니다</h4>
+    <div class="dls">
+      <div class="dlc s">
+        <div class="tm">화 18:00</div>
+        <div class="lb">Soft</div>
+        <div class="ti">기획서 업로드 · 옵션 확정</div>
+        <p>늦어도 벌칙은 없다. 다만 늦을수록 구현할 날이 줄어드는 건 본인 몫이다. 옵션 교체도 이날까지.</p>
+      </div>
+      <div class="dlc h">
+        <div class="tm">금 09:00</div>
+        <div class="lb">Hard</div>
+        <div class="ti">배포 URL · 스택 리포트</div>
+        <p>이후 커밋은 데모에서 무효다. git 로그로 확인된다. 금요일 오전은 마무리 버퍼일 뿐, 새 기능 추가는 금지.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 스파이크 ══ -->
+<div class="band alt" id="spike">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">화요일</div>
+      <h2>스택 스파이크는<br>버릴 코드입니다.</h2>
+      <p class="lead">앱을 만드는 게 아닙니다. UI 없고, 디자인 없고, 기능 없습니다. 판정은 됐다 / 안 됐다 둘뿐입니다.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th style="width:200px">내가 고른 스택</th><th>화요일에 하는 것 — 이게 전부</th></tr></thead>
+      <tbody>
+        <tr><td><code>Firestore</code></td><td>빈 페이지에 버튼 1개 → 누르면 레코드 1개 저장 → 새로고침해도 남아있나</td></tr>
+        <tr><td><code>Playwright</code></td><td>상품 페이지 1개에서 가격 문자열 하나를 콘솔에 찍기 — 차단되는지 여기서 알게 된다</td></tr>
+        <tr><td><code>Supabase Auth</code></td><td>구글 로그인 눌러서 내 이메일이 화면에 뜨나</td></tr>
+        <tr><td><code>Resend</code></td><td>내 메일함에 "test" 한 줄 도착시키기</td></tr>
+        <tr><td><code>pgvector</code></td><td>문장 3개 넣고 유사한 것 1개 꺼내기</td></tr>
+      </tbody>
+    </table></div>
+    <div class="pull">
+      <b>목적은 만드는 게 아니라 알아내는 것이다.</b> 바이브 코딩의 가장 흔한 실패는 목요일 밤에 "어, 크롤링이 차단되네" "이 인증은 도메인 검증이 필요하네"를 발견하는 것이다. 그 시점엔 손쓸 방법이 없다. 화요일에 알면 옵션을 바꿀 시간이 이틀 남는다.
+    </div>
+    <p class="small">스파이크 코드는 본 프로젝트에 안 써도 된다. 버리는 게 정상이다.</p>
+  </div>
+</div>
+
+<!-- ══ 완료 기준 ══ -->
+<div class="band" id="dod">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">완료 기준</div>
+      <h2>8개 중 7개.</h2>
+      <p class="lead">데모 전에 본인이 체크합니다.</p>
+    </div>
+    <ul class="check">
+      <li><b>URL이 있다.</b> 남이 링크를 열어 쓸 수 있다. 로컬만 도는 건 미완</li>
+      <li><b>핵심 기능 1개</b>가 입력에서 결과까지 끊김 없이 돈다</li>
+      <li><b>내가 고른 스택</b>이 실제 동작 경로에 있다. 흉내가 아니라</li>
+      <li>첫 화면에서 <b>5초 안에</b> 뭐 하는 사이트인지 이해된다</li>
+      <li>모바일에서 <b>레이아웃이 안 깨진다.</b> 예쁠 필요는 없다</li>
+      <li><b>기획서와 스택 리포트</b>가 있고 만든 것과 일치한다</li>
+      <li><b>3분 안에 시연</b> 가능하다</li>
+      <li><b>안 만든 것 3개</b>를 말할 수 있다</li>
+    </ul>
+
+    <h4>이건 MVP가 아닙니다</h4>
+    <ul class="nolist">
+      <li>로그인과 관리자 페이지는 있는데 정작 핵심 기능이 미완</li>
+      <li>화면은 예쁜데 버튼을 눌러도 아무 일도 안 일어난다</li>
+      <li>기능이 5개인데 다 반쯤만 된다</li>
+      <li>데이터가 전부 하드코딩되어 있다 — 스택을 안 쓴 것</li>
+      <li>나 자신도 이번 주에 한 번도 안 써봤다</li>
+      <li>시연 중 "이건 아직 안 돼요"가 두 번 이상 나온다</li>
+    </ul>
+    <div class="pull">
+      매주 셋 중 하나를 포기해야 한다 — 기능 개수 · 완성도 · 사용자 범위.<br>
+      <b>우리는 항상 기능 개수를 포기한다.</b> 기능 1개를 끝까지 되게 만드는 쪽을 선택한다.
+    </div>
+  </div>
+</div>
+
+<!-- ══ 두 장 ══ -->
+<div class="band alt" id="forms">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">매주 내는 것</div>
+      <h2>만들기 전에 한 장,<br>만든 뒤에 한 장.</h2>
+      <p class="lead">사이트만 남기면 이 훈련의 두 목표가 아무것도 안 쌓입니다. 두 장 모두 <b>팀 템플릿 HTML</b>로 작성해 <code>public/docs/</code>에 두고 사이트와 함께 배포합니다.</p>
+    </div>
+
+    <div class="grid g2">
+      <div class="tile">
+        <div class="n" style="color:var(--green)">화 18:00 · 소프트</div>
+        <h3>1페이지 기획서</h3>
+        <p>만들기 <b>전에</b> 무엇을 만들지 좁힌다. <b>나</b>를 위한 것 — 범위를 못 자르면 목요일에 무너진다.</p>
+        <div class="chips">
+          <span class="chip">누가 쓰나</span><span class="chip">지금은 뭘로</span><span class="chip">없앨 동작 하나</span>
+          <span class="chip">핵심 기능 1개</span><span class="chip">안 만드는 것 3개</span><span class="chip">성공 판정</span>
+          <span class="chip">내 옵션 + 이유</span><span class="chip">리스크 + 검증법</span>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="n">금 09:00 · 하드</div>
+        <h3>스택 리포트</h3>
+        <p>만든 <b>뒤에</b> 그 스택이 어땠는지 남긴다. <b>팀</b>을 위한 것 — 시즌 말 스택 판단표의 원재료.</p>
+        <div class="chips">
+          <span class="chip">카드 / 내 옵션</span><span class="chip">첫 저장까지 __분</span><span class="chip">막힌 지점 1개</span>
+          <span class="chip">문서 품질</span><span class="chip">AI가 잘 아나</span><span class="chip">무료 한도</span>
+          <span class="chip">주제에 맞았나</span><span class="chip">한 줄 결론</span>
+        </div>
+      </div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 980 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <rect x="0" y="40" width="290" height="130" rx="18" fill="var(--bg)"/>
+        <text x="28" y="72" font-size="13" font-weight="600" fill="var(--green)">화 18:00 · 기획서</text>
+        <text x="28" y="102" font-size="19" font-weight="600" fill="var(--ink)" letter-spacing="-.4">리스크 칸</text>
+        <text x="28" y="130" font-size="15" fill="var(--ink2)">"태그 필터링이 걱정된다.</text>
+        <text x="28" y="151" font-size="15" fill="var(--ink2)">문서형은 다대다가 약하다던데"</text>
+
+        <path d="M306,105 L336,105" stroke="var(--ink3)" stroke-width="2"/>
+        <path d="M330,99 L338,105 L330,111" fill="var(--ink3)"/>
+
+        <rect x="346" y="40" width="290" height="130" rx="18" fill="var(--bg)"/>
+        <text x="374" y="72" font-size="13" font-weight="600" fill="var(--acc)">목요일 · 스택 리포트</text>
+        <text x="374" y="102" font-size="19" font-weight="600" fill="var(--ink)" letter-spacing="-.4">주제에 맞았나</text>
+        <text x="374" y="130" font-size="15" fill="var(--ink2)">"태그 2개 동시 필터에서</text>
+        <text x="374" y="151" font-size="15" fill="var(--ink2)">복합 색인을 따로 만들어야 했다"</text>
+
+        <path d="M652,105 L682,105" stroke="var(--ink3)" stroke-width="2"/>
+        <path d="M676,99 L684,105 L676,111" fill="var(--ink3)"/>
+
+        <rect x="692" y="40" width="288" height="130" rx="18" fill="var(--ink)"/>
+        <text x="720" y="72" font-size="13" font-weight="600" fill="var(--bg)" opacity=".7">한 줄 결론 → 팀 자산</text>
+        <text x="720" y="103" font-size="15" fill="var(--bg)">"빨리 띄워야 하면 Firestore.</text>
+        <text x="720" y="126" font-size="15" fill="var(--bg)">조건 여러 개 걸어 거를 거면</text>
+        <text x="720" y="149" font-size="15" fill="var(--bg)">Postgres."</text>
+
+        <path d="M836,178 L836,206 L145,206 L145,178" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <path d="M139,184 L145,176 L151,184" fill="var(--line)"/>
+        <text x="490" y="232" text-anchor="middle" font-size="15" fill="var(--ink3)">다음 주 같은 카드가 나오면, 지난 결론이 이번 선택의 근거가 된다</text>
+      </svg>
+      <figcaption>화요일에 세운 가설을 목요일에 채점한다. 이게 두 장을 쓰는 이유다.</figcaption>
+    </figure>
+
+    <h4>채워진 예시 — S02 · Firestore를 고른 사람</h4>
+    <div class="rows">
+      <div><div class="k">누가 쓰나</div><div class="v">3년차 PD 김OO. 하루에 경쟁 ASIN 20개를 탭으로 열어놓고 본다</div></div>
+      <div><div class="k">지금은</div><div class="v">엑셀에 수동 복붙. 주 2회, 회당 40분. 탭을 닫으면 다 날아감</div></div>
+      <div><div class="k">핵심 기능 1개</div><div class="v"><b>URL을 붙여넣으면 목록에 카드로 저장되고, 태그를 달 수 있다</b></div></div>
+      <div><div class="k">안 만드는 것</div><div class="v">로그인 · 가격 자동 수집(S04에서) · 검색 — 목록이 30개 넘기 전엔 필요 없음</div></div>
+      <div><div class="k">내 옵션</div><div class="v"><b>Firestore</b> — 제품마다 필드가 제각각일 것 같아서 스키마 없는 쪽이 빠를 것 같다</div></div>
+      <div><div class="k">리스크</div><div class="v">태그 필터링. 문서형은 다대다가 약하다고 들었다 → 화요일에 "태그 2개 걸린 제품만 꺼내기"부터 해본다</div></div>
+      <div><div class="k">첫 저장까지</div><div class="v"><b>25분</b> — 프로젝트 생성 10 + 규칙 설정 10 + 코드 5</div></div>
+      <div><div class="k">막힌 지점</div><div class="v">보안 규칙. 기본이 전체 차단이라 30분 헤맴. 테스트 모드로 열고 넘어감</div></div>
+      <div><div class="k">AI가 잘 아나</div><div class="v">중 — v8 옛날 문법을 자꾸 뱉어서 두 번 고쳤다</div></div>
+      <div><div class="k">한 줄 결론</div><div class="v"><b>"구조가 단순하고 빨리 띄워야 하면 Firestore. 조건을 여러 개 걸어 거를 거면 Postgres."</b></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLAUDE.md ══ -->
+<div class="band" id="claudemd">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">CLAUDE.md</div>
+      <h2>AI가 안 시킨 것까지<br>만들지 않게.</h2>
+      <p class="lead">바이브 코딩의 가장 흔한 실패입니다. 기능 1개만 만들자고 했는데 로그인과 다크모드, 관리자 페이지가 딸려옵니다.</p>
+    </div>
+    <p>매주 새 프로젝트 폴더 루트에 복사하고 맨 위 여섯 칸만 채웁니다. 2분이면 됩니다.</p>
+    <div class="steps">
+      <div><h4 style="margin:0 0 6px">기능 1개 외 추가 금지</h4><p>안 붙일 것 목록을 명시한다 — 로그인, 관리자, 다크모드, 다국어, 검색, 필터, 테스트, CI. 그 주 스택 카드에 해당하는 것만 예외.</p></div>
+      <div><h4 style="margin:0 0 6px">지정 스택만 사용</h4><p>더 쉬운 대안이 있어도 갈아타지 않는다. 데이터 하드코딩 금지.</p></div>
+      <div><h4 style="margin:0 0 6px">단일 파일 우선</h4><p>폴더 구조를 선제적으로 만들지 않는다. 추상화하지 않는다.</p></div>
+      <div><h4 style="margin:0 0 6px">3번 실패하면 멈추고 보고</h4><p>우회로를 계속 파지 않는다. 이 기록이 그대로 스택 리포트가 된다.</p></div>
+      <div><h4 style="margin:0 0 6px">요일별 모드</h4><p>화요일은 스파이크 모드 — 버릴 코드, 되는 순간 멈춤. 수·목은 구현. 목요일 마지막은 리포트 초안.</p></div>
+      <div><h4 style="margin:0 0 6px">복붙용 프롬프트 5개</h4><p>월 기획 · 화 스파이크 · 수 구현 · 막혔을 때 · 목 마무리.</p></div>
+    </div>
+    <p class="small" style="margin-top:26px">통합 주에서는 규칙이 뒤집힌다 — "최소로 하지 마라. 지정된 기능을 반드시 써라. 우회하는 쉬운 방법을 제안하지 마라." 별도 섹션으로 분리되어 있다.</p>
+  </div>
+</div>
+
+<!-- ══ 데모데이 ══ -->
+<div class="band alt" id="demo">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">금요일 오후</div>
+      <h2>1인 8분.<br>60분을 넘기지 않습니다.</h2>
+      <p class="lead">발표 자료는 금지입니다. 사이트 자체가 자료입니다.</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 980 130" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <rect x="0" y="24" width="360" height="72" rx="16" fill="var(--blue)" opacity=".14"/>
+        <text x="180" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="var(--blue)" letter-spacing="-1">3분</text>
+        <text x="180" y="82" text-anchor="middle" font-size="15" fill="var(--ink2)">화면 시연</text>
+
+        <rect x="372" y="24" width="240" height="72" rx="16" fill="var(--acc)" opacity=".14"/>
+        <text x="492" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="var(--acc)" letter-spacing="-1">2분</text>
+        <text x="492" y="82" text-anchor="middle" font-size="15" fill="var(--ink2)">스택 리포트</text>
+
+        <rect x="624" y="24" width="240" height="72" rx="16" fill="var(--green)" opacity=".14"/>
+        <text x="744" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="var(--green)" letter-spacing="-1">2분</text>
+        <text x="744" y="82" text-anchor="middle" font-size="15" fill="var(--ink2)">피드백</text>
+
+        <rect x="876" y="24" width="104" height="72" rx="16" fill="var(--bg)"/>
+        <text x="928" y="60" text-anchor="middle" font-size="26" font-weight="700" fill="var(--ink)" letter-spacing="-1">1분</text>
+        <text x="928" y="82" text-anchor="middle" font-size="15" fill="var(--ink2)">회고</text>
+      </svg>
+    </figure>
+
+    <div class="tw"><table>
+      <thead><tr><th>인원</th><th>구성</th><th>총 시간</th></tr></thead>
+      <tbody>
+        <tr><td>3명</td><td>8분 × 3 + 랩업 8분</td><td><strong>32분</strong></td></tr>
+        <tr><td>4명</td><td>8분 × 4 + 랩업 8분</td><td><strong>40분</strong></td></tr>
+        <tr><td>5명</td><td>8분 × 5 + 랩업 10분</td><td><strong>50분</strong></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid g2">
+      <div class="tile">
+        <h3>진행 규칙</h3>
+        <ul class="dash">
+          <li>발표 자료 금지. <b>말보다 클릭</b></li>
+          <li>스택 리포트는 반드시 숫자와 함께</li>
+          <li>회고 한 문장 — <code>다시 하면 __를 다르게 하겠다</code></li>
+          <li>화면에 타이머를 띄우고 시작. 8분이 지나면 말이 안 끝나도 넘어간다</li>
+        </ul>
+      </div>
+      <div class="tile">
+        <h3>피드백 규칙</h3>
+        <ul class="dash">
+          <li>코드 스타일과 구조 지적은 <b>금지</b></li>
+          <li>사용자 관점 — <code>나는 __하려다 __에서 멈췄다</code></li>
+          <li>스택 관점 — <code>내 옵션에선 그게 __였다</code></li>
+          <li>1인 1세트 = 칭찬 1 + 질문 1 + 제안 1</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pull">
+      <span class="k">랩업 8~10분 · 진행자</span>
+      <b>같은 주제, 가장 달랐던 해석 2개</b>를 짚는다. 기획력 학습의 핵심 지점이다.<br>
+      <b>스택 비교표의 그 주 행을 채운다.</b> 이걸 안 하면 훈련의 절반이 사라진다.<br>
+      다음 주제와 스택 카드를 공개하고, 각자 옵션을 고른다. 커피를 정한다.
+    </div>
+  </div>
+</div>
+
+<!-- ══ 운영 규칙 ══ -->
+<div class="band" id="rules">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">운영</div>
+      <h2>규칙은 일곱 개.</h2>
+    </div>
+    <div class="rows">
+      <div><div class="k">미완성 발표 &gt; 불참</div><div class="v">못 끝냈으면 "그 주 시간을 어디에 썼는지"를 발표하면 그것도 결과물이다</div></div>
+      <div><div class="k">망한 주도 성공일 수 있다</div><div class="v">스택 때문에 막혔어도 어디서 막혔는지 정확히 말할 수 있으면 그 주는 성공이다</div></div>
+      <div><div class="k">옵션 교체는 화 18:00까지</div><div class="v">수요일 이후 교체는 그 주 미완 처리. 판단을 미루는 습관 방지</div></div>
+      <div><div class="k">결과물 변명 금지</div><div class="v">"시간이 없어서"는 말하지 않는다. 시간은 원래 다르다 — 범위를 줄이는 게 실력</div></div>
+      <div><div class="k">주제 해석은 자유</div><div class="v">비틀어도 되고 다르게 잘라도 된다. 단 "왜 그렇게 잘랐나"는 설명해야 한다</div></div>
+      <div><div class="k">남의 것 베끼기 허용</div><div class="v">출처를 밝히고 무엇을 바꿨는지 말한다</div></div>
+      <div><div class="k">스택 비교표는 자산</div><div class="v">매주 갱신되지 않으면 이 훈련은 그냥 사이트 18개 만들기다</div></div>
+    </div>
+
+    <h4>커피 룰</h4>
+    <figure>
+      <svg viewBox="0 0 980 210" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <rect x="0" y="78" width="176" height="60" rx="16" fill="var(--bg2)"/>
+        <text x="88" y="105" text-anchor="middle" font-size="17" font-weight="600" fill="var(--ink)">금 09:00</text>
+        <text x="88" y="124" text-anchor="middle" font-size="13" fill="var(--ink3)">제출 마감</text>
+
+        <path d="M188,108 L226,108" stroke="var(--ink3)" stroke-width="2"/>
+        <path d="M220,102 L228,108 L220,114" fill="var(--ink3)"/>
+
+        <path d="M330,66 L410,108 L330,150 L250,108 Z" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <text x="330" y="100" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)">미제출자</text>
+        <text x="330" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="var(--ink)">있나?</text>
+
+        <path d="M330,60 L330,26 L520,26" fill="none" stroke="var(--rose)" stroke-width="2"/>
+        <path d="M514,20 L522,26 L514,32" fill="var(--rose)"/>
+        <text x="370" y="18" font-size="13" font-weight="600" fill="var(--rose)">있음</text>
+
+        <path d="M330,156 L330,190 L520,190" fill="none" stroke="var(--green)" stroke-width="2"/>
+        <path d="M514,184 L522,190 L514,196" fill="var(--green)"/>
+        <text x="370" y="182" font-size="13" font-weight="600" fill="var(--green)">전원 제출</text>
+
+        <rect x="528" y="0" width="452" height="56" rx="16" fill="var(--rose)" opacity=".1"/>
+        <text x="556" y="26" font-size="19" font-weight="600" fill="var(--rose)" letter-spacing="-.3">안 낸 사람이 그 주 커피를 산다</text>
+        <text x="556" y="46" font-size="13" fill="var(--ink2)">미완성이라도 낸 사람은 면제 — 기준은 완성도가 아니라 제출 여부</text>
+
+        <rect x="528" y="162" width="452" height="56" rx="16" fill="var(--green)" opacity=".1"/>
+        <text x="556" y="188" font-size="19" font-weight="600" fill="var(--green)" letter-spacing="-.3">리더가 기분 좋게 산다</text>
+        <text x="556" y="208" font-size="13" fill="var(--ink2)">전원 완주 주간은 시즌 기록으로 남긴다</text>
+      </svg>
+      <figcaption>벌칙이 아니라 리듬 장치다. 금요일 09시가 지나면 이미 결정되어 있다.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<!-- ══ PART 3 ══ -->
+<div class="part">
+  <div class="k">Part Three</div>
+  <h2>레퍼런스</h2>
+  <p class="lead">필요할 때 펼쳐보는 부분입니다.</p>
+</div>
+
+<!-- ══ 캘린더 ══ -->
+<div class="band" id="cal">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">시즌 캘린더</div>
+      <h2>21주, 18 스프린트.</h2>
+      <p class="lead">월요일 착수 → 금요일 데모데이. US 연방 공휴일 기준.</p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 980 128" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,system-ui,sans-serif">
+        <g font-size="13" font-weight="600" fill="var(--ink3)" letter-spacing=".1em">
+          <text x="0" y="13">AUG</text><text x="196" y="13">SEP</text><text x="392" y="13">OCT</text>
+          <text x="588" y="13">NOV</text><text x="784" y="13">DEC</text>
+        </g>
+        <g>
+          <rect x="0"   y="30" width="184" height="10" rx="5" fill="var(--acc)"/>
+          <rect x="196" y="30" width="184" height="10" rx="5" fill="var(--green)"/>
+          <rect x="392" y="30" width="184" height="10" rx="5" fill="var(--blue)"/>
+          <rect x="588" y="30" width="392" height="10" rx="5" fill="var(--amber)"/>
+        </g>
+        <g font-size="13" font-weight="600" fill="var(--ink)">
+          <text x="0" y="62">Phase 1</text><text x="196" y="62">Phase 2</text>
+          <text x="392" y="62">Phase 3</text><text x="588" y="62">Phase 4</text>
+        </g>
+        <g font-size="13" fill="var(--ink3)">
+          <text x="0" y="82">저장과 배포</text><text x="196" y="82">데이터 파이프라인</text>
+          <text x="392" y="82">자동화와 연결</text><text x="588" y="82">심화와 비교</text>
+        </g>
+        <g font-size="13" fill="var(--ink3)">
+          <line x1="352" y1="98" x2="352" y2="112" stroke="var(--ink3)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text x="360" y="112">미드시즌 브레이크</text>
+          <line x1="712" y1="98" x2="712" y2="112" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text x="704" y="112" fill="var(--rose)" text-anchor="end">Thanksgiving</text>
+          <line x1="908" y1="98" x2="908" y2="112" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text x="900" y="112" fill="var(--rose)" text-anchor="end">Christmas</text>
+        </g>
+      </svg>
+      <figcaption>18 스프린트 · 미드시즌 브레이크 1주 · 휴식 2주</figcaption>
+    </figure>
+
+    <div class="months">
+      <div class="mo"><div class="mh"><span class="me">AUG</span><span class="mk">8월</span></div><div class="mw">
+        <div class="wc hot"><div class="wtop"><span class="ws">S01</span><span class="wd">3–7</span></div><div class="wt">팀 갤러리 구축</div><div class="wk2">배포 / 호스팅</div></div>
+        <div class="wc hot"><div class="wtop"><span class="ws">S02</span><span class="wd">10–14</span></div><div class="wt">ASIN 스크랩북</div><div class="wk2">데이터 저장</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S03</span><span class="wd">17–21</span></div><div class="wt">팀 아이디어 보드</div><div class="wk2">인증</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S04</span><span class="wd">24–28</span></div><div class="wt">경쟁사 가격 수집기</div><div class="wk2">크롤링</div></div>
+        <div class="wc mg"><div class="wtop"><span class="ws">S05</span><span class="wd">31–9/4</span></div><div class="wt">제품 카탈로그</div><div class="wk2">Postgres 심화</div></div>
+      </div></div>
+      <div class="mo"><div class="mh"><span class="me">SEP</span><span class="mk">9월</span></div><div class="mw">
+        <div class="wc sh"><div class="wtop"><span class="ws">S06</span><span class="wd">8–11</span></div><div class="wt">리뷰 분석기</div><div class="wk2">Claude 호출 경로</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S07</span><span class="wd">14–18</span></div><div class="wt">영수증 정리기</div><div class="wk2">스토리지 + OCR</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S08</span><span class="wd">21–25</span></div><div class="wt">실시간 재고 보드</div><div class="wk2">실시간</div></div>
+        <div class="wc rest"><div class="wtop"><span class="ws">—</span><span class="wd">28–10/2</span></div><div class="wt">미드시즌 브레이크</div><div class="wk2">회고 · 갤러리 v2</div></div>
+      </div></div>
+      <div class="mo"><div class="mh"><span class="me">OCT</span><span class="mk">10월</span></div><div class="mw">
+        <div class="wc mg"><div class="wtop"><span class="ws">S09</span><span class="wd">5–9</span></div><div class="wt">매일 아침 가격 알림</div><div class="wk2">서버리스 + 크론</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S10</span><span class="wd">12–16</span></div><div class="wt">사내 지식 검색</div><div class="wk2">검색</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S11</span><span class="wd">19–23</span></div><div class="wt">CS 문의 트리아지</div><div class="wk2">큐 / 웹훅</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S12</span><span class="wd">26–30</span></div><div class="wt">알림 허브</div><div class="wk2">알림 채널</div></div>
+      </div></div>
+      <div class="mo"><div class="mh"><span class="me">NOV</span><span class="mk">11월</span></div><div class="mw">
+        <div class="wc mg"><div class="wtop"><span class="ws">S13</span><span class="wd">2–6</span></div><div class="wt">제품 매뉴얼 Q&amp;A</div><div class="wk2">벡터DB + RAG</div></div>
+        <div class="wc sh"><div class="wtop"><span class="ws">S14</span><span class="wd">9–13</span></div><div class="wt">KPI 대시보드</div><div class="wk2">시각화 / BI</div></div>
+        <div class="wc "><div class="wtop"><span class="ws">S15</span><span class="wd">16–20</span></div><div class="wt">느린 화면 살리기</div><div class="wk2">캐시 / 성능</div></div>
+        <div class="wc rest"><div class="wtop"><span class="ws">—</span><span class="wd">23–27</span></div><div class="wt">휴식</div><div class="wk2">Thanksgiving</div></div>
+      </div></div>
+      <div class="mo"><div class="mh"><span class="me">DEC</span><span class="mk">12월</span></div><div class="mw">
+        <div class="wc "><div class="wtop"><span class="ws">S16</span><span class="wd">11/30–12/4</span></div><div class="wt">사용자 행동 추적</div><div class="wk2">분석 / 관측</div></div>
+        <div class="wc mg"><div class="wtop"><span class="ws">S17</span><span class="wd">7–11</span></div><div class="wt">같은 앱, 두 스택</div><div class="wk2">Postgres vs Firebase</div></div>
+        <div class="wc hot"><div class="wtop"><span class="ws">S18</span><span class="wd">14–18</span></div><div class="wt">리메이크</div><div class="wk2">시즌 파이널</div></div>
+        <div class="wc rest"><div class="wtop"><span class="ws">—</span><span class="wd">21–25</span></div><div class="wt">휴식</div><div class="wk2">Christmas</div></div>
+      </div></div>
+      </div>
+
+    <h4>US 공휴일</h4>
+    <div class="tw"><table>
+      <thead><tr><th>공휴일</th><th>날짜</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Thanksgiving</strong></td><td>11/26 (목)</td><td>주 전체 휴식 — 데모 없음</td></tr>
+        <tr><td><strong>Christmas</strong></td><td>12/25 (금)</td><td>주 전체 휴식 — 시즌 종료</td></tr>
+        <tr><td>Labor Day</td><td>9/7 (월)</td><td>S06 기획일이 공휴일 — 기획을 화요일로, 이후 하루씩 압축</td></tr>
+        <tr><td>Veterans Day</td><td>11/11 (수)</td><td>S14 구현일 하루 손실 — 기능을 더 줄인다</td></tr>
+        <tr><td>Columbus Day</td><td>10/12 (월)</td><td>사내 근무일 — 정상 진행</td></tr>
+      </tbody>
+    </table></div>
+    <p class="small">개인 PTO는 미드시즌 브레이크 주(9/28–10/2)에 몰아 쓰는 것을 권장한다.</p>
+  </div>
+</div>
+
+<!-- ══ 제출 인프라 ══ -->
+<div class="band alt" id="infra">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">제출 인프라</div>
+      <h2>갤러리가 생기면<br>제출이 시작됩니다.</h2>
+      <p class="lead">S01에서 갤러리를 만들고, 그다음 주부터 매주 거기에 쌓입니다. 갤러리보다 먼저 제출 규칙을 만들지 않습니다.</p>
+    </div>
+
+    <div class="steps">
+      <div>
+        <h4>시즌 시작 전 · 진행자</h4>
+        <p>Google Sheet 한 장을 만든다. 탭 두 개 — <b>레지스트리</b>와 <b>스택 비교표</b>. 아직 제출은 없다. 이 시트는 <b>S01에서 만들 갤러리가 읽을 데이터 소스</b>다. 팀원이 화면을 만들어볼 수 있게 <b>더미 3줄</b>을 미리 채워둔다. CSV로 게시.</p>
+        <div class="chips">
+          <span class="chip">스프린트</span><span class="chip">만든 사람</span><span class="chip">제목</span><span class="chip">URL</span>
+          <span class="chip">스택 카드</span><span class="chip">내 옵션</span><span class="chip">한 줄 소개</span>
+        </div>
+      </div>
+      <div>
+        <h4>S01 · 갤러리를 만든다</h4>
+        <p>각자 다른 호스팅으로 갤러리를 만든다. 이 주의 제출물은 갤러리 자체다. 데모데이에서 <b>하나를 팀 공식으로 채택</b>하고, 만든 사람이 관리자가 된다. 채택 안 된 것들은 버리지 않고 <b>갤러리의 첫 등록 항목</b>이 된다.</p>
+      </div>
+      <div>
+        <h4>폴더 규약 — 문서는 늘 같은 자리에</h4>
+        <p>갤러리는 <b>사이트 URL 하나만</b> 받는다. 기획서와 스택 리포트는 정해진 경로에 두고, 갤러리가 <code>URL + /docs/plan.html</code>로 링크를 조립한다. 그래서 <b>레지스트리에 링크 열이 없다.</b></p>
+        <div class="ex" style="margin-top:16px">
+          <div class="eh">매주 새 저장소 구조</div>
+          <div class="er"><span class="ek">CLAUDE.md</span><span class="ev">팀 템플릿 복사 후 맨 위 6칸만 채움</span></div>
+          <div class="er"><span class="ek">SPIKE.md</span><span class="ev">화요일 스파이크 기록</span></div>
+          <div class="er"><span class="ek">public/docs/<br>plan.html</span><span class="ev">1페이지 기획서 → <code>사이트URL/docs/plan.html</code></span></div>
+          <div class="er"><span class="ek">public/docs/<br>report.html</span><span class="ev">스택 리포트 → <code>사이트URL/docs/report.html</code></span></div>
+        </div>
+        <p class="small" style="margin-top:14px">두 HTML은 <b>팀 템플릿을 복사해서 쓴다.</b> 레이아웃과 CSS를 건드리지 않는다 — 18주 내내 같은 모양이어야 서로 비교가 된다. Astro·SvelteKit이면 <code>static/docs/</code>. 무엇을 쓰든 배포 후 <code>/docs/plan.html</code>이 열리면 맞다.</p>
+      </div>
+      <div>
+        <h4>S02부터 · 매주 한 줄</h4>
+        <p>금 09:00 제출은 <b>레지스트리에 한 줄 추가</b>하는 것. 손으로 옮겨 적지 않는다 — <b>report.html 하단의 복사 버튼</b>이 이 페이지의 값을 읽어 탭 구분 한 줄을 클립보드에 넣는다. 시트 맨 아랫줄에 붙여넣으면 열이 자동으로 나뉜다. 비교표 한 줄도 같은 방식.</p>
+      </div>
+      <div>
+        <h4>미드시즌 브레이크 · 선택</h4>
+        <p>갤러리 v2 — 스택별 필터, 스크린샷, 시즌 통계. 그때쯤이면 30~40개가 쌓여 있어 만들 이유가 충분하다.</p>
+      </div>
+    </div>
+
+    <div class="pull">
+      레지스트리 도구는 바꿔도 된다 (Monday · Notion 등). 다만 <b>갤러리가 자동으로 읽을 수 있는 형태</b>여야 하고, <b>제출이 30초 안에 끝나야</b> 한다. 제출이 번거로우면 3주 뒤 아무도 안 올린다.
+    </div>
+  </div>
+</div>
+
+<!-- ══ 18 스프린트 ══ -->
+<div class="band" id="sprints">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">주제 뱅크</div>
+      <h2>18 스프린트.</h2>
+      <p class="lead">클릭하면 펼쳐집니다. 그 주가 되면 해당 항목만 펼쳐 보면 됩니다.</p>
+    </div>
+
+    <div class="pull">
+      <span class="k">카드 읽는 법</span>
+      각 스프린트에는 스택 카드 1개와 선택지 4개가 붙는다. <b>다 쓰는 게 아니라 그중 1개를 고른다</b> — 팀원끼리 서로 다르게 고르길 추천한다. 그래야 금요일에 같은 요구사항에 대한 네 가지 답이 모인다. 겹치면 진행자가 가볍게 조율하고, 굳이 겹쳐 쓰고 싶은 이유가 있으면 그것도 괜찮다.<br><br>
+      통합 주(S05 · S09 · S13 · S17)는 선택지가 하나다. 전원 같은 스택으로 깊게 판다.
+    </div>
+
+    <div class="phase">Phase 1 · 저장과 배포의 기본</div>
+    <div class="acc">
+      <details class="sp">
+        <summary><span class="sid">S01</span><span class="snm">팀 갤러리</span><span class="scd">배포 / 호스팅</span><span class="sgl">등록된 카드가 보이고 시트 추가가 반영된다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">우리가 만든 사이트를 모아 보여주는 페이지. <b>1주차 결과물이 곧 시즌 인프라가 된다.</b></div></div>
+          <div><div class="k">골</div><div class="v">팀원 누구나 URL을 열면 <b>등록된 사이트 카드가 보이고</b>, 시트에 한 줄 추가한 게 새로고침으로 반영된다.<br><span class="small">데모에서 말할 것 — "내 호스팅은 배포에 __분 걸렸고 첫 로딩이 __초다"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Vercel</span><span class="chip on">Netlify</span><span class="chip on">Cloudflare Pages</span><span class="chip on">Render</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>넷 다 웹 호스팅이다. DB 서버가 아니다</b> (DB는 S02). Vercel·Netlify는 요청이 올 때만 깨어나는 서버리스, Cloudflare는 전 세계 엣지 실행, <b>Render만 상시 실행 컨테이너와 관리형 Postgres</b>를 제공한다 — 대신 무료 플랜은 15분 놀면 잠들어 첫 요청이 느리다.</div></div>
+          <div><div class="k">제약</div><div class="v">레지스트리에 행을 추가하면 사이트에 반영돼야 함. 카드 목록 하나만 뜨면 완료 — 필터·검색·스크린샷은 "안 만드는 것 3개"에 넣는다.</div></div>
+          <div><div class="k">채택</div><div class="v">데모데이에서 <b>하나를 팀 공식 갤러리로 채택.</b> 만든 사람이 관리자가 되고, 채택 안 된 것들은 갤러리의 첫 등록 항목이 된다.</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S02</span><span class="snm">ASIN 스크랩북<span class="tagm h">핵심</span></span><span class="scd">데이터 저장</span><span class="sgl">제품 3개 저장 + 태그 2개씩 + 태그로 필터</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">관심 제품을 저장·태그·메모하는 개인 리서치 노트. 관계형과 문서형의 체감 차이</div></div>
+          <div><div class="k">골</div><div class="v">제품 3개를 저장하고 각각에 <b>태그를 2개씩 붙인 뒤, 태그로 걸러 보는 것</b>까지 된다.<br><span class="small">데모에서 말할 것 — "내 저장소에서 다대다 태그를 어떻게 표현했나"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase</span><span class="chip on">Firestore</span><span class="chip on">Airtable 백엔드</span><span class="chip on">localStorage</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">Supabase는 <b>관계형</b>(표·행·JOIN, SQL). Firestore는 <b>문서형</b>(JSON 덩어리를 그대로, 스키마 없음). Airtable은 <b>스프레드시트를 DB처럼</b> 쓰는 것. localStorage는 <b>서버 없이 브라우저 안에만</b> — 다른 기기에선 안 보인다. <b>태그(다대다)를 붙이는 순간 넷의 차이가 확 벌어진다.</b></div></div>
+          <div><div class="k">제약</div><div class="v">로그인 없이 동작. 인증에 시간 쓰지 않기</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S03</span><span class="snm">팀 아이디어 보드</span><span class="scd">인증</span><span class="sgl">두 사람이 로그인해 올리고 투표한 결과가 보인다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">아이디어를 올리고 팀이 투표하는 보드. 인증이 데이터 모델에 미치는 영향</div></div>
+          <div><div class="k">골</div><div class="v"><b>두 사람이 각자 로그인해</b> 아이디어를 올리고 서로에게 투표한 결과가 보인다.<br><span class="small">데모에서 말할 것 — "로그인 붙이는 데 __분, 남의 글은 못 지우게 막은 방법"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase Auth</span><span class="chip on">Firebase Auth</span><span class="chip on">Clerk</span><span class="chip on">Auth.js</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">앞의 셋은 <b>로그인 기능을 통째로 빌리는 것</b> — 가입·비번찾기·소셜로그인 화면까지 준다. Supabase·Firebase Auth는 <b>같은 회사 DB와 권한이 자동 연결</b>되는 게 강점. Clerk은 UI 완성도가 가장 높지만 유료 전환이 빠르다. Auth.js는 <b>직접 조립</b>하는 라이브러리.</div></div>
+          <div><div class="k">제약</div><div class="v">입력 필드 3개 이하</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S04</span><span class="snm">경쟁사 가격 수집기</span><span class="scd">크롤링</span><span class="sgl">URL 3개에서 제품명·가격이 실제로 채워진다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">URL을 넣으면 가격과 별점을 수집해 표로 쌓는다. 차단, 렌더링, 유지보수 비용</div></div>
+          <div><div class="k">골</div><div class="v">URL 3개를 넣어 <b>제품명·가격이 표에 실제로 채워진다.</b> 하드코딩은 미완.<br><span class="small">데모에서 말할 것 — "차단당했나? 당했다면 어떻게 넘겼나, 못 넘겼으면 어디서 막혔나"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Playwright</span><span class="chip on">Firecrawl</span><span class="chip on">fetch + cheerio</span><span class="chip on">Apify</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">fetch+cheerio는 <b>HTML만 받아서 파싱</b> — 제일 가볍지만 JS로 그려지는 페이지는 못 읽는다. Playwright는 <b>진짜 브라우저를 띄워</b> 사람처럼 본다. Firecrawl·Apify는 <b>크롤링 대행 서비스</b> — 차단 우회와 프록시까지 해주고 대신 돈을 낸다.</div></div>
+          <div><div class="k">제약</div><div class="v">최소 3개 URL이 실제로 수집돼야 함</div></div>
+        </div></div>
+      </details>
+    </div>
+
+    <div class="phase">Phase 2 · 데이터 파이프라인</div>
+    <div class="acc">
+      <details class="sp">
+        <summary><span class="sid">S05</span><span class="snm">제품 카탈로그<span class="tagm">통합</span></span><span class="scd">Postgres 심화</span><span class="sgl">테이블 3개 + JOIN 화면 + RLS로 가려진 행</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">제품–옵션–호환기기가 연결된 카탈로그. 전원 Postgres로 관계 모델링 심화</div></div>
+          <div><div class="k">골</div><div class="v">테이블 3개가 관계로 이어지고, <b>한 화면에서 JOIN된 결과</b>가 보이며, <b>남의 계정으로는 안 보이는 행</b>이 하나 있다.<br><span class="small">데모에서 말할 것 — 자기 스키마 그림을 30초에 설명</span></div></div>
+          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Postgres · 3테이블 + JOIN 1회 + RLS 1개</span></span> 전원 동일</div></div>
+          <div><div class="k">구분</div><div class="v">관계형 DB의 본체. 표를 여러 개 만들고 <b>JOIN으로 이어 붙인다.</b> <b>RLS</b>는 "이 행은 이 사람만 볼 수 있다"를 DB 자체에 박아두는 기능 — 앱 코드에서 권한 체크를 안 해도 된다. <b>View</b>는 자주 쓰는 조회를 미리 저장해둔 가상 테이블.</div></div>
+          <div><div class="k">제약</div><div class="v">한 화면에서 두 테이블 데이터가 함께. 랩업에서 스키마 4개를 나란히 비교</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S06</span><span class="snm">리뷰 분석기</span><span class="scd">Claude 호출 경로</span><span class="sgl">리뷰 10개 → JSON 거쳐 5줄 요약 · 키 노출 없음</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">리뷰를 붙여넣으면 긍·부정 요인과 페인포인트. LLM을 <b>인프라로</b> 다루기. 모델은 Claude 고정, 부르는 경로가 변수</div></div>
+          <div><div class="k">골</div><div class="v">리뷰 10개를 붙여넣으면 <b>5줄 요약이 JSON을 거쳐</b> 화면에 뜬다. 개발자도구 네트워크 탭에 <b>API 키가 안 보인다.</b><br><span class="small">데모에서 말할 것 — "1천 건 돌리면 얼마"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Anthropic SDK 직접</span><span class="chip on">Vercel AI SDK + Zod</span><span class="chip on">Amazon Bedrock</span><span class="chip on">서버리스 래핑</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">모델은 넷 다 같은 Claude다. <b>어디서 부르느냐</b>가 다르다. Anthropic SDK는 가장 직접적. Vercel AI SDK는 <b>스트리밍과 타입 검증을 대신</b> 처리해준다. Bedrock은 AWS 계정으로 청구와 리전을 관리하는 기업용 경로. 서버리스 래핑은 <b>API 키를 브라우저에서 숨기려고</b> 함수 뒤에 두는 방식 — 나머지 셋도 결국 이걸 해야 한다.</div></div>
+          <div><div class="k">제약</div><div class="v">결과 5줄 이내. 구조화 JSON을 거쳐 렌더링. API 키가 브라우저에 노출되면 미완</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S07</span><span class="snm">영수증 정리기</span><span class="scd">스토리지 + OCR</span><span class="sgl">사진 3장 → 날짜·금액이 표에 채워진다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">영수증 이미지를 올리면 날짜·금액·항목 표로 정리</div></div>
+          <div><div class="k">골</div><div class="v">영수증 사진 3장을 올리면 <b>날짜와 금액이 표에 채워지고</b>, 틀린 건 손으로 고칠 수 있다.<br><span class="small">데모에서 말할 것 — "3장 중 몇 개를 제대로 읽었나" 정확도를 숫자로</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase + Vision</span><span class="chip on">Firebase + Tesseract</span><span class="chip on">R2 + Cloudinary</span><span class="chip on">S3 자체</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">스토리지는 <b>파일 자체를 보관하는 곳</b> — DB에는 파일이 아니라 <b>URL만</b> 저장한다. OCR은 <b>이미지에서 글자를 뽑는 것.</b> Vision API·Cloudinary는 유료라 정확도가 높고, Tesseract는 <b>무료 오픈소스</b>지만 흐린 이미지엔 약하다. R2는 <b>전송료가 무료</b>인 게 특징.</div></div>
+          <div><div class="k">제약</div><div class="v">업로드 후 사람 손이 3번 이하</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S08</span><span class="snm">실시간 재고 보드</span><span class="scd">실시간</span><span class="sgl">두 탭에서 __초 안에 동시 반영</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">여러 사람이 동시에 보는데 값이 바뀌면 즉시 반영. 연결 관리, 충돌, 비용</div></div>
+          <div><div class="k">골</div><div class="v">탭 두 개를 나란히 띄우고 <b>한쪽에서 값을 바꾸면 다른 쪽이 __초 안에 바뀐다.</b><br><span class="small">데모에서 말할 것 — 그 지연 시간과 "폴링으로도 됐을까"에 대한 내 답</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Firestore 리스너</span><span class="chip on">Supabase Realtime</span><span class="chip on">WebSocket</span><span class="chip on">폴링</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>폴링</b>은 몇 초마다 "바뀐 거 있어?" 물어보는 것 — 제일 단순하고 대부분 이걸로 충분하다. <b>WebSocket</b>은 연결을 계속 열어두고 <b>서버가 먼저 알려준다.</b> Firestore·Supabase Realtime은 그 WebSocket을 <b>DB가 알아서 해주는 것.</b></div></div>
+          <div><div class="k">제약</div><div class="v">두 탭에서 동시 반영이 시연돼야 함</div></div>
+        </div></div>
+      </details>
+    </div>
+
+    <div class="phase">Phase 3 · 자동화와 연결</div>
+    <div class="acc">
+      <details class="sp">
+        <summary><span class="sid">S09</span><span class="snm">매일 아침 가격 알림<span class="tagm">통합</span></span><span class="scd">서버리스 + 크론</span><span class="sgl">이틀 연속 자동 실행 로그</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">정해진 시각에 자동 실행. 사람이 안 눌러도 도는 시스템</div></div>
+          <div><div class="k">골</div><div class="v">내가 아무것도 안 눌러도 <b>이틀 연속 자동 실행된 로그</b>가 남아 있다.<br><span class="small">데모에서 말할 것 — "로컬에선 됐는데 서버에서 깨진 것 하나"</span></div></div>
+          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase Edge + pg_cron</span><span class="chip on">Vercel Cron</span></span> 둘 중 하나를 팀 합의로 확정</div></div>
+          <div><div class="k">구분</div><div class="v"><b>서버리스 함수</b>는 평소엔 꺼져 있다가 호출될 때만 켜지는 코드 조각. <b>크론</b>은 정해진 시각에 그걸 자동으로 호출해주는 알람시계. 둘을 합치면 <b>사람이 안 눌러도 매일 도는 시스템</b>이 된다. 로컬에선 되던 게 서버에선 안 되는 이유(환경변수·타임존·실행 시간 제한)를 여기서 처음 만난다.</div></div>
+          <div><div class="k">제약</div><div class="v">자동 실행 로그 2회 이상</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S10</span><span class="snm">사내 지식 검색</span><span class="scd">검색</span><span class="sgl">오타 섞인 검색어로도 상위 3개 안에</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">문서와 FAQ를 넣고 검색되게. 오타, 한국어 형태소, 랭킹</div></div>
+          <div><div class="k">골</div><div class="v">문서 20개를 넣고, <b>오타가 섞인 검색어로도 원하는 문서가 상위 3개 안에</b> 나온다.<br><span class="small">데모에서 말할 것 — "한국어 처리에서 막힌 지점"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Postgres FTS</span><span class="chip on">Algolia</span><span class="chip on">Meilisearch</span><span class="chip on">Fuse.js</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>Postgres FTS</b>는 DB가 원래 갖고 있는 검색 기능 — 공짜지만 한국어는 별도 설정이 필요하다. <b>Algolia·Meilisearch</b>는 검색 전용 서버로 오타 교정과 랭킹이 기본 탑재. <b>Fuse.js</b>는 서버 없이 <b>브라우저에서</b> 돌리는 것 — 데이터가 적을 때만 가능.</div></div>
+          <div><div class="k">제약</div><div class="v">검색창 1개, 필터 없음. 랭킹으로만 해결</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S11</span><span class="snm">CS 문의 트리아지</span><span class="scd">백그라운드 잡</span><span class="sgl">화면은 즉시 응답, 분류는 나중에 채워짐</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">문의가 들어오면 자동 분류와 답변 초안. 느린 작업을 요청에서 떼어내기</div></div>
+          <div><div class="k">골</div><div class="v">문의를 넣으면 <b>화면은 즉시 응답</b>하고, 잠시 뒤 분류와 답변 초안이 채워진다. <b>일부러 실패시킨 건</b>이 재시도되거나 실패 표시로 남는다.<br><span class="small">데모에서 말할 것 — "이걸 n8n으로 했으면 몇 분이었을까"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Upstash QStash</span><span class="chip on">Inngest</span><span class="chip on">Cloud Tasks</span><span class="chip on">n8n / Make</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">버튼을 눌렀는데 <b>10초 걸리는 일을 그 자리에서 하면 화면이 멈춘다.</b> 그래서 일감을 큐에 던져두고 화면은 먼저 응답하는 구조가 필요하다. QStash·Inngest·Cloud Tasks가 그 <b>큐</b> 역할이고 실패 시 자동 재시도까지 해준다. n8n·Make는 <b>코드 대신 노드를 이어 붙여</b> 같은 걸 만드는 노코드 도구.</div></div>
+          <div><div class="k">제약</div><div class="v">오분류와 애매한 케이스도 화면에 표시</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S12</span><span class="snm">알림 허브</span><span class="scd">알림 채널</span><span class="sgl">옆자리 팀원에게 실제로 도착한 걸 보여준다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">조건이 충족되면 사람에게 도달하는 알림. 마지막 1cm</div></div>
+          <div><div class="k">골</div><div class="v">옆자리 팀원 휴대폰이나 슬랙에 <b>실제로 알림이 도착한 걸 데모에서 보여준다.</b> "보냈습니다" 로그만으로는 미완.<br><span class="small">데모에서 말할 것 — 도메인 인증과 심사 등 셋업에서 걸린 시간</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Resend</span><span class="chip on">Slack Webhook</span><span class="chip on">알림톡 / Twilio</span><span class="chip on">웹 푸시(FCM)</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>Resend</b>는 이메일 발송 API — 도메인 인증을 해야 스팸함에 안 들어간다. <b>Slack Webhook</b>은 URL 하나에 POST만 하면 끝, 가장 쉽다. <b>Twilio·알림톡</b>은 도달률은 최고지만 사업자 등록과 템플릿 심사가 필요하다. <b>웹 푸시</b>는 사용자가 허용을 눌러야만 간다.</div></div>
+          <div><div class="k">제약</div><div class="v">실제로 팀원 1명에게 도달한 증거</div></div>
+        </div></div>
+      </details>
+    </div>
+
+    <div class="phase">Phase 4 · 심화와 비교</div>
+    <div class="acc">
+      <details class="sp">
+        <summary><span class="sid">S13</span><span class="snm">제품 매뉴얼 Q&amp;A<span class="tagm">통합</span></span><span class="scd">벡터DB + RAG</span><span class="sgl">있는 질문 3개는 출처와 함께, 없는 1개는 "모른다"</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">문서를 넣고 자연어로 물으면 근거와 함께 답한다. 임베딩, 청킹, 유사도</div></div>
+          <div><div class="k">골</div><div class="v"><b>문서에 있는 질문 3개와 문서에 없는 질문 1개</b>를 던져서, 앞의 셋은 출처와 함께 답하고 마지막은 <b>"모른다"고 답한다.</b><br><span class="small">데모에서 말할 것 — "청킹을 몇 글자로 잘랐고 왜 그랬나"</span></div></div>
+          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">pgvector</span><span class="chip on">임베딩: Voyage AI</span><span class="chip on">답변: Claude</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>임베딩</b>은 문장을 숫자 배열로 바꾸는 것. 뜻이 비슷하면 숫자도 비슷해진다. <b>pgvector</b>는 그 배열을 Postgres에 저장하고 가장 비슷한 것 찾기를 해준다. <b>청킹</b>은 긴 문서를 몇 글자씩 잘라 넣을지 정하는 것 — <b>여기서 답변 품질이 갈린다.</b> <b>RAG</b>는 비슷한 조각을 먼저 찾아 Claude에게 같이 던져주는 방식.</div></div>
+          <div><div class="k">제약</div><div class="v">답변에 출처 문장 필수. Claude에는 임베딩 API가 없으니 검색용 임베딩은 Voyage AI로 분리</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S14</span><span class="snm">KPI 대시보드</span><span class="scd">시각화 / BI</span><span class="sgl">스크롤 없이 한 화면 · 모바일에서 안 깨짐</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">데이터를 넣으면 팀 KPI 요약이 뜨는 화면. 자유도와 속도의 트레이드오프</div></div>
+          <div><div class="k">골</div><div class="v"><b>한 화면에 스크롤 없이</b> 핵심 지표가 들어가고, 모바일에서도 안 깨진다.<br><span class="small">데모에서 말할 것 — "왜 이 차트를 골랐고, 무엇을 안 넣었나"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Recharts</span><span class="chip on">Chart.js</span><span class="chip on">Observable / D3</span><span class="chip on">Metabase 임베드</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>Recharts·Chart.js</b>는 차트 라이브러리 — 코드로 그린다. Chart.js가 가볍고 Recharts는 React에 잘 붙는다. <b>D3·Observable Plot</b>은 자유도가 제일 높지만 원하는 모양을 직접 그리는 수준이라 어렵다. <b>Metabase</b>는 완제품 도구 — 코드 없이 만들고 끼워 넣는다.</div></div>
+          <div><div class="k">제약</div><div class="v">스크롤 없이 한 화면</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S15</span><span class="snm">느린 화면 살리기</span><span class="scd">캐시 / 성능</span><span class="sgl">개선 전후 ms를 스크린샷 두 장으로</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">1만 건 이상을 다루는 화면을 빠르게. 더미 데이터 허용</div></div>
+          <div><div class="k">골</div><div class="v"><b>개선 전 __ms → 개선 후 __ms</b>를 스크린샷 두 장으로 보여준다. <b>측정이 없으면 미완.</b><br><span class="small">데모에서 말할 것 — "어느 층을 손대서 가장 크게 줄었나"</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Upstash Redis</span><span class="chip on">Next.js ISR</span><span class="chip on">SWR / React Query</span><span class="chip on">인덱스 + 커서</span></span></div></div>
+          <div><div class="k">구분</div><div class="v">느린 이유는 보통 셋 중 하나다 — DB가 느리거나, 같은 걸 매번 다시 계산하거나, 한꺼번에 너무 많이 보내거나. <b>인덱스</b>는 DB에 목차를 다는 것, <b>Redis</b>는 결과를 메모리에 잠깐 저장하는 것, <b>ISR</b>은 페이지를 미리 만들어두는 것, <b>SWR·React Query</b>는 브라우저가 이미 받은 걸 재사용하는 것. <b>넷이 각각 다른 층을 손본다.</b></div></div>
+          <div><div class="k">제약</div><div class="v">개선 전후 응답 시간을 숫자로 제시</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S16</span><span class="snm">사용자 행동 추적</span><span class="scd">분석 / 관측</span><span class="sgl">커스텀 이벤트 3개 기록 + 한 문장 결론</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">내가 만든 사이트를 사람들이 어디서 이탈하는지 본다. 지표 설계</div></div>
+          <div><div class="k">골</div><div class="v">내가 정의한 <b>이벤트 3개가 실제로 기록</b>되고, 그 데이터로 <b>"사람들이 어디서 멈추는지" 한 문장 결론</b>을 낸다.<br><span class="small">데모에서 말할 것 — 그 한 문장</span></div></div>
+          <div><div class="k">선택지</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">PostHog</span><span class="chip on">GA4</span><span class="chip on">Sentry</span><span class="chip on">Vercel Analytics</span></span></div></div>
+          <div><div class="k">구분</div><div class="v"><b>GA4</b>는 방문자 수와 유입 경로 중심으로 마케팅용. <b>PostHog</b>는 사용자가 뭘 눌렀는지 <b>이벤트 단위</b>로 보고 세션 녹화까지 되는 제품용. <b>Sentry</b>는 에러가 났을 때 <b>어디서 터졌는지</b>. <b>Vercel Analytics와 자체 테이블</b>은 내 DB에 직접 쌓는 방식으로 자유롭지만 화면은 직접 만들어야 한다.</div></div>
+          <div><div class="k">제약</div><div class="v">직접 정의한 커스텀 이벤트 3개가 실제로 기록</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S17</span><span class="snm">같은 앱, 두 스택<span class="tagm">통합</span><span class="tagm h">하이라이트</span></span><span class="scd">Postgres vs Firebase</span><span class="sgl">두 URL이 모두 열리고 같은 기능을 한다</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v"><b>아주 작은 앱 하나를 Postgres(Supabase)와 Firebase 양쪽으로 각각 구현</b>한다. 같은 요구사항을 두 패러다임으로 풀어보며 각 스택의 강점이 어디서 나오는지 체감한다.</div></div>
+          <div><div class="k">골</div><div class="v"><b>두 URL이 모두 열리고 같은 기능을 한다.</b> 비교 리포트에 코드 줄 수, 셋업 시간, 막힌 지점이 <b>숫자로</b> 들어 있다.<br><span class="small">데모에서 말할 것 — "어떤 요구사항이면 어느 쪽"을 한 문장 결론으로</span></div></div>
+          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase (Postgres) 버전</span><span class="chip on">Firebase 버전</span></span> 두 벌 모두 배포</div></div>
+          <div><div class="k">구분</div><div class="v">관계형은 <b>데이터를 쪼개 저장하고 읽을 때 합친다</b>(JOIN). 문서형은 <b>읽을 모양 그대로 저장한다</b>(중복을 감수). 그래서 목록과 상세 같은 관계가 많으면 Postgres가, 실시간으로 계속 바뀌는 화면이면 Firebase가 편하다. <b>이걸 남의 말이 아니라 손으로 확인하는 주다.</b></div></div>
+          <div><div class="k">제약</div><div class="v"><b>화면 1개, 기능 1개.</b> 관계형 성격과 실시간 성격을 둘 다 조금 포함. 산출은 두 URL과 비교 리포트 1장. 한 주에 두 벌은 기능을 극단적으로 줄여야만 가능하다.</div></div>
+        </div></div>
+      </details>
+
+      <details class="sp">
+        <summary><span class="sid">S18</span><span class="snm">리메이크<span class="tagm h">파이널</span></span><span class="scd">스택 자유</span><span class="sgl">개선 전후 + 실제 사용자 1명이 쓴 증거</span><span class="arw">›</span></summary>
+        <div class="sbody"><div class="rows">
+          <div><div class="k">미션</div><div class="v">그동안 만든 것 중 1개를 골라 <b>실제로 쓰이는 수준</b>으로 끌어올린다. 스택은 자유 — 단 왜 그 조합을 골랐는지 스택 리포트 18장을 근거로 설명한다.</div></div>
+          <div><div class="k">골</div><div class="v"><b>개선 전후를 나란히 보여주고</b>, 실제 사용자 1명이 <b>이번 주에 그걸 썼다는 증거</b>가 있다.<br><span class="small">데모에서 말할 것 — "18주 리포트를 근거로 이 스택 조합을 고른 이유"</span></div></div>
+          <div><div class="k">제약</div><div class="v"><b>신규 기능 추가 금지.</b> 기존 기능 개선과 삭제만 허용</div></div>
+        </div></div>
+      </details>
+    </div>
+
+    <h4>예비 카드</h4>
+    <div class="chips">
+      <span class="chip">메시지 큐</span><span class="chip">엣지 vs 서버 함수</span><span class="chip">ORM 비교</span>
+      <span class="chip">모노레포 · CI</span><span class="chip">Playwright E2E</span><span class="chip">결제</span>
+      <span class="chip">지도</span><span class="chip">PDF 생성</span><span class="chip">이미지 생성 API</span><span class="chip">MCP 서버 만들기</span>
+    </div>
+    <h4 style="margin-top:32px">예비 주제</h4>
+    <div class="chips">
+      <span class="chip">나를 파는 원페이지</span><span class="chip">점심 결정기</span><span class="chip">계약서 요약기</span>
+      <span class="chip">페어 부스 동선 플래너</span><span class="chip">사내 회의실 예약</span><span class="chip">번역 품질 비교기</span>
+      <span class="chip">제품 사진 배경 교체기</span><span class="chip">팀 스킬 매트릭스</span><span class="chip">컬러 트렌드 무드보드</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 끝 ══ -->
+<div class="band alt" id="end">
+  <div class="inner">
+    <div class="shead">
+      <div class="k">12월 18일</div>
+      <h2>시즌이 끝나면<br>다섯 가지가 남습니다.</h2>
+    </div>
+    <ol class="plain">
+      <li><b>팀 갤러리</b> — S01에 만들어 18주간 채운 사이트. 18 × 인원 개의 링크가 스택별로 필터되어 남는다</li>
+      <li><b>팀 스택 판단표</b> — 카드 14개 × 옵션 4개의 실측 비교. "이 요구사항엔 이 스택"을 근거와 함께 말할 수 있는 문서</li>
+      <li><b>S17 양쪽 구현 비교 리포트</b> — Postgres와 Firebase를 남의 말이 아니라 우리 손으로 검증한 기록</li>
+      <li><b>개인 회고</b> — S01 기획서와 S18 기획서를 나란히 놓고 무엇이 달라졌는지 한 페이지</li>
+      <li><b>시즌 2 설계</b> — 예비 카드에서 다음 14개를 뽑는다</li>
+    </ol>
+
+    <h4>진행자 체크리스트</h4>
+    <div class="rows">
+      <div><div class="k">시즌 시작 전</div><div class="v">레지스트리 시트 생성 — 탭 2개, 컬럼 9개, <b>더미 3줄</b>. 제출 규칙은 아직 없다. S01 갤러리가 읽을 데이터 소스다</div></div>
+      <div><div class="k">금 데모 직후</div><div class="v">다음 주제와 스택 카드 공지. 각자 옵션을 고르게 하고 겹치면 가볍게 조율</div></div>
+      <div><div class="k">화 18:00</div><div class="v">기획서 업로드와 스파이크 결과 확인. 막힌 사람이 있으면 옵션 교체 판단을 도와준다. 늦은 업로드는 재촉하지 않는다</div></div>
+      <div><div class="k">금 09:00</div><div class="v">배포 URL과 스택 리포트 수집. 미제출자 확정</div></div>
+      <div><div class="k">금 데모데이</div><div class="v">타이머를 띄우고 시작. 60분 하드캡. 랩업에서 해석 차이 2개와 스택 비교표 갱신을 반드시</div></div>
+      <div><div class="k">4주마다</div><div class="v">규칙 점검. 제약이 느슨한지 빡빡한지 팀에 직접 묻는다. 통합 주 스택 확정</div></div>
+    </div>
+  </div>
+</div>
+
+<footer>iBD 주간 MVP 바이브 코딩 훈련 · Season 1 · Aug 3 — Dec 18, 2026</footer>
+
+<script>
+(function(){
+  var h=document.documentElement, b=document.getElementById('th');
+  function set(t){ h.setAttribute('data-theme',t); b.textContent = t==='dark' ? '라이트' : '다크'; }
+  b.addEventListener('click',function(){ set(h.getAttribute('data-theme')==='dark'?'light':'dark'); });
+  window.addEventListener('beforeprint',function(){
+    document.querySelectorAll('details').forEach(function(d){ d.dataset.w=d.open?'1':'0'; d.open=true; });
+  });
+  window.addEventListener('afterprint',function(){
+    document.querySelectorAll('details').forEach(function(d){ d.open=d.dataset.w==='1'; });
+  });
+})();
+</script>
+</body>
+</html>

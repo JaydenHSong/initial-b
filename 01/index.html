@@ -77,6 +77,13 @@
     font-size:12px; color:var(--dim); position:relative; z-index:1; }
   .state { color:var(--dim); font-size:15px; padding:56px 0; text-align:center; position:relative; z-index:1;
     background:var(--bg); }
+  footer {
+    border-top:1px solid var(--line); padding:28px 24px 36px; text-align:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim); line-height:2;
+  }
+  footer a { color:var(--dim); text-decoration:none; margin:0 10px; }
+  footer a:hover { color:var(--green); }
+  footer .copy { display:block; font-size:11.5px; opacity:.75; }
   @media (max-width:760px) {
     h1 { font-size:36px; }
     main::before { left:28px; }
@@ -97,6 +104,15 @@
 </header>
 <nav id="nav" hidden></nav>
 <main id="main"><div class="state">불러오는 중…</div></main>
+<footer>
+  <div>
+    <a href="/guide.html">훈련 가이드</a>·
+    <a href="/docs/plan.html">기획서</a>·
+    <a href="/docs/report.html">스택 리포트</a>·
+    <a href="https://github.com/JaydenHSong/initial-b" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <span class="copy">© 2026 iBD · initial-B — Season 1 · 매주 금요일, 시작이 모인다</span>
+</footer>
 <script>
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
 const KEY = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 공개 키
