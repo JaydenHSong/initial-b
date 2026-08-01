@@ -1,5 +1,11 @@
 # S01 스파이크 기록
 
+## v2 구현 중 실측 (08.01 밤) — 목요일 리포트 재료
+
+- **microlink 무료 쿼터는 IP당이라 Vercel 함수에서 부르면 즉사한다** (공유 IP 쿼터가 늘 소진 상태). 캡처 호출을 브라우저로 옮기고 서버는 microlink CDN 이미지를 받아 저장만 하는 구조로 해결.
+- **Supabase Storage 업로드 RLS는 3중이다**: objects INSERT 정책만으론 부족하고, ① buckets SELECT(버킷 조회) ② objects SELECT(INSERT…RETURNING) 정책까지 있어야 403이 풀린다. DB 레벨 시뮬레이션(set role anon)은 통과하는데 API가 거부해서 원인 찾는 데 가장 오래 걸렸다.
+- 프로젝트 개명 시 Vercel 자동 도메인이 재생성돼 이전 도메인이 죽는다. 개명 후 재배포 1회 필요. 최종 도메인: **initialb.vercel.app**
+
 ## 스파이크 2 — 2026-08-01 · URL 드랍 구조 (v2 기획)
 
 > 코드: `spike2/` (버릴 코드) · 배포: https://ibd-s01-spike-steel.vercel.app (버릴 프로젝트, **개인 Hobby 스코프** `jaydenhsongs-projects`)
