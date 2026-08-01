@@ -2,118 +2,174 @@
 <html lang="ko">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>iBD 바이브 코딩 · Season 1</title>
+<title>initial-B — iBD 바이브 코딩</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0c0e13; --panel: #151923; --line: #232936;
-    --text: #e8ecf4; --dim: #8b94a7; --accent: #7aa2ff;
+  :root { --bg:#101418; --panel:#1a2027; --line:#2b333d; --text:#e9edf1; --dim:#8a95a1; --green:#5fd4a2; }
+  * { box-sizing:border-box; margin:0; }
+  html { scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
+  body { background:var(--bg); color:var(--text); font-family:"Pretendard Variable",sans-serif; min-height:100vh; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  header { text-align:center; padding:46px 24px 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.3em; color:var(--dim); }
+  h1 { font-size:46px; font-weight:800; letter-spacing:-.02em; margin:10px 0 8px; }
+  h1 .b { color:var(--green); }
+  .sub { color:var(--dim); font-size:14.5px; }
+  .sub b { color:var(--text); font-weight:600; }
+  form { display:flex; gap:8px; max-width:520px; margin:24px auto 0; padding:0 16px; }
+  input { flex:1; padding:12px 15px; border-radius:10px; border:1px solid var(--line); background:var(--panel);
+    color:var(--text); font-size:14px; outline:none; font-family:inherit; }
+  input:focus { border-color:var(--green); }
+  button { padding:12px 22px; border-radius:10px; border:0; background:var(--green); color:#0c1310;
+    font-weight:800; font-size:14px; cursor:pointer; white-space:nowrap; }
+  button:disabled { opacity:.5; cursor:wait; }
+  #msg { text-align:center; font-size:13px; color:var(--dim); min-height:1.4em; margin-top:10px; }
+  #msg.err { color:#ff8f8f; }
+  /* 스프린트 바로가기 + 스택 필터 */
+  nav {
+    position:sticky; top:0; z-index:10; background:rgba(16,20,24,.92); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line); padding:10px 16px;
+    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
   }
-  * { box-sizing: border-box; margin: 0; }
-  body {
-    background: var(--bg); color: var(--text); min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, sans-serif;
+  .chip {
+    font-family:"IBM Plex Mono",monospace; font-size:12px; padding:5px 13px; border-radius:999px;
+    border:1px solid var(--line); color:var(--dim); cursor:pointer; background:none;
+    font-weight:600; text-decoration:none;
   }
-  header {
-    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-    padding: 28px 32px; border-bottom: 1px solid var(--line);
+  .chip:hover { border-color:var(--green); color:var(--green); }
+  .chip.on { background:var(--green); border-color:var(--green); color:#0c1310; }
+  .chip-sep { width:1px; background:var(--line); margin:2px 4px; }
+  /* 타임라인 */
+  main { max-width:980px; margin:36px auto 90px; position:relative; padding:0 24px; }
+  main::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px;
+    background:linear-gradient(var(--green), var(--line)); transform:translateX(-50%); }
+  .node { position:relative; text-align:center; margin:34px 0 22px; scroll-margin-top:70px; }
+  .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
+    font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
+  .node .label { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dim);
+    letter-spacing:.14em; margin-top:8px; }
+  .entry {
+    width:calc(50% - 44px); background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    overflow:hidden; cursor:pointer; position:relative; margin-bottom:20px; transition:border-color .15s;
   }
-  h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
-  h1 small { color: var(--dim); font-weight: 500; font-size: 14px; margin-left: 10px; }
-  #dropform { display: flex; gap: 8px; margin-left: auto; flex: 1 1 320px; max-width: 520px; }
-  #dropform input {
-    flex: 1; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--text); font-size: 14px; outline: none;
-  }
-  #dropform input:focus { border-color: var(--accent); }
-  #dropform button {
-    padding: 11px 18px; border-radius: 10px; border: 0; background: var(--accent);
-    color: #0b1020; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap;
-  }
-  #dropform button:disabled { opacity: .5; cursor: wait; }
-  #msg { width: 100%; font-size: 13px; color: var(--dim); min-height: 1em; }
-  #msg.err { color: #ff8f8f; }
-  main { padding: 28px 32px 64px; max-width: 1200px; margin: 0 auto; }
-  .sprint-label {
-    font-size: 15px; font-weight: 700; color: var(--dim);
-    margin: 34px 0 14px; letter-spacing: .06em;
-  }
-  .sprint-label:first-child { margin-top: 0; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-  .card {
-    display: block; background: var(--panel); border: 1px solid var(--line);
-    border-radius: 14px; padding: 20px; color: inherit; cursor: pointer;
-    transition: border-color .15s, transform .15s;
-  }
-  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .card h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 6px; }
-  .card .who { color: var(--dim); font-size: 13px; margin-bottom: 10px; }
-  .badge {
-    display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px;
-    border-radius: 999px; background: rgba(122,162,255,.14); color: var(--accent);
-    margin-bottom: 10px;
-  }
-  .badge.none { background: rgba(139,148,167,.14); color: var(--dim); font-weight: 500; }
-  .card p { font-size: 13.5px; color: var(--dim); line-height: 1.5; min-height: 2.6em; }
-  .doclinks { margin-top: 12px; font-size: 12.5px; }
-  .doclinks a { color: var(--dim); text-decoration: none; margin-right: 12px; }
-  .doclinks a:hover { color: var(--accent); }
-  .state { color: var(--dim); font-size: 15px; padding: 48px 0; text-align: center; }
-  .state a { color: var(--accent); }
-  @media (max-width: 640px) {
-    header { padding: 20px 16px; } main { padding: 20px 16px 48px; }
-    .grid { grid-template-columns: 1fr; }
+  .entry:hover { border-color:var(--green); }
+  .entry.l { margin-right:auto; } .entry.r { margin-left:auto; }
+  .entry::after { content:""; position:absolute; top:26px; width:44px; height:2px; background:var(--line); }
+  .entry.l::after { right:-44px; } .entry.r::after { left:-44px; }
+  .shot { aspect-ratio:16/9; background:linear-gradient(135deg,#1e252e,#232f3a);
+    background-size:cover; background-position:top center; border-bottom:1px solid var(--line); }
+  .entry .body { padding:18px 20px; }
+  .entry h2 { font-size:19px; font-weight:800; letter-spacing:-.01em; }
+  .who { color:var(--dim); font-size:12.5px; margin:4px 0 10px; }
+  .opt { display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+    background:rgba(95,212,162,.12); color:var(--green); padding:2px 9px; border-radius:999px; margin-bottom:8px; }
+  .opt.none { background:rgba(138,149,161,.12); color:var(--dim); font-weight:400; }
+  .entry p { font-size:13px; color:var(--dim); line-height:1.55; min-height:2.5em; }
+  .docs { margin-top:10px; font-size:12px; }
+  .docs a { color:var(--dim); text-decoration:none; margin-right:12px; }
+  .docs a:hover { color:var(--green); }
+  .next { text-align:center; position:relative; margin-top:8px; }
+  .next .dot { display:inline-grid; place-items:center; width:52px; height:52px; border-radius:50%;
+    background:var(--bg); border:2px dashed var(--line); font-family:"IBM Plex Mono",monospace;
+    font-size:12px; color:var(--dim); position:relative; z-index:1; }
+  .state { color:var(--dim); font-size:15px; padding:56px 0; text-align:center; position:relative; z-index:1;
+    background:var(--bg); }
+  @media (max-width:760px) {
+    h1 { font-size:36px; }
+    main::before { left:28px; }
+    .node { text-align:left; }
+    .entry { width:calc(100% - 74px); margin-left:74px !important; }
+    .entry::after { left:-46px !important; right:auto; }
   }
 </style>
 <header>
-  <h1>iBD 바이브 코딩 <small id="count">Season 1</small></h1>
+  <div class="eyebrow">iBD VIBE CODING · SEASON 1</div>
+  <h1>initial-<span class="b">B</span></h1>
+  <div class="sub" id="tagline">시작이 모이는 곳 — 18주, 매주 금요일 마디가 생긴다.</div>
   <form id="dropform">
     <input id="url" type="url" placeholder="배포 URL을 붙여넣고 엔터 — 그게 제출이다" required>
     <button id="go">드랍</button>
-    <div id="msg"></div>
   </form>
+  <div id="msg"></div>
 </header>
+<nav id="nav" hidden></nav>
 <main id="main"><div class="state">불러오는 중…</div></main>
 <script>
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
 const KEY = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 공개 키
 const $ = id => document.getElementById(id);
-
 const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function card(r) {
+let ALL = [];          // 전체 레코드
+let FILTER = null;     // 선택된 스택 옵션
+
+// 다음 금요일 09:00 (KST) 까지 D-n
+function dday() {
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+  const d = new Date(now);
+  const add = (5 - d.getDay() + 7) % 7; // 5 = 금
+  d.setDate(d.getDate() + add); d.setHours(9, 0, 0, 0);
+  if (d <= now) d.setDate(d.getDate() + 7);
+  return Math.ceil((d - now) / 86400000);
+}
+
+function entry(r, side) {
   const badge = r.stack_option
-    ? `<span class="badge">${esc(r.stack_option)}</span>`
-    : `<span class="badge none">기획서 없음</span>`;
-  // <a> 중첩은 유효하지 않은 HTML — 카드는 div, 본체 클릭은 위임으로 처리
-  return `<div class="card" data-url="${esc(r.url)}">
-    <h2>${esc(r.title || new URL(r.url).hostname)}</h2>
-    <div class="who">${esc(r.author || '만든 사람 미상')}</div>
-    ${badge}
-    <p>${esc(r.intro || '')}</p>
-    <div class="doclinks">
-      <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
-      <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
+    ? `<span class="opt">${esc(r.stack_option)}</span>`
+    : `<span class="opt none">기획서 없음</span>`;
+  const shot = r.shot_url ? `<div class="shot" style="background-image:url('${esc(r.shot_url)}')"></div>`
+                          : `<div class="shot"></div>`;
+  return `<div class="entry ${side}" data-url="${esc(r.url)}">
+    ${shot}
+    <div class="body">
+      <h2>${esc(r.title || new URL(r.url).hostname)}</h2>
+      <div class="who">${esc(r.author || '만든 사람 미상')}</div>
+      ${badge}
+      <p>${esc(r.intro || '')}</p>
+      <div class="doclinks docs">
+        <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
+        <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
+      </div>
     </div>
   </div>`;
 }
 
-function render(rows) {
-  $('count').textContent = `Season 1 · ${rows.length} site${rows.length === 1 ? '' : 's'}`;
+function render() {
+  const rows = FILTER ? ALL.filter(r => r.stack_option === FILTER) : ALL;
+  $('tagline').innerHTML =
+    `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 금 09:00 마감 <b>D-${dday()}</b>`;
+
+  // 스프린트 바로가기 + 스택 필터 칩
+  const sprints = [...new Set(ALL.map(r => r.sprint || '미분류'))]
+    .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : b.localeCompare(a));
+  const opts = [...new Set(ALL.map(r => r.stack_option).filter(Boolean))];
+  $('nav').hidden = !ALL.length;
+  $('nav').innerHTML =
+    sprints.map(s => `<a class="chip" href="#sp-${esc(s)}">${esc(s)}</a>`).join('') +
+    (opts.length ? '<span class="chip-sep"></span>' : '') +
+    opts.map(o => `<button class="chip${FILTER === o ? ' on' : ''}" data-f="${esc(o)}">${esc(o)}</button>`).join('');
+
   if (!rows.length) {
-    $('main').innerHTML = '<div class="state">아직 제출이 없다. 첫 URL을 드랍해보자.</div>';
+    $('main').innerHTML = `<div class="state">${ALL.length ? '이 스택으로 등록된 시작이 아직 없다.' : '아직 제출이 없다. 첫 URL을 드랍해보자.'}</div>`;
     return;
   }
-  // 스프린트별 묶음, 최신 스프린트 먼저. 미분류는 맨 아래. 같은 묶음 안은 드랍 순서.
-  const groups = new Map();
+  // 스프린트별 마디, 최신이 위. 마디 안은 드랍 순서, 좌우 교차.
+  const bySprint = new Map();
   rows.forEach(r => {
     const k = r.sprint || '미분류';
-    (groups.get(k) || groups.set(k, []).get(k)).push(r);
+    (bySprint.get(k) || bySprint.set(k, []).get(k)).push(r);
   });
-  const keys = [...groups.keys()].sort((a, b) =>
+  const keys = [...bySprint.keys()].sort((a, b) =>
     a === '미분류' ? 1 : b === '미분류' ? -1 : b.localeCompare(a));
-  $('main').innerHTML = keys.map(k =>
-    `<div class="sprint-label">${esc(k)}</div><div class="grid">${groups.get(k).map(card).join('')}</div>`
-  ).join('');
+  $('main').innerHTML = keys.map(k => {
+    const label = k === 'S01' ? 'AUG 3—7 · 배포/호스팅' : '';
+    return `<div class="node" id="sp-${esc(k)}"><div class="dot">${esc(k)}</div>
+      ${label ? `<div class="label">${label}</div>` : ''}</div>` +
+      bySprint.get(k).map((r, i) => entry(r, i % 2 ? 'r' : 'l')).join('');
+  }).join('') + `<div class="next"><div class="dot">S0${Math.min(18, keys.filter(k=>k!=='미분류').length + 1)}</div></div>`;
 }
 
 async function load() {
@@ -122,8 +178,9 @@ async function load() {
       headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
     });
     if (!r.ok) throw new Error(r.status);
-    render(await r.json());
-  } catch (e) {
+    ALL = await r.json();
+    render();
+  } catch {
     $('main').innerHTML = '<div class="state">레지스트리를 못 읽었다. 잠시 뒤 새로고침하거나 관리자에게.</div>';
   }
 }
@@ -131,7 +188,7 @@ async function load() {
 $('dropform').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = $('go'), msg = $('msg');
-  btn.disabled = true; msg.className = ''; msg.textContent = '기획서를 읽는 중…';
+  btn.disabled = true; msg.className = ''; msg.textContent = '기획서를 읽고 스크린샷을 찍는 중… (10초쯤 걸린다)';
   try {
     const r = await fetch('/api/drop', {
       method: 'POST',
@@ -148,11 +205,13 @@ $('dropform').addEventListener('submit', async e => {
   } finally { btn.disabled = false; }
 });
 
-// 카드 본체 클릭 → 사이트 새 탭 (문서 링크 클릭은 제외)
 document.addEventListener('click', e => {
-  const card = e.target.closest('.card');
+  const f = e.target.closest('[data-f]');
+  if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; render(); return; }
+  const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
 });
 
 load();
 </script>
+</html>

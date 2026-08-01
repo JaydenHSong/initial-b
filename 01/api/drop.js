@@ -1,16 +1,15 @@
-// POST /api/drop { url } — 드랍된 URL의 기획서(/docs/plan.html)를 읽어 sites에 저장한다.
-// 기획서가 없으면 그 사이트의 <title>로 폴백. 저장 실패 없이 항상 카드가 생긴다.
+// POST /api/drop { url } — 드랍된 URL의 기획서(/docs/plan.html)를 읽고,
+// 스크린샷을 1회 찍어 Storage에 저장한 뒤 sites에 기록한다. 저장 실패 없이 항상 카드가 생긴다.
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
 // publishable key는 공개 설계 키. service key를 env로 받으면 그쪽을 쓴다.
 const KEY = process.env.SUPABASE_SERVICE_KEY || 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA';
 
-const fetchWithTimeout = (url, ms) => {
+const fetchWithTimeout = (url, ms, opts = {}) => {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { redirect: 'follow', signal: ctrl.signal }).finally(() => clearTimeout(t));
+  return fetch(url, { redirect: 'follow', signal: ctrl.signal, ...opts }).finally(() => clearTimeout(t));
 };
 
-// 팀 템플릿의 data-f 필드에서 안쪽 텍스트를 뽑는다
 const pick = (html, name) => {
   const m = html.match(new RegExp(`data-f="${name}"[^>]*>\\s*([^<]+?)\\s*<`, 'i'));
   return m ? m[1].trim() : null;
@@ -19,6 +18,28 @@ const pickTitle = html => {
   const m = html.match(/<title[^>]*>([^<]*)<\/title>/i);
   return m ? m[1].trim() : null;
 };
+
+// 드랍 시 1회: microlink로 찍고 → Storage에 복사 → 우리 URL을 반환
+async function capture(target) {
+  const api = `https://api.microlink.io/?url=${encodeURIComponent(target)}&screenshot=true`;
+  const meta = await fetchWithTimeout(api, 15000).then(r => r.json());
+  const src = meta?.data?.screenshot?.url;
+  if (!src) return null;
+  const img = await fetchWithTimeout(src, 10000);
+  if (!img.ok) return null;
+  const buf = await img.arrayBuffer();
+  const name = new URL(target).hostname.replace(/[^a-z0-9.-]/gi, '_') + '.png';
+  const up = await fetch(`${SUPA}/storage/v1/object/shots/${name}`, {
+    method: 'POST',
+    headers: {
+      apikey: KEY, Authorization: `Bearer ${KEY}`,
+      'Content-Type': 'image/png', 'x-upsert': 'true',
+    },
+    body: buf,
+  });
+  if (!up.ok) return null;
+  return `${SUPA}/storage/v1/object/public/shots/${name}`;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -32,8 +53,7 @@ export default async function handler(req, res) {
   }
   const base = target.origin + target.pathname.replace(/\/+$/, '');
 
-  // 1순위: 규약 경로의 기획서 → 2순위: 사이트 자체의 <title>
-  const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null };
+  const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null };
   try {
     const plan = await fetchWithTimeout(`${base}/docs/plan.html`, 6000);
     if (plan.ok) {
@@ -44,20 +64,21 @@ export default async function handler(req, res) {
       row.intro = pick(html, 'intro');
       row.title = pick(html, 'title') || pickTitle(html);
     }
-  } catch { /* 기획서 없음 — 폴백으로 */ }
+  } catch { /* 기획서 없음 — 폴백 */ }
   if (!row.title) {
     try {
       const page = await fetchWithTimeout(base, 6000);
       if (page.ok) row.title = pickTitle(await page.text());
-    } catch { /* 사이트도 못 읽음 — 도메인 카드로 */ }
+    } catch { /* 도메인 카드로 */ }
   }
   if (!row.title) row.title = target.hostname;
+
+  try { row.shot_url = await capture(base); } catch { /* 썸네일 없이 저장 */ }
 
   const ins = await fetch(`${SUPA}/rest/v1/sites?on_conflict=url`, {
     method: 'POST',
     headers: {
-      apikey: KEY,
-      Authorization: `Bearer ${KEY}`,
+      apikey: KEY, Authorization: `Bearer ${KEY}`,
       'Content-Type': 'application/json',
       Prefer: 'resolution=ignore-duplicates,return=representation',
     },
@@ -66,7 +87,6 @@ export default async function handler(req, res) {
   if (!ins.ok) return res.status(502).json({ error: `DB insert ${ins.status}` });
   const saved = await ins.json();
 
-  // 중복 드랍이면 빈 배열이 온다 → 기존 행을 돌려준다
   if (!saved.length) {
     const ex = await fetch(`${SUPA}/rest/v1/sites?url=eq.${encodeURIComponent(base)}&select=*`, {
       headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
