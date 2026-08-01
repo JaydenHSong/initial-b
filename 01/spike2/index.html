@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>spike2</title>
+<pre id="out">loading…</pre>
+<script>
+// 판정 3: 브라우저는 publishable key로 select만. (service key는 이 페이지 어디에도 없다)
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const KEY = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA';
+fetch(`${SUPA}/rest/v1/s01_spike_sites?select=*&order=id.desc`, {
+  headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+})
+  .then(r => r.json())
+  .then(rows => {
+    console.log('ROWS:', rows.length);
+    document.getElementById('out').textContent = JSON.stringify(rows, null, 2);
+  })
+  .catch(e => (document.getElementById('out').textContent = 'FAIL: ' + e.message));
+</script>

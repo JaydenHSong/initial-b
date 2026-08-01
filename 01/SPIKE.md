@@ -1,4 +1,26 @@
-# S01 스파이크 기록 — 2026-08-01 (토, 더미 CSV로 선행)
+# S01 스파이크 기록
+
+## 스파이크 2 — 2026-08-01 · URL 드랍 구조 (v2 기획)
+
+> 코드: `spike2/` (버릴 코드) · 배포: https://ibd-s01-spike.vercel.app (버릴 프로젝트)
+
+| 판정 | 결과 | 실측 |
+|---|---|---|
+| 서버 함수가 외부 사이트 HTML을 fetch | **됐다** | example.com → 200, `<title>` 파싱 성공 |
+| 함수 → DB insert, 브라우저 select | **됐다** | insert 201 (행 id 1), 배포 페이지에서 select로 같은 행 표시 |
+| 브라우저에 위험 키 노출 없음 | **됐다** | 페이지에는 publishable key만. service key는 스파이크에 아예 없음 |
+
+- 셋업에 걸린 시간: 약 15분 (테이블 생성 → 함수 작성 → 배포 → 판정)
+- 배포 시간 실측: **1회 4~5초** (Vercel CLI, 데모에서 말할 숫자)
+- 막힌 지점 1개: **Vercel 팀 스코프의 배포별 URL은 SSO 보호가 걸린다** (302). 공개되는 건 프로덕션 별칭뿐 — 갤러리 URL을 공유할 때 반드시 별칭으로. 남이 열 수 있는지가 완료 기준이라 실구현에서 중요
+- 문서 품질: 상 (Supabase REST · Vercel zero-config 모두 문서대로 동작)
+- 무료 한도: Supabase 500MB DB / Vercel Hobby급 팀 플랜 — 카드 수백 장 수준에서 무관
+
+**수요일 구현으로 가져갈 것**
+- 스파이크는 편의상 publishable key로 insert했다 (스파이크 테이블에 공개 insert 정책). **실구현은 insert 정책을 빼고 service key를 Vercel env에 넣는다** — service key는 CLI 조회가 정책에 막히므로 Supabase 대시보드에서 복사해 `vercel env add`로
+- 정리 대기: `drop table s01_spike_sites` + Vercel `ibd-s01-spike` 프로젝트 삭제 (수요일 실구현 시작할 때)
+
+## 스파이크 1 — 2026-08-01 (토, 더미 CSV로 선행 · v1 기획, 방향 변경으로 폐기)
 
 > 코드: `spike/` (버릴 코드). 판정 대상은 PLAN.md의 리스크 3개.
 
