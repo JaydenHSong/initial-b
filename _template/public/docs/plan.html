@@ -2,7 +2,13 @@
 <html lang="ko">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>initial-B — S01 기획서</title>
+<!-- ══════════════════════════════════════════════════════════════
+     iBD 팀 템플릿 · 1페이지 기획서 (화 18:00 소프트 마감)
+     · 레이아웃과 CSS를 건드리지 마라 — 18주 내내 같은 모양이어야 비교된다
+     · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
+     · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
+     ══════════════════════════════════════════════════════════════ -->
+<title>S00 기획서 — 제목</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -43,59 +49,57 @@
 <div class="topbar">
   <a href="../">← 사이트로</a>
   <a href="https://initialb.vercel.app">갤러리</a>
-  <span style="margin-left:auto" class="mono">S01 · AUG 3—7</span>
+  <span style="margin-left:auto" class="mono">화 18:00 소프트 마감</span>
 </div>
 
 <div class="doc">
   <div class="kicker">1-PAGE PLAN</div>
-  <h1 data-f="title">initial-B</h1>
-  <div class="intro-line" data-f="intro">배포 URL을 드랍하면 기획서를 읽어 카드로 정리되는 팀 갤러리</div>
+  <!-- 제목: 프로젝트 이름으로 바꾼다 -->
+  <h1 data-f="title">프로젝트 제목</h1>
+  <div class="intro-line" data-f="intro">한 줄 소개 — 갤러리 카드에 그대로 실린다. 동사로 끝나게.</div>
 
+  <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S01</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">배포 / 호스팅</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">Vercel</td></tr>
-    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/JaydenHSong/initial-b">github.com/JaydenHSong/initial-b</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/">저장소 주소 (선택 — 적으면 카드에 소스 링크가 붙는다)</a></td></tr>
   </table>
 
   <h2><span class="no">01</span>누가 쓰나</h2>
-  <p>iBD 팀원 3~5명. 금요일 오후 데모데이에 프로젝터로 다 같이 띄워놓고 발표 순서대로 연다. 시즌 18주 내내 매주 같은 화면을 본다. 제출도 이 화면에서 한다.</p>
+  <p>구체적인 한 사람. 직군·연차·하루에 몇 번 겪는 일인지. (예: 3년차 PD 김OO. 하루에 경쟁 ASIN 20개를 탭으로 열어놓고 본다)</p>
 
   <h2><span class="no">02</span>지금은</h2>
-  <p>없다. 시즌 첫 주라 대체할 이전 방식 자체가 없다. 데모데이가 끝나면 그날 본 링크가 어디에도 안 남는다.</p>
+  <p>이 도구 없이 지금 어떻게 하고 있나. 걸리는 시간을 숫자로. (예: 엑셀에 수동 복붙. 주 2회, 회당 40분)</p>
 
   <h2><span class="no">03</span>없앨 동작 하나</h2>
-  <p>제출이라는 동작 자체. 원래 규약(report 복사 → 시트 붙여넣기)을 "배포 URL 드랍 5초"로 줄인다. 나머지 정보는 사이트가 알아서 채운다.</p>
+  <p>이번 주에 없애는 단 하나의 동작. (예: 탭을 닫으면 다 날아가는 것)</p>
 
   <h2><span class="no">04</span>핵심 기능 1개</h2>
-  <p>배포 URL을 드랍하면 그 사이트의 기획서(<code class="mono">/docs/plan.html</code>)를 읽어 카드로 저장된다. 폴더 규약이 곧 데이터 소스다. 드랍 순간 스크린샷도 1회 찍어 카드 썸네일로 저장한다. 기획서가 없는 URL도 도메인 카드로 저장된다 — 드랍 실패는 없다.</p>
+  <p>동사로 한 문장. 입력 → 처리 → 결과가 끊김 없이 도는 것이 유일한 성공 조건. (예: URL을 붙여넣으면 목록에 카드로 저장되고, 태그를 달 수 있다)</p>
 
   <h2><span class="no">05</span>안 만드는 것 3개</h2>
   <ul class="nolist">
-    <li>스택별 필터 심화 — 갤러리에 칩 필터 하나만. 그 이상(복합 조건·정렬 옵션)은 v2</li>
-    <li>검색 — 시즌이 다 차도 100장 남짓, 스크롤과 스프린트 점프로 충분</li>
-    <li>수정·삭제 UI — 로그인 없는 사이트에 삭제 버튼은 무방비. 잘못 드랍하면 관리자가 DB에서 지운다</li>
+    <li>기록 없음</li>
+    <li>기록 없음</li>
+    <li>기록 없음</li>
   </ul>
 
   <h2><span class="no">06</span>성공 판정</h2>
   <ul>
-    <li>URL 하나를 드랍하면 다른 사람 브라우저에서도 새로고침으로 카드가 보인다</li>
-    <li>규약을 지킨 사이트는 제목·만든 사람·스택·소개·소스가 자동으로 채워진다</li>
-    <li>규약을 안 지킨 URL도 도메인 카드로 저장된다 (드랍 실패 없음)</li>
-    <li>카드 클릭 → 사이트, 작은 링크 → 기획서·리포트·소스</li>
-    <li>프로젝터 거리에서 제목이 읽히고, 모바일에서 안 깨진다</li>
+    <li>기록 없음 (금요일 데모에서 직접 보여줄 수 있는 판정 기준으로. 예: 제품 3개 저장 + 태그 2개씩 + 태그로 필터)</li>
   </ul>
 
   <h2><span class="no">07</span>내 옵션 + 이유</h2>
-  <p>Vercel — 드랍 시 남의 사이트 기획서를 읽어야 해서 서버 함수가 필요하고(브라우저는 CORS에 막힘), 주 1회 열리는 화면이라 콜드스타트 없는 호스트여야 한다(Render 탈락). 레지스트리는 가이드의 허용 조항("레지스트리 도구는 바꿔도 된다")에 따라 시트 → DB(Supabase)로 교체 — 자동으로 읽을 수 있고 제출이 5초로 끝난다.</p>
+  <p>왜 이 선택지를 골랐나. 한 문단. (예: 제품마다 필드가 제각각일 것 같아서 스키마 없는 쪽이 빠를 것 같다)</p>
 
   <h2><span class="no">08</span>리스크 + 검증법</h2>
   <div class="risk">
-    <b>걱정했던 것:</b> 서버 함수의 외부 fetch, DB 연결, 키 노출 — 화요일 스파이크로 전부 "됐다" 판정.<br>
-    <b>남은 리스크:</b> 팀 템플릿의 data-f 필드 확정 전까지는 &lt;title&gt; 폴백으로 파싱. 템플릿 초안은 <code class="mono">_template/public/docs/</code>에 있다.
+    <b>걱정되는 것:</b> 기록 없음 (예: 태그 필터링. 문서형은 다대다가 약하다던데)<br>
+    <b>화요일 스파이크로 확인:</b> 기록 없음 (예: "태그 2개 걸린 제품만 꺼내기"부터 해본다)
   </div>
 </div>
 
-<footer>iBD 바이브 코딩 · Season 1 · S01</footer>
+<footer>iBD 바이브 코딩 · 이 문서는 팀 템플릿이다 — 레이아웃·CSS·data-f를 바꾸지 말 것</footer>
 </html>
