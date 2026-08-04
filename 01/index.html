@@ -12,7 +12,18 @@
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } }
   body { background:var(--bg); color:var(--text); font-family:"Pretendard Variable",sans-serif; min-height:100vh; }
   .mono { font-family:"IBM Plex Mono",monospace; }
-  header { text-align:center; padding:46px 24px 8px; }
+  header {
+    text-align:center; padding:46px 24px 0;
+    position:sticky; top:0; z-index:20; background:rgba(16,20,24,.94);
+    backdrop-filter:blur(6px); border-bottom:1px solid var(--line);
+  }
+  /* 스크롤하면 한 줄 바로 접힌다 — 카드가 아무리 쌓여도 드랍창은 항상 떠 있다 */
+  header.compact { padding:12px 24px 0; }
+  header.compact .eyebrow, header.compact .sub { display:none; }
+  header.compact h1 { font-size:20px; margin:0 0 10px; }
+  header.compact form { margin-top:0; }
+  header.compact input { padding:8px 13px; }
+  header.compact button { padding:8px 16px; }
   .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.3em; color:var(--dim); }
   h1 { font-size:46px; font-weight:800; letter-spacing:-.02em; margin:10px 0 8px; }
   h1 .b { color:var(--green); }
@@ -27,10 +38,9 @@
   button:disabled { opacity:.5; cursor:wait; }
   #msg { text-align:center; font-size:13px; color:var(--dim); min-height:1.4em; margin-top:10px; }
   #msg.err { color:#ff8f8f; }
-  /* 스프린트 바로가기 + 스택 필터 */
+  /* 스프린트 바로가기 + 스택 필터 — 고정 헤더의 일부 */
   nav {
-    position:sticky; top:0; z-index:10; background:rgba(16,20,24,.92); backdrop-filter:blur(6px);
-    border-bottom:1px solid var(--line); padding:10px 16px;
+    padding:12px 16px;
     display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
   }
   .chip {
@@ -45,7 +55,7 @@
   main { max-width:980px; margin:36px auto 90px; position:relative; padding:0 24px; }
   main::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px;
     background:linear-gradient(var(--green), var(--line)); transform:translateX(-50%); }
-  .node { position:relative; text-align:center; margin:34px 0 22px; scroll-margin-top:70px; }
+  .node { position:relative; text-align:center; margin:34px 0 22px; scroll-margin-top:140px; }
   .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
     background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
     font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
@@ -101,8 +111,8 @@
     <button id="go">드랍</button>
   </form>
   <div id="msg"></div>
+  <nav id="nav" hidden></nav>
 </header>
-<nav id="nav" hidden></nav>
 <main id="main"><div class="state">불러오는 중…</div></main>
 <footer>
   <div>
@@ -119,6 +129,31 @@ const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 
 let ALL = [];          // 전체 레코드
 let FILTER = null;     // 선택된 스택 옵션
+
+// 스크롤하면 헤더가 한 줄 바로 접힌다
+addEventListener('scroll', () =>
+  document.querySelector('header').classList.toggle('compact', scrollY > 40), { passive: true });
+
+// FLIP: 필터·갱신으로 카드가 재배치될 때 제자리에서 미끄러져 이동한다
+function animatedRender() {
+  const old = new Map([...document.querySelectorAll('.entry')].map(el => [el.dataset.url, el.getBoundingClientRect()]));
+  render();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.entry').forEach((el, i) => {
+    const prev = old.get(el.dataset.url);
+    if (prev) {
+      const now = el.getBoundingClientRect();
+      const dx = prev.left - now.left, dy = prev.top - now.top;
+      if (dx || dy) el.animate(
+        [{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }],
+        { duration: 350, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    } else {
+      el.animate(
+        [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 300, delay: Math.min(i * 45, 400), easing: 'ease-out', fill: 'backwards' });
+    }
+  });
+}
 
 // 다음 금요일 09:00 (KST) 까지 D-n
 function dday() {
@@ -194,7 +229,7 @@ async function load() {
     });
     if (!r.ok) throw new Error(r.status);
     ALL = await r.json();
-    render();
+    animatedRender();
   } catch {
     $('main').innerHTML = '<div class="state">레지스트리를 못 읽었다. 잠시 뒤 새로고침하거나 관리자에게.</div>';
   }
@@ -229,7 +264,7 @@ $('dropform').addEventListener('submit', async e => {
 
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-f]');
-  if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; render(); return; }
+  if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; animatedRender(); return; }
   const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
 });
