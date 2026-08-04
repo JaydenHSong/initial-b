@@ -59,8 +59,8 @@
   .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
     background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
     font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
-  .node .label { display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dim);
-    letter-spacing:.14em; margin-top:8px; background:var(--bg); padding:2px 12px;
+  .node .label { display:table; margin:8px auto 0; font-family:"IBM Plex Mono",monospace;
+    font-size:11px; color:var(--dim); letter-spacing:.14em; background:var(--bg); padding:2px 12px;
     position:relative; z-index:1; }
   .entry {
     width:calc(50% - 44px); background:var(--panel); border:1px solid var(--line); border-radius:14px;
@@ -99,6 +99,7 @@
     h1 { font-size:36px; }
     main::before { left:28px; }
     .node { text-align:left; }
+    .node .label { margin-left:0; }
     .entry { width:calc(100% - 74px); margin-left:74px !important; }
     .entry::after { left:-46px !important; right:auto; }
   }
