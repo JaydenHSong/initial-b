@@ -59,8 +59,9 @@
   .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
     background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
     font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
-  .node .label { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dim);
-    letter-spacing:.14em; margin-top:8px; }
+  .node .label { display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dim);
+    letter-spacing:.14em; margin-top:8px; background:var(--bg); padding:2px 12px;
+    position:relative; z-index:1; }
   .entry {
     width:calc(50% - 44px); background:var(--panel); border:1px solid var(--line); border-radius:14px;
     overflow:hidden; cursor:pointer; position:relative; margin-bottom:20px; transition:border-color .15s;
