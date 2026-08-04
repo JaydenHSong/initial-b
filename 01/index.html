@@ -157,12 +157,12 @@ function animatedRender() {
   });
 }
 
-// 다음 금요일 09:00 (KST) 까지 D-n
+// 다음 목요일 18:00 (KST) 제출 마감까지 D-n
 function dday() {
   const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
   const d = new Date(now);
-  const add = (5 - d.getDay() + 7) % 7; // 5 = 금
-  d.setDate(d.getDate() + add); d.setHours(9, 0, 0, 0);
+  const add = (4 - d.getDay() + 7) % 7; // 4 = 목
+  d.setDate(d.getDate() + add); d.setHours(18, 0, 0, 0);
   if (d <= now) d.setDate(d.getDate() + 7);
   return Math.ceil((d - now) / 86400000);
 }
@@ -192,7 +192,7 @@ function entry(r, side) {
 function render() {
   const rows = FILTER ? ALL.filter(r => r.stack_option === FILTER) : ALL;
   $('tagline').innerHTML =
-    `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 금 09:00 마감 <b>D-${dday()}</b>`;
+    `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 목 18:00 마감 <b>D-${dday()}</b>`;
 
   // 스프린트 바로가기 + 스택 필터 칩
   const sprints = [...new Set(ALL.map(r => r.sprint || '미분류'))]
