@@ -1,8 +1,9 @@
 // POST /api/drop { url } — 드랍된 URL의 기획서(/docs/plan.html)를 읽고,
 // 스크린샷을 1회 찍어 Storage에 저장한 뒤 sites에 기록한다. 저장 실패 없이 항상 카드가 생긴다.
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
-// publishable key는 공개 설계 키. service key를 env로 받으면 그쪽을 쓴다.
-const KEY = process.env.SUPABASE_SERVICE_KEY || 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA';
+// 쓰기는 service key로만 한다 — sites·shots의 공개 insert 정책을 지웠으므로
+// publishable key로는 저장이 막힌다. 키가 없으면 조용히 실패하지 않고 500으로 알린다.
+const KEY = process.env.SUPABASE_SERVICE_KEY;
 
 const fetchWithTimeout = (url, ms, opts = {}) => {
   const ctrl = new AbortController();
@@ -49,6 +50,7 @@ async function capture(target, src) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+  if (!KEY) return res.status(500).json({ error: 'SUPABASE_SERVICE_KEY 미설정 — Vercel env에 넣어야 저장된다' });
 
   let target;
   try {
