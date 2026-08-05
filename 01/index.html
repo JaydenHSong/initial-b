@@ -60,9 +60,10 @@
   .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
     background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
     font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
-  .node .label { display:table; margin:8px auto 0; font-family:"IBM Plex Mono",monospace;
+  .node .label, .next .label { display:table; margin:8px auto 0; font-family:"IBM Plex Mono",monospace;
     font-size:11px; color:var(--dim); letter-spacing:.14em; background:var(--bg); padding:2px 12px;
-    position:relative; z-index:1; }
+    position:relative; z-index:1; text-decoration:none; }
+  a.label:hover { color:var(--green); }
   .entry {
     width:calc(50% - 44px); background:var(--panel); border:1px solid var(--line); border-radius:14px;
     overflow:hidden; cursor:pointer; position:relative; margin-bottom:20px; transition:border-color .15s;
@@ -132,6 +133,29 @@ const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 
 let ALL = [];          // 전체 레코드
 let FILTER = null;     // 선택된 스택 옵션
+
+// 시즌 로드맵 — guide.html 달력과 같은 데이터. [id, 시작일(월), 날짜 라벨, 주제, 스택 카드]
+const ROAD = [
+  ['S01','2026-08-03','AUG 3—7','팀 갤러리 구축','배포/호스팅'],
+  ['S02','2026-08-10','AUG 10—14','ASIN 스크랩북','데이터 저장'],
+  ['S03','2026-08-17','AUG 17—21','팀 아이디어 보드','인증'],
+  ['S04','2026-08-24','AUG 24—28','경쟁사 가격 수집기','크롤링'],
+  ['S05','2026-08-31','AUG 31—9/4','제품 카탈로그','Postgres 심화'],
+  ['S06','2026-09-08','SEP 8—11','리뷰 분석기','Claude 호출 경로'],
+  ['S07','2026-09-14','SEP 14—18','영수증 정리기','스토리지 + OCR'],
+  ['S08','2026-09-21','SEP 21—25','실시간 재고 보드','실시간'],
+  ['S09','2026-10-05','OCT 5—9','매일 아침 가격 알림','서버리스 + 크론'],
+  ['S10','2026-10-12','OCT 12—16','사내 지식 검색','검색'],
+  ['S11','2026-10-19','OCT 19—23','CS 문의 트리아지','큐/웹훅'],
+  ['S12','2026-10-26','OCT 26—30','알림 허브','알림 채널'],
+  ['S13','2026-11-02','NOV 2—6','제품 매뉴얼 Q&A','벡터DB + RAG'],
+  ['S14','2026-11-09','NOV 9—13','KPI 대시보드','시각화/BI'],
+  ['S15','2026-11-16','NOV 16—20','느린 화면 살리기','캐시/성능'],
+  ['S16','2026-11-30','NOV 30—12/4','사용자 행동 추적','분석/관측'],
+  ['S17','2026-12-07','DEC 7—11','같은 앱, 두 스택','Postgres vs Firebase'],
+  ['S18','2026-12-14','DEC 14—18','리메이크','시즌 파이널'],
+];
+const roadOf = k => ROAD.find(r => r[0] === k);
 
 // 스크롤하면 헤더가 한 줄 바로 접힌다
 addEventListener('scroll', () =>
@@ -217,12 +241,15 @@ function render() {
   });
   const keys = [...bySprint.keys()].sort((a, b) =>
     a === '미분류' ? 1 : b === '미분류' ? -1 : b.localeCompare(a));
+  const up = ROAD.find(r => new Date(r[1]) > new Date()); // 다음 스프린트 (시즌 끝나면 없음)
   $('main').innerHTML = keys.map(k => {
-    const label = k === 'S01' ? 'AUG 3—7 · 배포/호스팅' : '';
+    const ri = roadOf(k);
+    const label = ri ? `${ri[2]} · ${ri[3]} · ${ri[4]}` : '';
     return `<div class="node" id="sp-${esc(k)}"><div class="dot">${esc(k)}</div>
-      ${label ? `<div class="label">${label}</div>` : ''}</div>` +
+      ${label ? `<a class="label" href="/guide.html#${k.toLowerCase()}">${esc(label)}</a>` : ''}</div>` +
       bySprint.get(k).map((r, i) => entry(r, i % 2 ? 'r' : 'l')).join('');
-  }).join('') + `<div class="next"><div class="dot">S0${Math.min(18, keys.filter(k=>k!=='미분류').length + 1)}</div></div>`;
+  }).join('') + (up ? `<div class="next"><div class="dot">${up[0]}</div>
+    <a class="label" href="/guide.html#${up[0].toLowerCase()}">다음 주 · ${esc(`${up[2]} · ${up[3]} · ${up[4]}`)}</a></div>` : '');
 }
 
 async function load() {

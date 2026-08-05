@@ -192,7 +192,7 @@ html[data-theme="dark"] .dlc,html[data-theme="dark"] .band.alt .dlc{background:v
 /* ── accordion ── */
 .acc{border-top:1px solid var(--line)}
 details.sp{border-bottom:1px solid var(--line)}
-details.sp summary{cursor:pointer;list-style:none;padding:20px 14px 20px 0;display:grid;
+details.sp summary{cursor:pointer;list-style:none;padding:20px 14px 20px 0;display:grid;scroll-margin-top:90px;
   grid-template-columns:48px minmax(140px,1fr) minmax(112px,.72fr) 1.35fr 16px;gap:16px;align-items:center;
   border-radius:10px;transition:background .15s}
 details.sp summary:hover{background:var(--bg2)}
@@ -1040,7 +1040,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="phase">Phase 1 · 저장과 배포의 기본</div>
     <div class="acc">
       <details class="sp">
-        <summary><span class="sid">S01</span><span class="snm">팀 갤러리</span><span class="scd">배포 / 호스팅</span><span class="sgl">등록된 카드가 보이고 시트 추가가 반영된다</span><span class="arw">›</span></summary>
+        <summary id="s01"><span class="sid">S01</span><span class="snm">팀 갤러리</span><span class="scd">배포 / 호스팅</span><span class="sgl">등록된 카드가 보이고 시트 추가가 반영된다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">우리가 만든 사이트를 모아 보여주는 페이지. <b>1주차 결과물이 곧 시즌 인프라가 된다.</b></div></div>
           <div><div class="k">골</div><div class="v">팀원 누구나 URL을 열면 <b>등록된 사이트 카드가 보이고</b>, 시트에 한 줄 추가한 게 새로고침으로 반영된다.<br><span class="small">데모에서 말할 것 — "내 호스팅은 배포에 __분 걸렸고 첫 로딩이 __초다"</span></div></div>
@@ -1052,7 +1052,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S02</span><span class="snm">ASIN 스크랩북<span class="tagm h">핵심</span></span><span class="scd">데이터 저장</span><span class="sgl">제품 3개 저장 + 태그 2개씩 + 태그로 필터</span><span class="arw">›</span></summary>
+        <summary id="s02"><span class="sid">S02</span><span class="snm">ASIN 스크랩북<span class="tagm h">핵심</span></span><span class="scd">데이터 저장</span><span class="sgl">제품 3개 저장 + 태그 2개씩 + 태그로 필터</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">관심 제품을 저장·태그·메모하는 개인 리서치 노트. 관계형과 문서형의 체감 차이</div></div>
           <div><div class="k">골</div><div class="v">제품 3개를 저장하고 각각에 <b>태그를 2개씩 붙인 뒤, 태그로 걸러 보는 것</b>까지 된다.<br><span class="small">데모에서 말할 것 — "내 저장소에서 다대다 태그를 어떻게 표현했나"</span></div></div>
@@ -1063,7 +1063,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S03</span><span class="snm">팀 아이디어 보드</span><span class="scd">인증</span><span class="sgl">두 사람이 로그인해 올리고 투표한 결과가 보인다</span><span class="arw">›</span></summary>
+        <summary id="s03"><span class="sid">S03</span><span class="snm">팀 아이디어 보드</span><span class="scd">인증</span><span class="sgl">두 사람이 로그인해 올리고 투표한 결과가 보인다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">아이디어를 올리고 팀이 투표하는 보드. 인증이 데이터 모델에 미치는 영향</div></div>
           <div><div class="k">골</div><div class="v"><b>두 사람이 각자 로그인해</b> 아이디어를 올리고 서로에게 투표한 결과가 보인다.<br><span class="small">데모에서 말할 것 — "로그인 붙이는 데 __분, 남의 글은 못 지우게 막은 방법"</span></div></div>
@@ -1074,7 +1074,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S04</span><span class="snm">경쟁사 가격 수집기</span><span class="scd">크롤링</span><span class="sgl">URL 3개에서 제품명·가격이 실제로 채워진다</span><span class="arw">›</span></summary>
+        <summary id="s04"><span class="sid">S04</span><span class="snm">경쟁사 가격 수집기</span><span class="scd">크롤링</span><span class="sgl">URL 3개에서 제품명·가격이 실제로 채워진다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">URL을 넣으면 가격과 별점을 수집해 표로 쌓는다. 차단, 렌더링, 유지보수 비용</div></div>
           <div><div class="k">골</div><div class="v">URL 3개를 넣어 <b>제품명·가격이 표에 실제로 채워진다.</b> 하드코딩은 미완.<br><span class="small">데모에서 말할 것 — "차단당했나? 당했다면 어떻게 넘겼나, 못 넘겼으면 어디서 막혔나"</span></div></div>
@@ -1088,7 +1088,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="phase">Phase 2 · 데이터 파이프라인</div>
     <div class="acc">
       <details class="sp">
-        <summary><span class="sid">S05</span><span class="snm">제품 카탈로그<span class="tagm">통합</span></span><span class="scd">Postgres 심화</span><span class="sgl">테이블 3개 + JOIN 화면 + RLS로 가려진 행</span><span class="arw">›</span></summary>
+        <summary id="s05"><span class="sid">S05</span><span class="snm">제품 카탈로그<span class="tagm">통합</span></span><span class="scd">Postgres 심화</span><span class="sgl">테이블 3개 + JOIN 화면 + RLS로 가려진 행</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">제품–옵션–호환기기가 연결된 카탈로그. 전원 Postgres로 관계 모델링 심화</div></div>
           <div><div class="k">골</div><div class="v">테이블 3개가 관계로 이어지고, <b>한 화면에서 JOIN된 결과</b>가 보이며, <b>남의 계정으로는 안 보이는 행</b>이 하나 있다.<br><span class="small">데모에서 말할 것 — 자기 스키마 그림을 30초에 설명</span></div></div>
@@ -1099,7 +1099,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S06</span><span class="snm">리뷰 분석기</span><span class="scd">Claude 호출 경로</span><span class="sgl">리뷰 10개 → JSON 거쳐 5줄 요약 · 키 노출 없음</span><span class="arw">›</span></summary>
+        <summary id="s06"><span class="sid">S06</span><span class="snm">리뷰 분석기</span><span class="scd">Claude 호출 경로</span><span class="sgl">리뷰 10개 → JSON 거쳐 5줄 요약 · 키 노출 없음</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">리뷰를 붙여넣으면 긍·부정 요인과 페인포인트. LLM을 <b>인프라로</b> 다루기. 모델은 Claude 고정, 부르는 경로가 변수</div></div>
           <div><div class="k">골</div><div class="v">리뷰 10개를 붙여넣으면 <b>5줄 요약이 JSON을 거쳐</b> 화면에 뜬다. 개발자도구 네트워크 탭에 <b>API 키가 안 보인다.</b><br><span class="small">데모에서 말할 것 — "1천 건 돌리면 얼마"</span></div></div>
@@ -1110,7 +1110,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S07</span><span class="snm">영수증 정리기</span><span class="scd">스토리지 + OCR</span><span class="sgl">사진 3장 → 날짜·금액이 표에 채워진다</span><span class="arw">›</span></summary>
+        <summary id="s07"><span class="sid">S07</span><span class="snm">영수증 정리기</span><span class="scd">스토리지 + OCR</span><span class="sgl">사진 3장 → 날짜·금액이 표에 채워진다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">영수증 이미지를 올리면 날짜·금액·항목 표로 정리</div></div>
           <div><div class="k">골</div><div class="v">영수증 사진 3장을 올리면 <b>날짜와 금액이 표에 채워지고</b>, 틀린 건 손으로 고칠 수 있다.<br><span class="small">데모에서 말할 것 — "3장 중 몇 개를 제대로 읽었나" 정확도를 숫자로</span></div></div>
@@ -1121,7 +1121,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S08</span><span class="snm">실시간 재고 보드</span><span class="scd">실시간</span><span class="sgl">두 탭에서 __초 안에 동시 반영</span><span class="arw">›</span></summary>
+        <summary id="s08"><span class="sid">S08</span><span class="snm">실시간 재고 보드</span><span class="scd">실시간</span><span class="sgl">두 탭에서 __초 안에 동시 반영</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">여러 사람이 동시에 보는데 값이 바뀌면 즉시 반영. 연결 관리, 충돌, 비용</div></div>
           <div><div class="k">골</div><div class="v">탭 두 개를 나란히 띄우고 <b>한쪽에서 값을 바꾸면 다른 쪽이 __초 안에 바뀐다.</b><br><span class="small">데모에서 말할 것 — 그 지연 시간과 "폴링으로도 됐을까"에 대한 내 답</span></div></div>
@@ -1135,7 +1135,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="phase">Phase 3 · 자동화와 연결</div>
     <div class="acc">
       <details class="sp">
-        <summary><span class="sid">S09</span><span class="snm">매일 아침 가격 알림<span class="tagm">통합</span></span><span class="scd">서버리스 + 크론</span><span class="sgl">이틀 연속 자동 실행 로그</span><span class="arw">›</span></summary>
+        <summary id="s09"><span class="sid">S09</span><span class="snm">매일 아침 가격 알림<span class="tagm">통합</span></span><span class="scd">서버리스 + 크론</span><span class="sgl">이틀 연속 자동 실행 로그</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">정해진 시각에 자동 실행. 사람이 안 눌러도 도는 시스템</div></div>
           <div><div class="k">골</div><div class="v">내가 아무것도 안 눌러도 <b>이틀 연속 자동 실행된 로그</b>가 남아 있다.<br><span class="small">데모에서 말할 것 — "로컬에선 됐는데 서버에서 깨진 것 하나"</span></div></div>
@@ -1146,7 +1146,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S10</span><span class="snm">사내 지식 검색</span><span class="scd">검색</span><span class="sgl">오타 섞인 검색어로도 상위 3개 안에</span><span class="arw">›</span></summary>
+        <summary id="s10"><span class="sid">S10</span><span class="snm">사내 지식 검색</span><span class="scd">검색</span><span class="sgl">오타 섞인 검색어로도 상위 3개 안에</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">문서와 FAQ를 넣고 검색되게. 오타, 한국어 형태소, 랭킹</div></div>
           <div><div class="k">골</div><div class="v">문서 20개를 넣고, <b>오타가 섞인 검색어로도 원하는 문서가 상위 3개 안에</b> 나온다.<br><span class="small">데모에서 말할 것 — "한국어 처리에서 막힌 지점"</span></div></div>
@@ -1157,7 +1157,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S11</span><span class="snm">CS 문의 트리아지</span><span class="scd">백그라운드 잡</span><span class="sgl">화면은 즉시 응답, 분류는 나중에 채워짐</span><span class="arw">›</span></summary>
+        <summary id="s11"><span class="sid">S11</span><span class="snm">CS 문의 트리아지</span><span class="scd">백그라운드 잡</span><span class="sgl">화면은 즉시 응답, 분류는 나중에 채워짐</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">문의가 들어오면 자동 분류와 답변 초안. 느린 작업을 요청에서 떼어내기</div></div>
           <div><div class="k">골</div><div class="v">문의를 넣으면 <b>화면은 즉시 응답</b>하고, 잠시 뒤 분류와 답변 초안이 채워진다. <b>일부러 실패시킨 건</b>이 재시도되거나 실패 표시로 남는다.<br><span class="small">데모에서 말할 것 — "이걸 n8n으로 했으면 몇 분이었을까"</span></div></div>
@@ -1168,7 +1168,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S12</span><span class="snm">알림 허브</span><span class="scd">알림 채널</span><span class="sgl">옆자리 팀원에게 실제로 도착한 걸 보여준다</span><span class="arw">›</span></summary>
+        <summary id="s12"><span class="sid">S12</span><span class="snm">알림 허브</span><span class="scd">알림 채널</span><span class="sgl">옆자리 팀원에게 실제로 도착한 걸 보여준다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">조건이 충족되면 사람에게 도달하는 알림. 마지막 1cm</div></div>
           <div><div class="k">골</div><div class="v">옆자리 팀원 휴대폰이나 슬랙에 <b>실제로 알림이 도착한 걸 데모에서 보여준다.</b> "보냈습니다" 로그만으로는 미완.<br><span class="small">데모에서 말할 것 — 도메인 인증과 심사 등 셋업에서 걸린 시간</span></div></div>
@@ -1182,7 +1182,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="phase">Phase 4 · 심화와 비교</div>
     <div class="acc">
       <details class="sp">
-        <summary><span class="sid">S13</span><span class="snm">제품 매뉴얼 Q&amp;A<span class="tagm">통합</span></span><span class="scd">벡터DB + RAG</span><span class="sgl">있는 질문 3개는 출처와 함께, 없는 1개는 "모른다"</span><span class="arw">›</span></summary>
+        <summary id="s13"><span class="sid">S13</span><span class="snm">제품 매뉴얼 Q&amp;A<span class="tagm">통합</span></span><span class="scd">벡터DB + RAG</span><span class="sgl">있는 질문 3개는 출처와 함께, 없는 1개는 "모른다"</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">문서를 넣고 자연어로 물으면 근거와 함께 답한다. 임베딩, 청킹, 유사도</div></div>
           <div><div class="k">골</div><div class="v"><b>문서에 있는 질문 3개와 문서에 없는 질문 1개</b>를 던져서, 앞의 셋은 출처와 함께 답하고 마지막은 <b>"모른다"고 답한다.</b><br><span class="small">데모에서 말할 것 — "청킹을 몇 글자로 잘랐고 왜 그랬나"</span></div></div>
@@ -1193,7 +1193,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S14</span><span class="snm">KPI 대시보드</span><span class="scd">시각화 / BI</span><span class="sgl">스크롤 없이 한 화면 · 모바일에서 안 깨짐</span><span class="arw">›</span></summary>
+        <summary id="s14"><span class="sid">S14</span><span class="snm">KPI 대시보드</span><span class="scd">시각화 / BI</span><span class="sgl">스크롤 없이 한 화면 · 모바일에서 안 깨짐</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">데이터를 넣으면 팀 KPI 요약이 뜨는 화면. 자유도와 속도의 트레이드오프</div></div>
           <div><div class="k">골</div><div class="v"><b>한 화면에 스크롤 없이</b> 핵심 지표가 들어가고, 모바일에서도 안 깨진다.<br><span class="small">데모에서 말할 것 — "왜 이 차트를 골랐고, 무엇을 안 넣었나"</span></div></div>
@@ -1204,7 +1204,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S15</span><span class="snm">느린 화면 살리기</span><span class="scd">캐시 / 성능</span><span class="sgl">개선 전후 ms를 스크린샷 두 장으로</span><span class="arw">›</span></summary>
+        <summary id="s15"><span class="sid">S15</span><span class="snm">느린 화면 살리기</span><span class="scd">캐시 / 성능</span><span class="sgl">개선 전후 ms를 스크린샷 두 장으로</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">1만 건 이상을 다루는 화면을 빠르게. 더미 데이터 허용</div></div>
           <div><div class="k">골</div><div class="v"><b>개선 전 __ms → 개선 후 __ms</b>를 스크린샷 두 장으로 보여준다. <b>측정이 없으면 미완.</b><br><span class="small">데모에서 말할 것 — "어느 층을 손대서 가장 크게 줄었나"</span></div></div>
@@ -1215,7 +1215,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S16</span><span class="snm">사용자 행동 추적</span><span class="scd">분석 / 관측</span><span class="sgl">커스텀 이벤트 3개 기록 + 한 문장 결론</span><span class="arw">›</span></summary>
+        <summary id="s16"><span class="sid">S16</span><span class="snm">사용자 행동 추적</span><span class="scd">분석 / 관측</span><span class="sgl">커스텀 이벤트 3개 기록 + 한 문장 결론</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">내가 만든 사이트를 사람들이 어디서 이탈하는지 본다. 지표 설계</div></div>
           <div><div class="k">골</div><div class="v">내가 정의한 <b>이벤트 3개가 실제로 기록</b>되고, 그 데이터로 <b>"사람들이 어디서 멈추는지" 한 문장 결론</b>을 낸다.<br><span class="small">데모에서 말할 것 — 그 한 문장</span></div></div>
@@ -1226,7 +1226,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S17</span><span class="snm">같은 앱, 두 스택<span class="tagm">통합</span><span class="tagm h">하이라이트</span></span><span class="scd">Postgres vs Firebase</span><span class="sgl">두 URL이 모두 열리고 같은 기능을 한다</span><span class="arw">›</span></summary>
+        <summary id="s17"><span class="sid">S17</span><span class="snm">같은 앱, 두 스택<span class="tagm">통합</span><span class="tagm h">하이라이트</span></span><span class="scd">Postgres vs Firebase</span><span class="sgl">두 URL이 모두 열리고 같은 기능을 한다</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v"><b>아주 작은 앱 하나를 Postgres(Supabase)와 Firebase 양쪽으로 각각 구현</b>한다. 같은 요구사항을 두 패러다임으로 풀어보며 각 스택의 강점이 어디서 나오는지 체감한다.</div></div>
           <div><div class="k">골</div><div class="v"><b>두 URL이 모두 열리고 같은 기능을 한다.</b> 비교 리포트에 코드 줄 수, 셋업 시간, 막힌 지점이 <b>숫자로</b> 들어 있다.<br><span class="small">데모에서 말할 것 — "어떤 요구사항이면 어느 쪽"을 한 문장 결론으로</span></div></div>
@@ -1237,7 +1237,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
 
       <details class="sp">
-        <summary><span class="sid">S18</span><span class="snm">리메이크<span class="tagm h">파이널</span></span><span class="scd">스택 자유</span><span class="sgl">개선 전후 + 실제 사용자 1명이 쓴 증거</span><span class="arw">›</span></summary>
+        <summary id="s18"><span class="sid">S18</span><span class="snm">리메이크<span class="tagm h">파이널</span></span><span class="scd">스택 자유</span><span class="sgl">개선 전후 + 실제 사용자 1명이 쓴 증거</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
           <div><div class="k">미션</div><div class="v">그동안 만든 것 중 1개를 골라 <b>실제로 쓰이는 수준</b>으로 끌어올린다. 스택은 자유 — 단 왜 그 조합을 골랐는지 스택 리포트 18장을 근거로 설명한다.</div></div>
           <div><div class="k">골</div><div class="v"><b>개선 전후를 나란히 보여주고</b>, 실제 사용자 1명이 <b>이번 주에 그걸 썼다는 증거</b>가 있다.<br><span class="small">데모에서 말할 것 — "18주 리포트를 근거로 이 스택 조합을 고른 이유"</span></div></div>
@@ -1301,6 +1301,15 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
   window.addEventListener('afterprint',function(){
     document.querySelectorAll('details').forEach(function(d){ d.open=d.dataset.w==='1'; });
   });
+})();
+// 갤러리 마디에서 #s02 같은 해시로 들어오면 해당 스프린트를 펼쳐서 보여준다
+(function(){
+  function openHash(){
+    var t = location.hash && document.getElementById(location.hash.slice(1));
+    if (t && t.closest('details')) { t.closest('details').open = true; t.scrollIntoView({behavior:'instant',block:'start'}); }
+  }
+  openHash();
+  window.addEventListener('hashchange', openHash);
 })();
 </script>
 </body>
