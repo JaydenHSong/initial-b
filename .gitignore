@@ -4,6 +4,11 @@ node_modules/
 *.log
 .vercel
 
+# 루트의 package.json은 Vercel CLI 로컬 설치 흔적일 뿐이다.
+# 주차 폴더(01/, 02/ …)의 package.json은 실제 프로젝트 파일이므로 무시하지 않는다.
+/package.json
+/package-lock.json
+
 # 팀 내부 문서 — 공개 리포에 올리지 않는다 (로컬에는 그대로 있음)
 # (훈련 가이드는 01/guide.html로 공개 전환됨)
 CLAUDE.md
