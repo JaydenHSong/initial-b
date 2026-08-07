@@ -240,9 +240,9 @@ function render() {
     const k = r.sprint || '미분류';
     (bySprint.get(k) || bySprint.set(k, []).get(k)).push(r);
   });
-  // 미분류는 맨 위로 — 아래쪽은 "이번 주 → 다음 주 예고"로 비워둔다
+  // 미분류는 맨 아래로 (스프린트를 못 읽은 카드라 시간축에 놓을 자리가 없다)
   const keys = [...bySprint.keys()].sort((a, b) =>
-    a === '미분류' ? -1 : b === '미분류' ? 1 : a.localeCompare(b));
+    a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
   const up = ROAD.find(r => new Date(r[1]) > new Date()); // 다음 스프린트 (시즌 끝나면 없음)
   $('main').innerHTML = keys.map(k => {
     const ri = roadOf(k);
@@ -261,7 +261,9 @@ let jumped = false;
 function jumpToCurrent() {
   if (jumped || location.hash) return;
   jumped = true;
-  const nodes = document.querySelectorAll('#main .node');
+  // 맨 아래 미분류 마디는 이번 주가 아니므로 건너뛴다
+  const nodes = [...document.querySelectorAll('#main .node')]
+    .filter(n => n.querySelector('.dot').textContent.trim() !== '미분류');
   if (nodes.length < 2) return;
   nodes[nodes.length - 1].scrollIntoView({ behavior: 'instant', block: 'start' });
 }
