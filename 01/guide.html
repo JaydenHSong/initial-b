@@ -162,6 +162,13 @@ html[data-theme="dark"] .chip{background:#2c2c2e}
 .chip.on{background:var(--acc);color:#fff}
 html[data-theme="dark"] .chip.on{color:#1d1d1f}
 .chip.mute{opacity:.62}
+/* 예비 카드·주제 — 누르면 아래 상자에 설명이 나온다 */
+.chips.pick .chip{border:0;font-family:inherit;cursor:pointer}
+.chips.pick .chip:hover{color:var(--ink)}
+h4 .hint{font-size:13px;font-weight:400;color:var(--ink3)}
+.chipdesc{margin:4px 0 0;padding:14px 18px;border-radius:12px;background:var(--bg2);
+  font-size:15px;color:var(--ink2);line-height:1.6}
+html[data-theme="dark"] .chipdesc{background:#2c2c2e}
 /* chip surface must contrast with whatever it sits on */
 .tile .chip{background:var(--bg2)}                 /* 흰 타일 위 → 회색 */
 .band.alt .chip{background:var(--bg)}              /* 회색 밴드 위 → 흰색 */
@@ -1246,18 +1253,20 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
       </details>
     </div>
 
-    <h4>예비 카드</h4>
-    <div class="chips">
-      <span class="chip">메시지 큐</span><span class="chip">엣지 vs 서버 함수</span><span class="chip">ORM 비교</span>
-      <span class="chip">모노레포 · CI</span><span class="chip">Playwright E2E</span><span class="chip">결제</span>
-      <span class="chip">지도</span><span class="chip">PDF 생성</span><span class="chip">이미지 생성 API</span><span class="chip">MCP 서버 만들기</span>
+    <h4>예비 카드 <span class="hint">— 눌러서 내용 보기</span></h4>
+    <div class="chips pick">
+      <button class="chip" data-d="작업을 줄 세워 뒤에서 처리한다. 요청은 즉시 응답하고 무거운 일은 나중에 — 선택지는 SQS · Upstash Redis · pg-boss · Inngest.">메시지 큐</button><button class="chip" data-d="같은 함수를 사용자 가까운 엣지에서 돌릴 때와 리전 서버에서 돌릴 때. 지연 시간은 줄지만 쓸 수 있는 라이브러리와 실행 시간이 제한된다.">엣지 vs 서버 함수</button><button class="chip" data-d="SQL을 직접 쓰는 것과 Prisma · Drizzle 같은 도구를 쓰는 것의 차이. 타입 안전성과 마이그레이션이 갈림길.">ORM 비교</button>
+      <button class="chip" data-d="여러 패키지를 한 레포에서 관리한다. 바뀐 것만 골라 빌드·테스트하게 만드는 것이 핵심 — 이 레포의 18주 구조와 같은 문제다.">모노레포 · CI</button><button class="chip" data-d="브라우저를 실제로 띄워 클릭까지 자동 검증한다. 어디까지 테스트할지 선 긋는 게 실력.">Playwright E2E</button><button class="chip" data-d="Stripe · Toss 등. 결제는 화면의 성공 응답이 아니라 웹훅으로 확정된다는 걸 체감하는 주.">결제</button>
+      <button class="chip" data-d="좌표 · 마커 · 경로. Google Maps · Mapbox · Leaflet은 비용과 자유도가 확연히 다르다.">지도</button><button class="chip" data-d="브라우저 인쇄 · 서버 렌더링 · 템플릿 엔진 중 택1. 한글 폰트 임베딩이 첫 관문.">PDF 생성</button><button class="chip" data-d="프롬프트로 이미지를 만들어 저장까지. 비용 · 지연 · 저작권 취급이 실제 쟁점.">이미지 생성 API</button><button class="chip" data-d="Claude가 쓸 도구를 직접 만들어 붙인다. 이 훈련에서 쓰는 도구를 스스로 만드는 셈.">MCP 서버 만들기</button>
     </div>
-    <h4 style="margin-top:32px">예비 주제</h4>
-    <div class="chips">
-      <span class="chip">나를 파는 원페이지</span><span class="chip">점심 결정기</span><span class="chip">계약서 요약기</span>
-      <span class="chip">페어 부스 동선 플래너</span><span class="chip">사내 회의실 예약</span><span class="chip">번역 품질 비교기</span>
-      <span class="chip">제품 사진 배경 교체기</span><span class="chip">팀 스킬 매트릭스</span><span class="chip">컬러 트렌드 무드보드</span>
+    <div class="chipdesc" hidden></div>
+    <h4 style="margin-top:32px">예비 주제 <span class="hint">— 눌러서 내용 보기</span></h4>
+    <div class="chips pick">
+      <button class="chip" data-d="이력과 작업물을 한 화면으로. 정적 배포의 가장 짧은 사이클을 끝까지 도는 연습.">나를 파는 원페이지</button><button class="chip" data-d="후보를 넣으면 골라준다. 아주 작은 상태 관리와 공유 링크가 전부인 최소 과제.">점심 결정기</button><button class="chip" data-d="긴 문서를 넣으면 조항별로 요약한다. 문서 파싱과 LLM 호출이 한 줄로 이어지는 구조.">계약서 요약기</button>
+      <button class="chip" data-d="부스 배치와 방문 순서를 짠다. 좌표와 순서를 어떻게 저장할지가 설계의 전부.">페어 부스 동선 플래너</button><button class="chip" data-d="시간대 충돌을 막는 것이 전부. 예약 도메인의 고전 문제라 스택 비교에 좋다.">사내 회의실 예약</button><button class="chip" data-d="같은 문장을 여러 엔진에 넣고 나란히 본다. 평가 기준을 정하는 게 어려운 부분.">번역 품질 비교기</button>
+      <button class="chip" data-d="이미지를 올리면 배경을 지우고 갈아끼운다. 업로드 · 처리 · 저장이 한 줄로 이어진다.">제품 사진 배경 교체기</button><button class="chip" data-d="사람 × 스킬 표. 다대다 관계의 전형이라 S02와 같은 근육을 쓴다.">팀 스킬 매트릭스</button><button class="chip" data-d="이미지에서 색을 뽑아 팔레트로 모은다. 결과가 눈에 바로 보여 데모가 쉽다.">컬러 트렌드 무드보드</button>
     </div>
+    <div class="chipdesc" hidden></div>
   </div>
 </div>
 
@@ -1302,6 +1311,20 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     document.querySelectorAll('details').forEach(function(d){ d.open=d.dataset.w==='1'; });
   });
 })();
+// 예비 카드·주제 칩 — 누르면 바로 아래 상자에 설명, 다시 누르면 닫힘
+document.querySelectorAll('.chips.pick').forEach(function(g){
+  var box = g.nextElementSibling;
+  g.addEventListener('click', function(e){
+    var c = e.target.closest('.chip'); if (!c) return;
+    var was = c.classList.contains('on');
+    g.querySelectorAll('.chip.on').forEach(function(x){ x.classList.remove('on'); });
+    if (was) { box.hidden = true; return; }
+    c.classList.add('on');
+    box.textContent = c.dataset.d;
+    box.hidden = false;
+  });
+});
+
 // 갤러리 마디에서 #s02 같은 해시로 들어오면 해당 스프린트를 펼쳐서 보여준다
 (function(){
   function openHash(){
