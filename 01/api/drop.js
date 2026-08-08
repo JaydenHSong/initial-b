@@ -62,9 +62,11 @@ export default async function handler(req, res) {
   const base = target.origin + target.pathname.replace(/\/+$/, '');
 
   const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null, repo: null };
+  let planOk = false;
   try {
     const plan = await fetchWithTimeout(`${base}/docs/plan.html`, 6000);
     if (plan.ok) {
+      planOk = true;
       const html = await plan.text();
       row.sprint = pick(html, 'sprint');
       row.author = pick(html, 'author');
@@ -73,7 +75,11 @@ export default async function handler(req, res) {
       row.title = pick(html, 'title') || pickTitle(html);
       // 기획서에 data-f="repo"로 소스 저장소를 적으면 카드에 링크가 붙는다
       const m = html.match(/data-f="repo"[^>]*(?:href="([^"]+)"[^>]*>|>\s*(https?:\/\/[^\s<]+))/i);
-      row.repo = m ? (m[1] || m[2]) : null;
+      // 템플릿 기본값(https://github.com/)처럼 경로 없는 주소는 저장소가 아니다 — 헛 링크 방지
+      try {
+        const u = new URL(m[1] || m[2]);
+        row.repo = u.pathname.replace(/\/+$/, '') ? u.href : null;
+      } catch { row.repo = null; }
     }
   } catch { /* 기획서 없음 — 폴백 */ }
   if (!row.title) {
@@ -92,9 +98,11 @@ export default async function handler(req, res) {
   });
   const existed = ex.ok && (await ex.json()).length > 0;
 
-  // 못 읽은 칸은 아예 빼고 보낸다 — 재드랍 때 사이트가 잠깐 죽어 있어도
-  // 기존 카드 내용이 null로 덮이지 않는다
-  const payload = Object.fromEntries(Object.entries(row).filter(([, v]) => v !== null));
+  // 기획서를 읽었으면 그 내용이 정본이다 — 빠진 칸은 지우는 게 맞다.
+  // 못 읽었으면(사이트가 잠깐 죽었거나 규약 미준수) 기존 카드를 건드리지 않는다.
+  // 썸네일만 예외 — 캡처가 실패했다고 멀쩡한 썸네일을 지우지 않는다.
+  const payload = Object.fromEntries(Object.entries(row).filter(([k, v]) =>
+    k === 'shot_url' ? v !== null : planOk || v !== null));
 
   // merge-duplicates = 같은 URL을 다시 드랍하면 카드가 갱신된다 (기획서 수정 반영)
   const ins = await fetch(`${SUPA}/rest/v1/sites?on_conflict=url`, {
