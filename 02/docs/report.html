@@ -62,9 +62,9 @@
   <div class="intro-line" data-f="intro">ASIN을 붙여넣으면 제목·가격을 채워 저장하고, 태그 여러 개로 묶어 걸러 본다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">30</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">20분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.5초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
@@ -72,16 +72,16 @@
     <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
     <tr><td>스택 카드</td><td data-f="card">데이터 저장</td></tr>
     <tr><td>내 옵션</td><td data-f="option">Firestore (문서형)</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">아마존이 데이터센터 IP에는 축약 페이지를 준다. 브레드크럼·갤러리 이미지가 아예 없는데 정규식 탓인 줄 알고 배포를 네 번 돌렸다 — 잡히던 문자열은 검색창 설정 스크립트와 CSS 규칙이었다.</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">중</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">중</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">Spark 무료: 일 읽기 50,000 · 쓰기 20,000 · 저장 1GiB. 제품 20개를 매일 갱신해도 남는다</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
     <tr><td>URL</td><td><a data-f="url" href="https://initial-b02.vercel.app">initial-b02.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">태그 하나로만 걸러도 되는 경우에는 쓰겠다 — 조인 테이블 없이 배열 필드 하나로 끝나고 셋업이 30분이다. 태그 여러 개를 AND로 걸러야 하면 안 쓰겠다: Firestore는 array-contains를 질의당 하나만 허용하고 array-contains-all이 없어서, 첫 태그로만 좁힌 뒤 나머지는 클라이언트가 읽고 버린다. 버린 문서에도 읽기 요금이 붙는다.</div>
 
 </div>
 
