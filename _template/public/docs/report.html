@@ -44,17 +44,10 @@
   .conclusion { border-left:3px solid var(--acc); padding:10px 16px; background:var(--paper);
     border-radius:0 10px 10px 0; font-size:15px; margin-top:6px; }
   /* 복사 버튼 — 시트 제출용 TSV */
-  .copybar { display:flex; gap:10px; margin-top:34px; flex-wrap:wrap; }
-  .copybar button { font-family:"IBM Plex Mono",monospace; font-size:12.5px; font-weight:600;
-    border:1.5px solid var(--ink); background:var(--ink); color:#fff; border-radius:9px;
-    padding:10px 16px; cursor:pointer; }
-  .copybar button.alt { background:transparent; color:var(--ink); }
-  .copybar button:active { transform:translateY(1px); }
-  .copymsg { font-size:12px; color:var(--acc); align-self:center; font-family:"IBM Plex Mono",monospace; }
   footer { max-width:760px; margin:26px auto 0; text-align:center; font-family:"IBM Plex Mono",monospace;
     font-size:11.5px; color:var(--dim); }
   @media (max-width:600px) { .doc { padding:30px 22px; } .bignums { grid-template-columns:1fr; } }
-  @media print { .topbar, .copybar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
+  @media print { .topbar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
 </style>
 
 <div class="topbar">
@@ -90,32 +83,8 @@
   <h2>한 줄 결론</h2>
   <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
 
-  <div class="copybar">
-    <button id="cp-reg">레지스트리 한 줄 복사</button>
-    <button id="cp-cmp" class="alt">비교표 한 줄 복사</button>
-    <span class="copymsg" id="cp-msg"></span>
-  </div>
 </div>
 
 <footer>iBD 바이브 코딩 · 복사한 줄을 시트 맨 아랫줄에 붙여넣으면 열이 자동으로 나뉜다</footer>
 
-<script>
-// data-f 값을 읽어 시트에 붙여넣을 탭 구분 한 줄을 만든다
-const f = n => (document.querySelector(`[data-f="${n}"]`)?.textContent ?? '').trim().replace(/\s+/g, ' ');
-const url = () => document.querySelector('[data-f="url"]')?.getAttribute('href') ?? '';
-const copy = (cells, label) => {
-  navigator.clipboard.writeText(cells.join('\t')).then(() => {
-    const m = document.getElementById('cp-msg');
-    m.textContent = label + ' 복사됨 — 시트 맨 아랫줄에 붙여넣기';
-    setTimeout(() => (m.textContent = ''), 4000);
-  });
-};
-// 레지스트리 탭: 스프린트 · 만든 사람 · 제목 · URL · 스택 카드 · 내 옵션 · 한 줄 소개
-document.getElementById('cp-reg').onclick = () =>
-  copy([f('sprint'), f('author'), f('title'), url(), f('card'), f('option'), f('intro')], '레지스트리');
-// 비교표 탭: 스프린트 · 스택 카드 · 내 옵션 · 만든 사람 · 첫 저장(분) · 막힌 지점 · 문서 · AI · 무료 한도 · 맞았나 · 결론
-document.getElementById('cp-cmp').onclick = () =>
-  copy([f('sprint'), f('card'), f('option'), f('author'), f('minutes'), f('blocker'),
-        f('docs'), f('ai'), f('limit'), f('fit'), f('conclusion')], '비교표');
-</script>
 </html>
