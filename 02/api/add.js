@@ -97,6 +97,14 @@ export default async function handler(req, res) {
   const autoTags = got.cats.filter((t) => !tags.includes(t));
   const tagNames = [...new Set([...tags, ...autoTags])];
 
+  const ref = db.collection('products').doc(asin);
+  const prev = (await ref.get()).data() ?? {};
+
+  // 최저가는 제품 문서에 중복 보관한다. 안 그러면 목록 한 번 그릴 때마다 제품 수만큼
+  // prices 서브컬렉션을 읽어야 한다 (스파이크 실측: 20회 대 5회).
+  const minPrice = got.price == null ? (prev.minPrice ?? null)
+    : prev.minPrice == null ? got.price : Math.min(prev.minPrice, got.price);
+
   const doc = {
     title: got.title,
     price: got.price,
@@ -105,11 +113,20 @@ export default async function handler(req, res) {
     autoTags,
     fetchOk: got.ok,
     fetchNote: got.reason,
-    addedAt: FieldValue.serverTimestamp(),
+    lastPrice: got.price,
+    minPrice,
+    checkedAt: FieldValue.serverTimestamp(),
+    addedAt: prev.addedAt ?? FieldValue.serverTimestamp(),
   };
 
   try {
-    await db.collection('products').doc(asin).set(doc);
+    // merge 로 쓴다 — 재등록해도 targetPrice·hitAt 같은 사용자 설정이 날아가면 안 된다.
+    await ref.set(doc, { merge: true });
+    // 등록 시점의 가격을 시계열에 한 점 남긴다. 같은 날 다시 등록하면 그 날 점을 덮는다.
+    if (got.price != null) {
+      const day = new Date().toISOString().slice(0, 10);
+      await ref.collection('prices').doc(day).set({ price: got.price, at: day });
+    }
   } catch (e) {
     return res.status(500).json({ error: 'Firestore 쓰기 실패: ' + String(e.message).slice(0, 120) });
   }

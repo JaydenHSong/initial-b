@@ -45,11 +45,35 @@
   .note { font-size:13px; font-weight:500; color:var(--dim); margin-bottom:18px; }
 
   .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
-  .card { background:var(--bg); border:1.5px solid var(--line); border-radius:16px;
-    padding:14px; display:flex; flex-direction:column;
-    color:inherit; text-decoration:none; transition:border-color .12s, box-shadow .12s; }
-  a.card:hover { border-color:var(--acc); box-shadow:0 4px 14px rgba(17,24,39,.08); }
-  a.card:hover h2 { color:var(--acc); }
+  /* 카드 뒤집기 — 앞면이 높이를 정하고 뒷면은 그 위에 겹친다 */
+  .card { perspective:1200px; cursor:pointer; }
+  .inner { position:relative; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.4,.1,.2,1); }
+  .card.flip .inner { transform:rotateY(180deg); }
+  .face { background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:14px;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .front { display:flex; flex-direction:column; transition:border-color .12s, box-shadow .12s; }
+  .card:hover .front { border-color:var(--acc); box-shadow:0 4px 14px rgba(17,24,39,.08); }
+  .back { position:absolute; inset:0; transform:rotateY(180deg); overflow:auto;
+    display:flex; flex-direction:column; cursor:default; }
+  .bk-h { display:flex; justify-content:space-between; align-items:center;
+    font-size:13px; font-weight:700; color:var(--dim); margin-bottom:10px; }
+  .bk-x { cursor:pointer; font-size:15px; color:#9ca3af; padding:0 4px; }
+  .hist { flex:1; font-size:13.5px; }
+  .hist .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--line); }
+  .hist .r b { font-weight:700; }
+  .hist .r.low b { color:var(--hot); }
+  .hist .none { color:var(--dim); }
+  .hist .cost { margin-top:8px; font-size:12px; color:#9ca3af; }
+  .tg { display:flex; gap:6px; align-items:center; margin-top:12px; }
+  .tg label { font-size:13px; font-weight:600; color:var(--dim); white-space:nowrap; }
+  .tg input { font-size:14px; padding:7px 10px; }
+  .tg .save { font-size:13px; font-weight:700; padding:7px 14px; border-radius:8px; }
+  .tg-msg { font-size:12.5px; color:var(--dim); margin-top:6px; min-height:1em; }
+  .tg-msg.bad { color:#dc2626; }
+  .amz { margin-top:10px; font-size:13px; font-weight:600; color:var(--acc); text-decoration:none; }
+  .tgt { font-size:12.5px; font-weight:700; color:var(--dim); margin-left:8px;
+    padding:2px 8px; border-radius:999px; background:var(--soft); vertical-align:middle; }
+  .tgt.hit { background:#dcfce7; color:#15803d; }
   .thumb { aspect-ratio:1/1; border-radius:10px; background:var(--soft); margin-bottom:12px;
     display:grid; place-items:center; overflow:hidden; }
   .thumb img { width:100%; height:100%; object-fit:contain; }
@@ -116,14 +140,31 @@ const autoSet = (rows) => new Set(rows.flatMap((d) => d.autoTags ?? (d.autoTag ?
 let autoTags = new Set();
 
 const row = (d) => `
-  <a class="card" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">
-    <div class="thumb">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
-    <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
-    ${d.price != null ? `<div class="price">$${d.price}</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
-    <div class="asin">${d.asin} ↗</div>
-    <div class="tags">${(d.tagNames ?? []).map((t) =>
-      `<span class="${isAuto(d, t) ? 'auto' : ''}">${esc(t)}</span>`).join('')}</div>
-  </a>`;
+  <div class="card" data-asin="${esc(d.asin)}">
+   <div class="inner">
+    <div class="face front">
+      <div class="thumb">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
+      <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
+      ${d.price != null ? `<div class="price">$${d.price}${
+          d.targetPrice != null ? `<span class="tgt${d.lastPrice != null && d.lastPrice <= d.targetPrice ? ' hit' : ''}">목표 $${d.targetPrice}</span>` : ''
+        }</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
+      <div class="asin">${d.asin} · 눌러서 가격 기록 ↻</div>
+      <div class="tags">${(d.tagNames ?? []).map((t) =>
+        `<span class="${isAuto(d, t) ? 'auto' : ''}">${esc(t)}</span>`).join('')}</div>
+    </div>
+    <div class="face back">
+      <div class="bk-h">가격 기록<span class="bk-x">✕</span></div>
+      <div class="hist">불러오는 중…</div>
+      <div class="tg">
+        <label>목표가</label>
+        <input type="number" step="0.01" min="0" placeholder="예: 59.99" value="${d.targetPrice ?? ''}">
+        <button class="save" type="button">저장</button>
+      </div>
+      <div class="tg-msg"></div>
+      <a class="amz" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">아마존에서 보기 ↗</a>
+    </div>
+   </div>
+  </div>`;
 
 // 기존 태그를 눌러 넣는다. 손으로 다시 치면 오타가 나고, 오타 난 태그는 AND 필터에서 조용히 빠진다.
 function renderPick() {
@@ -142,6 +183,57 @@ $('pick').onclick = (e) => {
   renderPick();
 };
 $('tags').oninput = renderPick;
+
+// 카드 뒤집기. 뒷면을 열 때 비로소 그 제품의 prices 서브컬렉션을 읽는다 —
+// 목록에서 미리 읽지 않는 이유가 이번 주 리포트의 핵심이다(제품 N개면 읽기가 N배로 는다).
+$('list').onclick = async (e) => {
+  const card = e.target.closest('.card');
+  if (!card) return;
+  const asin = card.dataset.asin;
+
+  if (e.target.closest('.save')) {
+    const inp = card.querySelector('.tg input');
+    const msg = card.querySelector('.tg-msg');
+    msg.className = 'tg-msg';
+    msg.textContent = '저장 중…';
+    try {
+      const r = await fetch('/api/target', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ asin, target: inp.value === '' ? null : inp.value }),
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error ?? '저장 실패');
+      msg.textContent = j.targetPrice == null ? '목표가를 지웠다'
+        : j.alreadyBelow ? `저장됨 — 지금 $${j.lastPrice}로 이미 목표 아래다`
+        : `저장됨 — 다음 수집부터 감시한다`;
+    } catch (err) {
+      msg.className = 'tg-msg bad';
+      msg.textContent = err.message;
+    }
+    return;
+  }
+  if (e.target.closest('.amz') || e.target.closest('.tg')) return;      // 링크·입력은 뒤집지 않는다
+  if (card.classList.contains('flip') && !e.target.closest('.bk-x')) return;  // 뒷면에선 ✕로만 닫는다
+
+  card.classList.toggle('flip');
+  if (!card.classList.contains('flip')) return;
+
+  const box = card.querySelector('.hist');
+  if (box.dataset.loaded) return;
+  const t0 = performance.now();
+  try {
+    const snap = await getDocs(collection(db, 'products', asin, 'prices'));
+    const pts = snap.docs.map((p) => ({ at: p.id, ...p.data() })).sort((a, b) => (a.at < b.at ? 1 : -1));
+    const min = pts.length ? Math.min(...pts.map((p) => p.price)) : null;
+    box.innerHTML = pts.length
+      ? pts.map((p) => `<div class="r${p.price === min ? ' low' : ''}"><span>${esc(p.at)}</span><b>$${p.price}</b></div>`).join('')
+        + `<div class="cost">이 카드 하나에 문서 ${snap.size}회 읽음 · ${Math.round(performance.now() - t0)}ms</div>`
+      : `<div class="none">아직 기록이 하나뿐이거나 없다. 크론이 하루 한 번 쌓는다.</div>`;
+    box.dataset.loaded = '1';
+  } catch (err) {
+    box.innerHTML = `<div class="none">읽기 실패 — ${esc(err.message)}</div>`;
+  }
+};
 
 async function render() {
   const tags = [...picked];

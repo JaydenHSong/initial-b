@@ -1,8 +1,13 @@
 // 로그인 없는 사이트다. 브라우저는 읽기만 하고, 쓰기는 서버 함수(Admin SDK)만 한다.
-// Admin SDK는 이 규칙을 우회하므로 /api/add 는 영향을 받지 않는다.
+// Admin SDK는 이 규칙을 우회하므로 /api/add · /api/target · /api/cron 은 영향을 받지 않는다.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // {sub=**} 를 붙여야 prices 서브컬렉션까지 읽힌다. 없으면 가격 기록이 브라우저에서 안 보인다.
+    match /products/{asin}/{sub=**} {
+      allow read: if true;
+      allow write: if false;
+    }
     match /products/{asin} {
       allow read: if true;
       allow write: if false;
