@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>스택 비교표 — initial-B</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#101418; --panel:#1a2027; --line:#2b333d; --text:#e9edf1; --dim:#8a95a1; --green:#5fd4a2; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--text); font-family:"Pretendard Variable",sans-serif; min-height:100vh; }
+  header { padding:34px 24px 18px; text-align:center; border-bottom:1px solid var(--line); }
+  .eyebrow { font-family:"IBM Plex Mono",monospace; font-size:11.5px; letter-spacing:.3em; color:var(--dim); }
+  h1 { font-size:30px; font-weight:800; letter-spacing:-.02em; margin:8px 0 6px; }
+  .sub { color:var(--dim); font-size:14px; }
+  .back { display:inline-block; margin-top:14px; font-family:"IBM Plex Mono",monospace; font-size:12px;
+    color:var(--dim); text-decoration:none; }
+  .back:hover { color:var(--green); }
+  main { max-width:1180px; margin:0 auto; padding:24px 20px 80px; }
+  .wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
+  table { border-collapse:collapse; width:100%; min-width:900px; font-size:13px; }
+  th, td { border-bottom:1px solid var(--line); padding:11px 13px; text-align:left; vertical-align:top; }
+  thead th { position:sticky; top:0; background:#151b22; color:var(--dim); font-family:"IBM Plex Mono",monospace;
+    font-size:11px; font-weight:600; letter-spacing:.08em; white-space:nowrap; z-index:1; }
+  tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:rgba(95,212,162,.04); }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .sp { color:var(--green); font-weight:600; }
+  .opt { display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
+    background:rgba(95,212,162,.12); color:var(--green); padding:2px 8px; border-radius:999px; }
+  .g { font-family:"IBM Plex Mono",monospace; font-weight:600; }
+  .g.hi { color:var(--green); } .g.mid { color:#e8c56a; } .g.lo { color:#ff8f8f; }
+  .num { font-family:"IBM Plex Mono",monospace; text-align:right; white-space:nowrap; }
+  .long { min-width:230px; color:var(--dim); line-height:1.5; }
+  .none { color:#4d5763; }
+  a.site { color:var(--text); text-decoration:none; font-weight:600; }
+  a.site:hover { color:var(--green); }
+  .state { color:var(--dim); text-align:center; padding:60px 0; font-size:15px; }
+  .hint { color:var(--dim); font-size:12.5px; margin:0 0 14px; line-height:1.7; }
+  .hint b { color:var(--text); }
+  footer { border-top:1px solid var(--line); padding:24px; text-align:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim); }
+  footer a { color:var(--dim); text-decoration:none; margin:0 10px; }
+  footer a:hover { color:var(--green); }
+  @media (max-width:600px) { h1 { font-size:24px; } main { padding:18px 12px 60px; } }
+</style>
+<header>
+  <div class="eyebrow">iBD VIBE CODING · SEASON 1</div>
+  <h1>스택 비교표</h1>
+  <div class="sub" id="sub">불러오는 중…</div>
+  <a class="back" href="/">← 갤러리로</a>
+</header>
+<main>
+  <p class="hint">
+    각 줄은 그 주에 제출된 <b>스택 리포트</b>에서 자동으로 읽어온 실측이다.
+    빈 칸은 아직 리포트에 안 적힌 항목 — <b>리포트를 채우고 갤러리에 URL을 다시 드랍하면</b> 이 표도 같이 갱신된다.
+  </p>
+  <div class="wrap"><table>
+    <thead><tr>
+      <th>주차</th><th>스택 카드</th><th>옵션</th><th>만든 사람</th>
+      <th class="num">분</th><th>문서</th><th>AI</th><th>적합</th>
+      <th>막힌 지점</th><th>무료 한도</th><th>한 줄 결론</th>
+    </tr></thead>
+    <tbody id="body"><tr><td colspan="11" class="state">불러오는 중…</td></tr></tbody>
+  </table></div>
+</main>
+<footer>
+  <a href="/">갤러리</a>·<a href="/guide.html">훈련 가이드</a>
+</footer>
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const KEY = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 공개 키
+const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dash = '<span class="none">—</span>';
+const grade = v => v ? `<span class="g ${v === '상' || v === '잘 맞음' ? 'hi' : v === '중' || v === '보통' ? 'mid' : 'lo'}">${esc(v)}</span>` : dash;
+
+fetch(`${SUPA}/rest/v1/sites?select=*&order=sprint.asc,author.asc`, {
+  headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+}).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(rows => {
+  // 리포트가 하나라도 채워진 줄만 — 비교표는 실측 기록이 있는 것만 의미가 있다
+  const has = r => r.minutes || r.blocker || r.docs_grade || r.ai_grade || r.free_limit || r.fit || r.conclusion;
+  const filled = rows.filter(has);
+  document.getElementById('sub').textContent =
+    `${filled.length}개 리포트 · 전체 제출 ${rows.length}개`;
+  if (!filled.length) {
+    document.getElementById('body').innerHTML =
+      '<tr><td colspan="11" class="state">아직 채워진 리포트가 없다. 리포트를 채우고 갤러리에 다시 드랍하면 여기 쌓인다.</td></tr>';
+    return;
+  }
+  document.getElementById('body').innerHTML = filled.map(r => `<tr>
+    <td class="mono sp">${esc(r.sprint) || dash}</td>
+    <td>${esc(r.stack_card) || dash}</td>
+    <td>${r.stack_option ? `<span class="opt">${esc(r.stack_option)}</span>` : dash}</td>
+    <td><a class="site" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.author || r.title)} ↗</a></td>
+    <td class="num">${r.minutes != null ? r.minutes : dash}</td>
+    <td>${grade(r.docs_grade)}</td>
+    <td>${grade(r.ai_grade)}</td>
+    <td>${grade(r.fit)}</td>
+    <td class="long">${esc(r.blocker) || dash}</td>
+    <td class="long">${esc(r.free_limit) || dash}</td>
+    <td class="long">${esc(r.conclusion) || dash}</td>
+  </tr>`).join('');
+}).catch(() => {
+  document.getElementById('sub').textContent = '';
+  document.getElementById('body').innerHTML =
+    '<tr><td colspan="11" class="state">레지스트리를 못 읽었다. 잠시 뒤 새로고침하거나 관리자에게.</td></tr>';
+});
+</script>
+</html>

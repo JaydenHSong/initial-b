@@ -20,6 +20,12 @@ const pickTitle = html => {
   return m ? m[1].trim() : null;
 };
 
+// 리포트는 안 채운 칸이 템플릿 안내문 그대로 남는다 — 그걸 실측값으로 저장하지 않는다.
+const HINT = /^(기록 없음|이번 주 스택 카드|내가 고른 선택지|프로젝트 제목|이름|S00)$|중 하나|여러 개 쓰지 마라|형태로|^"____/;
+const clean = v => (v && !HINT.test(v) ? v : null);
+const oneOf = (v, allowed) => (allowed.includes(v) ? v : null);
+const posInt = v => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : null; };
+
 // 드랍 시 1회: 스크린샷을 Storage에 복사해 우리 URL을 반환.
 // 캡처 자체는 브라우저가 microlink를 호출해 src를 넘긴다 (Vercel 공유 IP는 무료 쿼터가 늘 소진돼 있음).
 // src 없이 오면 서버가 직접 시도한다 (API 직접 호출용 폴백).
@@ -61,7 +67,12 @@ export default async function handler(req, res) {
   }
   const base = target.origin + target.pathname.replace(/\/+$/, '');
 
-  const row = { url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null, repo: null };
+  const row = {
+    url: base, sprint: null, title: null, author: null, stack_option: null, intro: null, shot_url: null, repo: null,
+    // 스택 비교표 칸 — /docs/report.html에서 읽는다 (시트 대신 DB에 쌓는다)
+    stack_card: null, minutes: null, blocker: null, docs_grade: null, ai_grade: null,
+    free_limit: null, fit: null, conclusion: null,
+  };
   let planOk = false;
   try {
     const plan = await fetchWithTimeout(`${base}/docs/plan.html`, 6000);
@@ -82,6 +93,26 @@ export default async function handler(req, res) {
       } catch { row.repo = null; }
     }
   } catch { /* 기획서 없음 — 폴백 */ }
+
+  // 스택 리포트는 목요일에 채워진다. 아직 비었어도 드랍은 성공하고,
+  // 나중에 채운 뒤 다시 드랍하면 그때 채워진다.
+  let reportOk = false;
+  try {
+    const rep = await fetchWithTimeout(`${base}/docs/report.html`, 6000);
+    if (rep.ok) {
+      reportOk = true;
+      const h = await rep.text();
+      row.stack_card = clean(pick(h, 'card'));
+      row.minutes    = posInt(pick(h, 'minutes'));
+      row.blocker    = clean(pick(h, 'blocker'));
+      row.docs_grade = oneOf(pick(h, 'docs'), ['상', '중', '하']);
+      row.ai_grade   = oneOf(pick(h, 'ai'), ['상', '중', '하']);
+      row.free_limit = clean(pick(h, 'limit'));
+      row.fit        = oneOf(pick(h, 'fit'), ['잘 맞음', '보통', '안 맞음']);
+      row.conclusion = clean(pick(h, 'conclusion'));
+    }
+  } catch { /* 리포트 없음 — 비교표 칸만 빈다 */ }
+
   if (!row.title) {
     try {
       const page = await fetchWithTimeout(base, 6000);
@@ -98,11 +129,14 @@ export default async function handler(req, res) {
   });
   const existed = ex.ok && (await ex.json()).length > 0;
 
-  // 기획서를 읽었으면 그 내용이 정본이다 — 빠진 칸은 지우는 게 맞다.
-  // 못 읽었으면(사이트가 잠깐 죽었거나 규약 미준수) 기존 카드를 건드리지 않는다.
+  // 읽어낸 문서가 그 칸의 정본이다 — 문서에서 뺀 항목은 카드에서도 지운다.
+  // 못 읽은 문서의 칸은 건드리지 않는다 (사이트가 잠깐 죽어도 기존 값이 안 날아간다).
   // 썸네일만 예외 — 캡처가 실패했다고 멀쩡한 썸네일을 지우지 않는다.
+  const REPORT_KEYS = ['stack_card', 'minutes', 'blocker', 'docs_grade', 'ai_grade', 'free_limit', 'fit', 'conclusion'];
+  const authoritative = k =>
+    k === 'shot_url' ? false : REPORT_KEYS.includes(k) ? reportOk : planOk;
   const payload = Object.fromEntries(Object.entries(row).filter(([k, v]) =>
-    k === 'shot_url' ? v !== null : planOk || v !== null));
+    v !== null || authoritative(k)));
 
   // merge-duplicates = 같은 URL을 다시 드랍하면 카드가 갱신된다 (기획서 수정 반영)
   const ins = await fetch(`${SUPA}/rest/v1/sites?on_conflict=url`, {
