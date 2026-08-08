@@ -5,8 +5,8 @@ node_modules/
 .vercel
 
 # 세션별 격리 작업 공간 — 레포 사본이 통째로 들어앉는다. 커밋되면 안 된다.
-# 지금까지 .git/info/exclude로만 막고 있었는데 그건 커밋되지 않아 clone에 따라오지 않는다.
-.claude/worktrees/
+# 주차 폴더를 열고 세션을 띄우면 03/.claude/ 아래에도 생기므로 깊이를 안 따진다.
+**/.claude/worktrees/
 
 # 루트의 package.json은 Vercel CLI 로컬 설치 흔적일 뿐이다.
 # 주차 폴더(01/, 02/ …)의 package.json은 실제 프로젝트 파일이므로 무시하지 않는다.
