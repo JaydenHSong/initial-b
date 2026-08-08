@@ -22,12 +22,14 @@ async function scrape(asin) {
     const price = html.match(/"priceAmount":([0-9.]+)/)?.[1];
     let title = html.match(/<title>([^<]*)/)?.[1] ?? '';
 
-    // 썸네일 — 아마존이 페이지마다 다른 자리에 넣어서 순서대로 떨어뜨린다.
+    // 썸네일 — 대표 이미지부터 본다.
+    // og:image와 landingImage는 "이 ASIN의 대표 이미지"가 확실하다. hiRes/large는
+    // 색상·옵션 변형 목록의 첫 항목이라 변형이 있는 제품에서 엉뚱한 게 잡힐 수 있어 뒤로 뺐다.
     const image =
-      one(/"hiRes":"(https:[^"]+)"/) ??
-      one(/"large":"(https:[^"]+)"/) ??
       one(/<meta property="og:image" content="([^"]+)"/) ??
-      one(/id="landingImage"[^>]*\ssrc="([^"]+)"/);
+      one(/id="landingImage"[^>]*\ssrc="([^"]+)"/) ??
+      one(/"hiRes":"(https:[^"]+)"/) ??
+      one(/"large":"(https:[^"]+)"/);
 
     // 카테고리 — <title> 꼬리(": Electronics")가 전부다.
     // 브레드크럼·베스트셀러 순위·JSON-LD를 전부 시도했으나, 아마존이 데이터센터 IP에
