@@ -97,8 +97,16 @@
   footer a { color:var(--dim); text-decoration:none; margin:0 10px; }
   footer a:hover { color:var(--green); }
   footer .copy { display:block; font-size:11.5px; opacity:.75; }
+  .entry:focus-visible { outline:2px solid var(--green); outline-offset:3px; border-color:var(--green); }
   @media (max-width:760px) {
-    h1 { font-size:36px; }
+    /* 첫 화면의 3분의 1을 헤더가 먹지 않게 — 스크롤 전에도 카드가 보여야 한다 */
+    header { padding:22px 20px 0; }
+    h1 { font-size:32px; margin:6px 0 6px; }
+    .eyebrow { font-size:10.5px; letter-spacing:.24em; }
+    .sub { font-size:13px; }
+    form { margin-top:16px; }
+    nav { padding:10px 16px; }
+    main { margin-top:24px; }
     main::before { left:28px; }
     .node { text-align:left; }
     .node .label { margin-left:0; }
@@ -158,6 +166,13 @@ const ROAD = [
 ];
 const roadOf = k => ROAD.find(r => r[0] === k);
 
+// 좁은 화면에서는 안내 문구가 잘리므로 짧은 쪽으로 바꾼다
+const narrow = matchMedia('(max-width:480px)');
+const setPlaceholder = () =>
+  $('url').placeholder = narrow.matches ? '배포 URL 붙여넣고 엔터' : '배포 URL을 붙여넣고 엔터 — 그게 제출이다';
+setPlaceholder();
+narrow.addEventListener('change', setPlaceholder);
+
 // 스크롤하면 헤더가 한 줄 바로 접힌다
 addEventListener('scroll', () =>
   document.querySelector('header').classList.toggle('compact', scrollY > 40), { passive: true });
@@ -194,18 +209,23 @@ function dday() {
 }
 
 function entry(r, side) {
+  const title = r.title || new URL(r.url).hostname;
   const badge = r.stack_option
     ? `<span class="opt">${esc(r.stack_option)}</span>`
     : `<span class="opt none">기획서 없음</span>`;
-  const shot = r.shot_url ? `<div class="shot" style="background-image:url('${esc(r.shot_url)}')"></div>`
-                          : `<div class="shot"></div>`;
-  return `<div class="entry ${side}" data-url="${esc(r.url)}">
+  // 썸네일은 배경 이미지라 스크린리더가 못 읽는다 — role/aria-label로 읽히게 한다
+  const shot = r.shot_url
+    ? `<div class="shot" role="img" aria-label="${esc(title)} 스크린샷" style="background-image:url('${esc(r.shot_url)}')"></div>`
+    : `<div class="shot"></div>`;
+  // div 카드라 Tab이 안 닿는다 — role/tabindex를 주고 Enter·Space로도 열리게 한다
+  return `<div class="entry ${side}" data-url="${esc(r.url)}"
+      role="link" tabindex="0" aria-label="${esc(title)} 사이트 열기">
     ${shot}
     <div class="body">
-      <h2>${esc(r.title || new URL(r.url).hostname)}</h2>
+      <h2>${esc(title)}</h2>
       <div class="who">${esc(r.author || '만든 사람 미상')}</div>
       ${badge}
-      <p>${esc(r.intro || '')}</p>
+      ${r.intro ? `<p>${esc(r.intro)}</p>` : ''}
       <div class="doclinks docs">
         <a href="${esc(r.url)}/docs/plan.html" target="_blank" rel="noopener">기획서 ↗</a>
         <a href="${esc(r.url)}/docs/report.html" target="_blank" rel="noopener">리포트 ↗</a>
@@ -220,9 +240,11 @@ function render() {
   $('tagline').innerHTML =
     `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 목 18:00 마감 <b>D-${dday()}</b>`;
 
-  // 스프린트 바로가기 + 스택 필터 칩
-  const sprints = [...new Set(ALL.map(r => r.sprint || '미분류'))]
-    .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : b.localeCompare(a));
+  // 스프린트 바로가기 + 스택 필터 칩.
+  // 칩은 화면에 실제로 그려진 마디(rows)만 — 필터로 사라진 마디는 눌러도 갈 곳이 없다.
+  // 정렬은 타임라인과 같은 오름차순(미분류는 맨 뒤).
+  const sprints = [...new Set(rows.map(r => r.sprint || '미분류'))]
+    .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
   const opts = [...new Set(ALL.map(r => r.stack_option).filter(Boolean))];
   $('nav').hidden = !ALL.length;
   $('nav').innerHTML =
@@ -301,7 +323,7 @@ $('dropform').addEventListener('submit', async e => {
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || r.status);
-    msg.textContent = data.duplicate ? '이미 등록된 URL이다.' : '등록됐다.';
+    msg.textContent = data.updated ? '이미 있던 URL — 카드를 새로 읽었다.' : '등록됐다.';
     $('url').value = '';
     load();
   } catch (err) {
@@ -314,6 +336,15 @@ document.addEventListener('click', e => {
   if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; animatedRender(); return; }
   const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
+});
+
+// 카드 위에서 Enter·Space로도 열린다 (마우스 없이 쓰는 사람용)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const card = e.target.closest?.('.entry');
+  if (!card) return;
+  e.preventDefault();
+  window.open(card.dataset.url, '_blank', 'noopener');
 });
 
 load();

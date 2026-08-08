@@ -86,24 +86,27 @@ export default async function handler(req, res) {
 
   try { row.shot_url = await capture(base, (req.body || {}).shot_src); } catch { /* 썸네일 없이 저장 */ }
 
+  // 이미 있는 URL인지 먼저 본다 — 새로 등록인지 갱신인지 알려주기 위해
+  const ex = await fetch(`${SUPA}/rest/v1/sites?url=eq.${encodeURIComponent(base)}&select=id`, {
+    headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+  });
+  const existed = ex.ok && (await ex.json()).length > 0;
+
+  // 못 읽은 칸은 아예 빼고 보낸다 — 재드랍 때 사이트가 잠깐 죽어 있어도
+  // 기존 카드 내용이 null로 덮이지 않는다
+  const payload = Object.fromEntries(Object.entries(row).filter(([, v]) => v !== null));
+
+  // merge-duplicates = 같은 URL을 다시 드랍하면 카드가 갱신된다 (기획서 수정 반영)
   const ins = await fetch(`${SUPA}/rest/v1/sites?on_conflict=url`, {
     method: 'POST',
     headers: {
       apikey: KEY, Authorization: `Bearer ${KEY}`,
       'Content-Type': 'application/json',
-      Prefer: 'resolution=ignore-duplicates,return=representation',
+      Prefer: 'resolution=merge-duplicates,return=representation',
     },
-    body: JSON.stringify(row),
+    body: JSON.stringify(payload),
   });
-  if (!ins.ok) return res.status(502).json({ error: `DB insert ${ins.status}` });
+  if (!ins.ok) return res.status(502).json({ error: `DB upsert ${ins.status}` });
   const saved = await ins.json();
-
-  if (!saved.length) {
-    const ex = await fetch(`${SUPA}/rest/v1/sites?url=eq.${encodeURIComponent(base)}&select=*`, {
-      headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
-    });
-    const rows = await ex.json();
-    return res.status(200).json({ duplicate: true, row: rows[0] || null });
-  }
-  return res.status(200).json({ duplicate: false, row: saved[0] });
+  return res.status(200).json({ updated: existed, row: saved[0] || null });
 }
