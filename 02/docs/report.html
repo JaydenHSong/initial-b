@@ -59,7 +59,7 @@
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
   <h1 data-f="title">ASIN 스크랩북</h1>
-  <div class="intro-line" data-f="intro">ASIN을 붙여넣으면 제목·가격을 채워 저장하고, 태그 여러 개로 묶어 걸러 본다.</div>
+  <div class="intro-line" data-f="intro">ASIN을 붙여넣으면 제목·가격·사진을 채워 저장하고, 태그로 걸러 보다가 목표가를 걸면 매일 확인해 알린다.</div>
 
   <div class="bignums">
     <div class="bn"><div class="v"><span data-f="minutes">30</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
@@ -81,7 +81,7 @@
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">태그 하나로만 걸러도 되는 경우에는 쓰겠다 — 조인 테이블 없이 배열 필드 하나로 끝나고 셋업이 30분이다. 태그 여러 개를 AND로 걸러야 하면 안 쓰겠다: Firestore는 array-contains를 질의당 하나만 허용하고 array-contains-all이 없어서, 첫 태그로만 좁힌 뒤 나머지는 클라이언트가 읽고 버린다. 버린 문서에도 읽기 요금이 붙는다.</div>
+  <div class="conclusion" data-f="conclusion">화면이 문서 하나를 통째로 보여주는 앱에는 쓰겠다 — 조인 테이블 없이 배열 필드 하나로 끝나고 셋업이 30분이다. 조건을 겹쳐 거르거나 집계해야 하면 안 쓰겠다: array-contains가 질의당 하나뿐이라 태그 AND는 첫 태그로만 좁힌 뒤 나머지를 클라이언트가 읽고 버리고, 시계열 최저가도 서브컬렉션을 다 읽는 대신 minPrice를 문서에 중복 보관해야 했다(20회 대 5회). 문서형은 조인을 안 만드는 값을 <b>읽기 요금과 정합성 관리</b>로 갚는다.</div>
 
 </div>
 
