@@ -29,52 +29,12 @@ async function scrape(asin) {
       one(/<meta property="og:image" content="([^"]+)"/) ??
       one(/id="landingImage"[^>]*\ssrc="([^"]+)"/);
 
-    // 카테고리 — 구체적인 것부터 순서대로 시도한다.
-    const diag = {};
-    let cats = [];
-
-    // 1) 브레드크럼. 아마존이 div 안에 ul을 넣는데 사이 마크업이 길어서 넉넉히 잡는다.
-    const crumbBlock = one(/wayfinding-breadcrumbs[\s\S]{0,200}?<ul[^>]*>([\s\S]{0,6000}?)<\/ul>/);
-    diag.crumbBlock = !!crumbBlock;
-    if (crumbBlock) {
-      cats = [...crumbBlock.matchAll(/<a[^>]+class="[^"]*a-color-tertiary[^"]*"[^>]*>([\s\S]{0,80}?)<\/a>/g)]
-        .map((m) => m[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
-        .filter(Boolean);
-    }
-    diag.crumbs = cats.slice();
-
-    // 2) 베스트셀러 순위 줄에 박힌 카테고리 — 브레드크럼보다 구체적일 때가 많다.
-    if (!cats.length) {
-      const ranks = [...html.matchAll(/#[\d,]+\s+in\s+([A-Za-z][A-Za-z0-9 &',\-]{2,50}?)\s*(?:\(|<)/g)]
-        .map((m) => m[1].trim()).filter(Boolean);
-      diag.ranks = ranks.slice(0, 4);
-      if (ranks.length) cats = [ranks[ranks.length - 1]];
-    }
-
-    // 3) 마지막 폴백 — <title> 꼬리(": Electronics")
-    if (!cats.length) {
-      const tail = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/);
-      diag.titleTail = tail;
-      if (tail) cats = [tail.trim()];
-    }
-
-    // 어떤 카테고리 단서가 이 페이지에 남아 있는지 한 번에 훑는다 (조사용, 확인 후 제거).
-    diag.probe = {
-      subnav: one(/id="nav-subnav"[^>]*data-category="([^"]+)"/),
-      subnavText: one(/id="nav-subnav"[\s\S]{0,600}?class="nav-a-content">([^<]{2,40})</),
-      productGroup: one(/"productGroup"\s*:\s*"([^"]+)"/),
-      binding: one(/"binding"\s*:\s*"([^"]+)"/),
-      deptName: one(/"departmentName"\s*:\s*"([^"]+)"/),
-      browseNode: one(/"browseNodeName"\s*:\s*"([^"]+)"/),
-      jsonldCat: one(/"@type"\s*:\s*"Product"[\s\S]{0,800}?"category"\s*:\s*"([^"]+)"/),
-      keywords: one(/<meta name="keywords" content="([^"]{0,120})"/),
-      hasWayfinding: /wayfinding/i.test(html),
-      hasBSR: /Best Sellers Rank/i.test(html),
-      hasSubnav: /nav-subnav/i.test(html),
-      // 마커 주변 원문을 잘라 본다 — 정규식이 왜 빗나가는지는 이걸 봐야 안다.
-      wayfindingSlice: (() => { const i = html.search(/wayfinding/i); return i < 0 ? null : html.slice(i - 120, i + 700); })(),
-      subnavSlice: (() => { const i = html.search(/nav-subnav/i); return i < 0 ? null : html.slice(i - 60, i + 500); })(),
-    };
+    // 카테고리 — <title> 꼬리(": Electronics")가 전부다.
+    // 브레드크럼·베스트셀러 순위·JSON-LD를 전부 시도했으나, 아마존이 데이터센터 IP에
+    // 주는 축약 페이지에는 그 블록들이 아예 없다 (2026-08-08 실측, SPIKE.md 참고).
+    const cats = [];
+    const tail = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/);
+    if (tail) cats.push(tail.trim());
 
     title = title
       .replace(/^\s*Amazon\.com\s*:\s*/i, '')
@@ -83,14 +43,14 @@ async function scrape(asin) {
       .trim();
     // 없는 ASIN이어도 아마존은 200에 "Page Not Found" 페이지를 준다 — 제목만 보고 성공으로 치면 안 된다.
     if (/page not found|sorry! we couldn't find/i.test(title)) {
-      return { ok: false, title: null, price: null, image: null, cats: [], diag, reason: '아마존에 그 ASIN 페이지가 없다' };
+      return { ok: false, title: null, price: null, image: null, cats: [], reason: '아마존에 그 ASIN 페이지가 없다' };
     }
     if (!price) {
-      return { ok: false, title: title || null, price: null, image, cats, diag, reason: '가격을 못 찾았다 (품절이거나 차단됐다)' };
+      return { ok: false, title: title || null, price: null, image, cats, reason: '가격을 못 찾았다 (품절이거나 차단됐다)' };
     }
-    return { ok: true, title: title || null, price: Number(price), image, cats, diag, reason: null };
+    return { ok: true, title: title || null, price: Number(price), image, cats, reason: null };
   } catch (e) {
-    return { ok: false, title: null, price: null, image: null, cats: [], diag: {}, reason: String(e.message).slice(0, 80) };
+    return { ok: false, title: null, price: null, image: null, cats: [], reason: String(e.message).slice(0, 80) };
   }
 }
 
@@ -144,5 +104,5 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: 'Firestore 쓰기 실패: ' + String(e.message).slice(0, 120) });
   }
-  res.status(200).json({ asin, ...doc, addedAt: null, diag: got.diag });
+  res.status(200).json({ asin, ...doc, addedAt: null });
 }
