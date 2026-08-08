@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시안 C · 커머스 그리드 — ASIN 스크랩북</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+  :root { --bg:#ffffff; --soft:#f6f7f9; --ink:#111827; --dim:#6b7280; --line:#e5e7eb; --acc:#2563eb; --hot:#ea580c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 20px 80px;
+    font-family:"Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header { padding:36px 0 22px; }
+  .k { font-size:11.5px; font-weight:700; letter-spacing:.14em; color:var(--acc); }
+  h1 { font-size:34px; font-weight:800; letter-spacing:-.035em; margin:6px 0 6px; }
+  .lede { color:var(--dim); font-size:15px; font-weight:500; }
+  .lede b { color:var(--ink); font-weight:700; }
+  .links { margin-top:14px; font-size:13.5px; font-weight:600; }
+  .links a { color:var(--dim); margin-right:16px; text-decoration:none; }
+  .links a:hover { color:var(--acc); }
+
+  form { background:var(--soft); border-radius:16px; padding:16px;
+    display:grid; gap:10px; grid-template-columns:1fr 1.4fr auto; align-items:center; }
+  input { font:inherit; font-size:15px; font-weight:500; padding:12px 14px; border:1.5px solid var(--line);
+    border-radius:10px; background:var(--bg); color:var(--ink); width:100%; }
+  input:focus { outline:0; border-color:var(--acc); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  button { font:inherit; font-size:15px; font-weight:700; padding:12px 26px; border:0; border-radius:10px;
+    background:var(--acc); color:#fff; cursor:pointer; }
+  button:disabled { opacity:.45; cursor:default; }
+  .msg { grid-column:1/-1; font-size:13.5px; font-weight:500; color:var(--dim); }
+  .msg.bad { color:#dc2626; }
+
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:28px 0 10px; }
+  .chip { font-size:14px; font-weight:600; padding:8px 16px; border:1.5px solid var(--line);
+    border-radius:999px; background:var(--bg); cursor:pointer; color:#374151; }
+  .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+  .note { font-size:13px; font-weight:500; color:var(--dim); margin-bottom:18px; }
+
+  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
+  .card { background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:18px; }
+  .card h2 { font-size:15px; font-weight:600; line-height:1.45; margin-bottom:10px;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .card .price { font-size:26px; font-weight:800; letter-spacing:-.03em; color:var(--hot); }
+  .card .asin { font-size:12.5px; font-weight:600; color:var(--dim); margin-top:2px; }
+  .card .tags { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+  .card .tags span { font-size:12.5px; font-weight:600; padding:4px 11px; border-radius:999px;
+    background:var(--soft); color:#374151; }
+  .fail { color:#dc2626; font-size:13px; font-weight:600; }
+  .empty { color:var(--dim); font-size:15px; font-weight:500; padding:44px 0; text-align:center; }
+  @media (max-width:600px) { form { grid-template-columns:1fr; } h1 { font-size:27px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="k">S02 · 데이터 저장</div>
+    <h1>ASIN 스크랩북</h1>
+    <div class="lede">아마존 ASIN을 등록하면 제목·가격을 채워 저장하고, <b>태그를 여러 개 골라 전부 달린 것만</b> 봅니다.</div>
+    <div class="links"><a href="/docs/plan.html">기획서 ↗</a><a href="/docs/report.html">리포트 ↗</a><a href="/">현재 화면 ↗</a></div>
+  </header>
+
+  <form id="f">
+    <input id="asin" placeholder="ASIN" maxlength="10" autocomplete="off" required>
+    <input id="tags" placeholder="태그 쉼표로 — 방열, 5만원대" autocomplete="off" required>
+    <button id="btn">등록</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="chips" id="chips"></div>
+  <div class="note" id="note"></div>
+  <div class="grid" id="list"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getFirestore, collection, getDocs, query, where }
+  from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+
+const db = getFirestore(initializeApp({
+  apiKey: 'AIzaSyAYS4Os_XoJUyGRYBrN3Pmb5mDm4dox0b4',
+  authDomain: 'initial-b.firebaseapp.com',
+  projectId: 'initial-b',
+  storageBucket: 'initial-b.firebasestorage.app',
+  messagingSenderId: '678214115027',
+  appId: '1:678214115027:web:c8fd3d32846d4c24483e26',
+}));
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const picked = new Set();
+let allTags = [];
+
+const row = (d) => `
+  <div class="card">
+    <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
+    ${d.price != null ? `<div class="price">$${d.price}</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
+    <div class="asin">${d.asin}</div>
+    <div class="tags">${(d.tagNames ?? []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+  </div>`;
+
+async function render() {
+  const tags = [...picked];
+  const q = tags.length
+    ? query(collection(db, 'products'), where('tagNames', 'array-contains', tags[0]))
+    : collection(db, 'products');
+  let snap;
+  try { snap = await getDocs(q); }
+  catch (e) { $('list').innerHTML = `<div class="empty">읽기 실패 — ${esc(e.message)}</div>`; return; }
+
+  const read = snap.size;
+  const rows = snap.docs.map((d) => ({ asin: d.id, ...d.data() }))
+    .filter((d) => tags.every((t) => (d.tagNames ?? []).includes(t)));
+
+  if (!tags.length) {
+    allTags = [...new Set(rows.flatMap((d) => d.tagNames ?? []))].sort();
+    $('note').textContent = `제품 ${rows.length}개 · 문서 ${read}회 읽음`;
+  } else {
+    $('note').textContent = `태그 ${tags.length}개 AND — 서버가 ${read}개 돌려주고 ${rows.length}개가 정답 (${read - rows.length}개는 버렸지만 읽기 요금엔 포함된다)`;
+  }
+  $('chips').innerHTML = allTags.map((t) => `<div class="chip${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('');
+  $('list').innerHTML = rows.length ? rows.map(row).join('')
+    : `<div class="empty">${tags.length ? '이 태그를 모두 가진 제품이 없다' : '아직 등록된 제품이 없다'}</div>`;
+}
+
+$('chips').onclick = (e) => {
+  const t = e.target.dataset.t; if (!t) return;
+  picked.has(t) ? picked.delete(t) : picked.add(t);
+  render();
+};
+$('f').onsubmit = async (e) => {
+  e.preventDefault();
+  $('btn').disabled = true; $('msg').className = 'msg';
+  $('msg').textContent = '아마존에서 제목·가격을 가져오는 중…';
+  try {
+    const r = await fetch('/api/add', { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ asin: $('asin').value, tags: $('tags').value.split(',') }) });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error ?? '등록 실패');
+    $('msg').textContent = j.fetchOk ? `저장됨 — ${j.title ?? j.asin}` : `저장됨 (수집은 실패) — ${j.asin}`;
+    $('asin').value = ''; $('tags').value = ''; picked.clear(); await render();
+  } catch (err) { $('msg').className = 'msg bad'; $('msg').textContent = err.message; }
+  $('btn').disabled = false;
+};
+render();
+</script>
+</html>
