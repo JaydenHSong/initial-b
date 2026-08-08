@@ -30,6 +30,12 @@
   button:disabled { opacity:.45; cursor:default; }
   .msg { grid-column:1/-1; font-size:13.5px; font-weight:500; color:var(--dim); }
   .msg.bad { color:#dc2626; }
+  .pick { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .pick .lbl { font-size:12.5px; font-weight:600; color:#9ca3af; margin-right:2px; }
+  .pick button { font-size:12.5px; font-weight:600; padding:4px 11px; border:1.5px solid var(--line);
+    border-radius:999px; background:var(--bg); color:#374151; cursor:pointer; }
+  .pick button:hover { border-color:var(--acc); color:var(--acc); }
+  .pick button.used { opacity:.35; }
 
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin:28px 0 10px; }
   .chip { font-size:14px; font-weight:600; padding:8px 16px; border:1.5px solid var(--line);
@@ -39,7 +45,10 @@
 
   .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
   .card { background:var(--bg); border:1.5px solid var(--line); border-radius:16px;
-    padding:14px; display:flex; flex-direction:column; }
+    padding:14px; display:flex; flex-direction:column;
+    color:inherit; text-decoration:none; transition:border-color .12s, box-shadow .12s; }
+  a.card:hover { border-color:var(--acc); box-shadow:0 4px 14px rgba(17,24,39,.08); }
+  a.card:hover h2 { color:var(--acc); }
   .thumb { aspect-ratio:1/1; border-radius:10px; background:var(--soft); margin-bottom:12px;
     display:grid; place-items:center; overflow:hidden; }
   .thumb img { width:100%; height:100%; object-fit:contain; }
@@ -66,9 +75,10 @@
   </header>
 
   <form id="f">
-    <input id="asin" placeholder="ASIN (예: B0H1GTPMC4)" maxlength="10" autocomplete="off" required>
+    <input id="asin" placeholder="ASIN 또는 아마존 상품 URL" autocomplete="off" required>
     <input id="tags" placeholder="태그 쉼표로 — 방열, 5만원대" autocomplete="off" required>
     <button id="btn">등록</button>
+    <div class="pick" id="pick"></div>
     <div class="msg" id="msg"></div>
   </form>
 
@@ -100,14 +110,32 @@ const picked = new Set();
 let allTags = [];
 
 const row = (d) => `
-  <div class="card">
+  <a class="card" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">
     <div class="thumb">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
     <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
     ${d.price != null ? `<div class="price">$${d.price}</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
-    <div class="asin">${d.asin}</div>
+    <div class="asin">${d.asin} ↗</div>
     <div class="tags">${(d.tagNames ?? []).map((t) =>
       `<span class="${t === d.autoTag ? 'auto' : ''}">${esc(t)}</span>`).join('')}</div>
-  </div>`;
+  </a>`;
+
+// 기존 태그를 눌러 넣는다. 손으로 다시 치면 오타가 나고, 오타 난 태그는 AND 필터에서 조용히 빠진다.
+function renderPick() {
+  const typed = new Set($('tags').value.split(',').map((s) => s.trim()).filter(Boolean));
+  $('pick').innerHTML = allTags.length
+    ? `<span class="lbl">기존 태그</span>` + allTags
+        .map((t) => `<button type="button" class="${typed.has(t) ? 'used' : ''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')
+    : '';
+}
+$('pick').onclick = (e) => {
+  const t = e.target.dataset?.t;
+  if (!t) return;
+  const cur = $('tags').value.split(',').map((s) => s.trim()).filter(Boolean);
+  const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
+  $('tags').value = next.join(', ');
+  renderPick();
+};
+$('tags').oninput = renderPick;
 
 async function render() {
   const tags = [...picked];
@@ -127,6 +155,7 @@ async function render() {
 
   if (!tags.length) {
     allTags = [...new Set(rows.flatMap((d) => d.tagNames ?? []))].sort();
+    renderPick();
     $('note').textContent = `제품 ${rows.length}개 · 문서 ${read}회 읽음`;
   } else {
     $('note').textContent =

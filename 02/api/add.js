@@ -29,14 +29,32 @@ async function scrape(asin) {
       one(/<meta property="og:image" content="([^"]+)"/) ??
       one(/id="landingImage"[^>]*\ssrc="([^"]+)"/);
 
-    // 카테고리 — 브레드크럼 링크들. 없으면 <title> 꼬리(": Electronics")로 폴백.
-    const crumbBlock = one(/wayfinding-breadcrumbs_feature_div([\s\S]{0,4000}?)<\/ul>/);
-    let cats = crumbBlock
-      ? [...crumbBlock.matchAll(/class="a-link-normal a-color-tertiary"[^>]*>([\s\S]{0,60}?)<\/a>/g)]
-          .map((m) => m[1].replace(/\s+/g, ' ').trim()).filter(Boolean)
-      : [];
+    // 카테고리 — 구체적인 것부터 순서대로 시도한다.
+    const diag = {};
+    let cats = [];
+
+    // 1) 브레드크럼. 아마존이 div 안에 ul을 넣는데 사이 마크업이 길어서 넉넉히 잡는다.
+    const crumbBlock = one(/wayfinding-breadcrumbs[\s\S]{0,200}?<ul[^>]*>([\s\S]{0,6000}?)<\/ul>/);
+    diag.crumbBlock = !!crumbBlock;
+    if (crumbBlock) {
+      cats = [...crumbBlock.matchAll(/<a[^>]+class="[^"]*a-color-tertiary[^"]*"[^>]*>([\s\S]{0,80}?)<\/a>/g)]
+        .map((m) => m[1].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim())
+        .filter(Boolean);
+    }
+    diag.crumbs = cats.slice();
+
+    // 2) 베스트셀러 순위 줄에 박힌 카테고리 — 브레드크럼보다 구체적일 때가 많다.
+    if (!cats.length) {
+      const ranks = [...html.matchAll(/#[\d,]+\s+in\s+([A-Za-z][A-Za-z0-9 &',\-]{2,50}?)\s*(?:\(|<)/g)]
+        .map((m) => m[1].trim()).filter(Boolean);
+      diag.ranks = ranks.slice(0, 4);
+      if (ranks.length) cats = [ranks[ranks.length - 1]];
+    }
+
+    // 3) 마지막 폴백 — <title> 꼬리(": Electronics")
     if (!cats.length) {
       const tail = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/);
+      diag.titleTail = tail;
       if (tail) cats = [tail.trim()];
     }
 
@@ -47,24 +65,42 @@ async function scrape(asin) {
       .trim();
     // 없는 ASIN이어도 아마존은 200에 "Page Not Found" 페이지를 준다 — 제목만 보고 성공으로 치면 안 된다.
     if (/page not found|sorry! we couldn't find/i.test(title)) {
-      return { ok: false, title: null, price: null, image: null, cats: [], reason: '아마존에 그 ASIN 페이지가 없다' };
+      return { ok: false, title: null, price: null, image: null, cats: [], diag, reason: '아마존에 그 ASIN 페이지가 없다' };
     }
     if (!price) {
-      return { ok: false, title: title || null, price: null, image, cats, reason: '가격을 못 찾았다 (품절이거나 차단됐다)' };
+      return { ok: false, title: title || null, price: null, image, cats, diag, reason: '가격을 못 찾았다 (품절이거나 차단됐다)' };
     }
-    return { ok: true, title: title || null, price: Number(price), image, cats, reason: null };
+    return { ok: true, title: title || null, price: Number(price), image, cats, diag, reason: null };
   } catch (e) {
-    return { ok: false, title: null, price: null, image: null, cats: [], reason: String(e.message).slice(0, 80) };
+    return { ok: false, title: null, price: null, image: null, cats: [], diag: {}, reason: String(e.message).slice(0, 80) };
   }
+}
+
+// ASIN 열 자를 그대로 받거나, 아마존 URL에서 뽑아낸다. 둘 다 붙여넣을 수 있어야 한다.
+async function toAsin(raw) {
+  const s = String(raw ?? '').trim();
+  if (/^[A-Za-z0-9]{10}$/.test(s)) return s.toUpperCase();
+  const pick = (u) => u.match(/(?:\/dp\/|\/gp\/product\/|\/gp\/aw\/d\/|\/product\/|[?&]asin=)([A-Za-z0-9]{10})/i)?.[1];
+  const direct = pick(s);
+  if (direct) return direct.toUpperCase();
+  // amzn.to 같은 단축 링크는 따라가야 ASIN이 나온다.
+  if (/^https?:\/\/(amzn\.to|a\.co)\//i.test(s)) {
+    try {
+      const r = await fetch(s, { redirect: 'follow', headers: { 'user-agent': UA } });
+      const hit = pick(r.url);
+      if (hit) return hit.toUpperCase();
+    } catch { /* 실패하면 아래에서 null */ }
+  }
+  return null;
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST만 받는다' });
 
-  const asin = String(req.body?.asin ?? '').trim().toUpperCase();
+  const asin = await toAsin(req.body?.asin);
   const tags = [...new Set((req.body?.tags ?? []).map((t) => String(t).trim()).filter(Boolean))];
 
-  if (!/^[A-Z0-9]{10}$/.test(asin)) return res.status(400).json({ error: 'ASIN은 영문/숫자 10자다' });
+  if (!asin) return res.status(400).json({ error: 'ASIN 10자나 아마존 상품 URL을 넣어라' });
   if (!tags.length) return res.status(400).json({ error: '태그를 하나 이상 달아라 — 이번 주 핵심이다' });
 
   // 수집이 실패해도 저장은 한다. 대신 실패를 문서에 남겨 화면에 드러낸다.
