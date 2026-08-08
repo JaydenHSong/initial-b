@@ -29,9 +29,9 @@
 
 호스팅은 **Vercel `initial-b02`** (Root Directory `02`, git 연결 — main에 푸시하면 자동 배포). 프로젝트 개명 시 도메인이 재생성되므로 이름은 처음에 확정할 것.
 
-**주차 폴더마다 빌드 경로 필터를 반드시 건다.** 안 걸면 어느 파일을 고쳐도 연결된 프로젝트가 전부 재빌드된다. 방법이 둘인데 **Vercel 설정 쪽이 낫다**:
-- Settings → Git → **Skip deployments**(루트 디렉터리에 변경이 없으면 건너뜀) — 푸시에 담긴 커밋 전체를 본다
-- `vercel.json`의 `ignoreCommand`(`git diff --quiet HEAD^ HEAD ./`) — **마지막 커밋 하나만** 비교하므로, 여러 커밋을 한 번에 푸시하며 앞 커밋에서만 그 폴더를 고쳤다면 빌드가 잘못 건너뛰어진다
+**주차 폴더마다 빌드 경로 필터를 반드시 건다.** 안 걸면 어느 파일을 고쳐도 연결된 프로젝트가 전부 재빌드된다. 방법이 둘인데 **Vercel 설정 쪽만 써라**:
+- Settings → Git → **Skip deployments**(루트 디렉터리에 변경이 없으면 건너뜀) — 푸시에 담긴 커밋 전체를 본다. 이쪽이 정답이다.
+- `vercel.json`의 `ignoreCommand`(`git diff --quiet HEAD^ HEAD ./`) — **쓰지 마라.** 커밋 하나만 비교하므로 두 가지로 오판한다. ①여러 커밋을 한 번에 푸시하며 앞 커밋에서만 그 폴더를 고쳤을 때. ②머지 커밋일 때 — `HEAD^`가 첫 부모(머지를 실행한 브랜치 쪽)라, 그 브랜치에 이미 해당 폴더 변경이 들어 있었다면 "변경 없음"으로 읽혀 빌드가 Canceled 된다. 2026-08-07 `02/`에서 실제로 ②가 터져 initial-b02가 빈 배포를 프로덕션 별칭에 쥔 채 전 경로 404가 됐다.
 
 ---
 
@@ -41,13 +41,13 @@ https://initialb.vercel.app · Vercel `initial-b01`(Root Directory `01`, git 연
 
 - 매주 제출(드랍)을 받는 살아 있는 인프라다. **스프린트 기간에도 계속 떠 있어야 한다** — 반쯤 만든 상태로 두지 마라.
 - 「안 만드는 것 3개」는 S01 스프린트 판정 기준이었고 제출로 종료됐다. 이제 갤러리 개선은 **별도 작업**으로 다룬다.
-- `01/vercel.json`의 `ignoreCommand`(`git diff --quiet HEAD^ HEAD ./`, 종료 0이면 빌드 건너뜀)로 `01/` 밖 변경에는 재빌드되지 않는다. 단 **마지막 커밋 하나만 비교**하므로, 여러 커밋을 한 번에 푸시하며 앞 커밋에서만 `01/`을 고쳤다면 빌드가 건너뛰어진다 — 빈 커밋을 하나 더 밀면 된다.
-- 매주 CLAUDE.md의 「이번 주」 칸을 갈면 갤러리 공개본도 같이 갱신한다: `cp CLAUDE.md 01/docs/CLAUDE.md`
+- `01/` 밖 변경에 재빌드되지 않게 하는 필터는 **Vercel Settings → Git → Skip deployments 토글**로 건다. `01/vercel.json`에는 `ignoreCommand`를 두지 않는다 — 머지 커밋에서 오판해 조용히 빌드를 건너뛴다(위 「빌드 경로 필터」 항목). 갤러리는 매주 제출을 받는 인프라라, 재배포가 조용히 실패하면 제출 화면이 옛 버전으로 남는다.
+- 매주 「이번 주」 칸을 갈면 두 사본을 같이 갱신한다. **git에 올라가는 `01/docs/CLAUDE.md`가 원본**이고 루트 `CLAUDE.md`는 gitignore된 로컬 사본이다: `cp 01/docs/CLAUDE.md CLAUDE.md`
 
 **레포 하나에 18주를 담는 구조 — 배포 시 주의**
 - 호스트별 GitHub 연동은 서로 독립이다. 한 레포를 Vercel·Cloudflare·Netlify에 동시에 붙여도 충돌하지 않는다. 주차마다 다른 호스트를 써도 된다.
 - **레포당 프로젝트 수 상한이 호스트별로 따로 있다** — Cloudflare Pages 5개, Vercel Hobby 25개. 한 호스트에 18주를 몰면 Cloudflare는 6주차에 막힌다. 나눠 쓰면 안 걸린다.
-- **빌드 경로 필터를 반드시 건다.** 안 걸면 어느 파일을 고치든 연결된 프로젝트 전부가 재빌드된다. Cloudflare는 Settings → Build → Build watch paths, Vercel은 Settings → Git → Ignored Build Step에 `git diff --quiet HEAD^ HEAD -- .`
+- **빌드 경로 필터를 반드시 건다.** 안 걸면 어느 파일을 고치든 연결된 프로젝트 전부가 재빌드된다. Cloudflare는 Settings → Build → Build watch paths, Vercel은 Settings → Git → **Skip deployments** 토글. `git diff HEAD^ HEAD` 류의 ignore 명령은 쓰지 마라 — 머지 커밋과 다중 커밋 푸시에서 오판한다.
 - 호스트별 설정 파일(`vercel.json`, `netlify.toml`, `wrangler.toml`)은 각 주차 폴더 안에 둔다.
 
 ---
