@@ -18,9 +18,12 @@
     color:var(--dim); text-decoration:none; }
   .back:hover { color:var(--green); }
   main { max-width:1180px; margin:0 auto; padding:24px 20px 80px; }
-  .wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
-  table { border-collapse:collapse; width:100%; min-width:900px; font-size:13px; }
-  th, td { border-bottom:1px solid var(--line); padding:11px 13px; text-align:left; vertical-align:top; }
+  /* 오른쪽 끝이 잘려 보이던 문제 — 넘칠 때만 가장자리에 그림자가 생겨 더 있다는 걸 알린다 */
+  .wrap { overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--panel);
+    background-image:linear-gradient(to left, rgba(16,20,24,.85), transparent 40px);
+    background-position:right; background-size:40px 100%; background-repeat:no-repeat; background-attachment:local; }
+  table { border-collapse:collapse; width:100%; min-width:860px; font-size:13px; }
+  th, td { border-bottom:1px solid var(--line); padding:10px 11px; text-align:left; vertical-align:top; }
   thead th { position:sticky; top:0; background:#151b22; color:var(--dim); font-family:"IBM Plex Mono",monospace;
     font-size:11px; font-weight:600; letter-spacing:.08em; white-space:nowrap; z-index:1; }
   tbody tr:last-child td { border-bottom:0; }
@@ -34,7 +37,7 @@
   .g { font-family:"IBM Plex Mono",monospace; font-weight:600; }
   .g.hi { color:var(--green); } .g.mid { color:#e8c56a; } .g.lo { color:#ff8f8f; }
   .num { font-family:"IBM Plex Mono",monospace; text-align:right; white-space:nowrap; }
-  .long { min-width:230px; color:var(--dim); line-height:1.5; }
+  .long { min-width:190px; color:var(--dim); line-height:1.5; }
   .none { color:#4d5763; }
   a.site { color:var(--text); text-decoration:none; font-weight:600; }
   a.site:hover { color:var(--green); }

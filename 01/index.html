@@ -52,11 +52,15 @@
   .chip:hover { border-color:var(--green); color:var(--green); }
   .chip.on { background:var(--green); border-color:var(--green); color:#0c1310; }
   .chip-sep { width:1px; background:var(--line); margin:2px 4px; }
-  /* 주차 바로가기 — 주차가 쌓여도 칩처럼 줄바꿈으로 번지지 않는다 */
+  /* 축 이름 — 칩만 늘어놓으면 Jayden과 Vercel이 무슨 축인지 구분이 안 된다 */
+  .axis { align-self:center; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
+    letter-spacing:.14em; color:#5b6672; margin-right:2px; }
+  .axis:not(:first-child) { margin-left:10px; }
+  /* 주차 바로가기 — 폭은 안내문에 맞춘다. 그냥 두면 가장 긴 옵션 길이만큼 벌어진다 */
   #jump {
     font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
-    padding:5px 28px 5px 13px; border-radius:999px; border:1px solid var(--line);
-    background:none; color:var(--dim); cursor:pointer; max-width:min(320px,72vw);
+    padding:5px 26px 5px 13px; border-radius:999px; border:1px solid var(--line);
+    background:none; color:var(--dim); cursor:pointer; width:152px;
     appearance:none; text-overflow:ellipsis;
     background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
     background-position:calc(100% - 15px) 12px, calc(100% - 11px) 12px;
@@ -279,10 +283,11 @@ function render() {
       }).join('') + `</select>`
     : '';
   $('nav').hidden = !ALL.length;
-  $('nav').innerHTML = jump +
-    (whos.length ? '<span class="chip-sep"></span>' : '') +
+  $('nav').innerHTML =
+    (jump ? `<span class="axis">주차</span>${jump}` : '') +
+    (whos.length ? '<span class="axis">사람</span>' : '') +
     whos.map(w => `<button class="chip who${WHO === w ? ' on' : ''}" data-w="${esc(w)}">${esc(w)}</button>`).join('') +
-    (opts.length ? '<span class="chip-sep"></span>' : '') +
+    (opts.length ? '<span class="axis">스택</span>' : '') +
     opts.map(o => `<button class="chip${FILTER === o ? ' on' : ''}" data-f="${esc(o)}">${esc(o)}</button>`).join('');
 
   if (!rows.length) {
