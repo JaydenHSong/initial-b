@@ -9,6 +9,12 @@ node_modules/
 /package.json
 /package-lock.json
 
+# 서비스 계정 키 — 공개 리포다. 다운로드 폴더에서 여기로 옮겨두는 사고가 잦다.
+# 키는 레포 밖(~/.config/ibd/)에 두고 경로로만 참조한다.
+/*.json
+*service-account*.json
+*adminsdk*.json
+
 # 팀 내부 문서 — 공개 리포에 올리지 않는다 (로컬에는 그대로 있음)
 # (훈련 가이드는 01/guide.html, 규칙 파일은 01/docs/CLAUDE.md로 공개 전환됨)
 /CLAUDE.md
