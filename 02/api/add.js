@@ -25,10 +25,16 @@ async function scrape(asin) {
       .replace(/\s*:\s*[^:]*$/, '')
       .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
       .trim();
-    if (!price && !title) return { ok: false, reason: `수집 실패 (HTTP ${r.status})` };
-    return { ok: true, title: title || null, price: price ? Number(price) : null };
+    // 없는 ASIN이어도 아마존은 200에 "Page Not Found" 페이지를 준다 — 제목만 보고 성공으로 치면 안 된다.
+    if (/page not found|sorry! we couldn't find/i.test(title)) {
+      return { ok: false, title: null, price: null, reason: '아마존에 그 ASIN 페이지가 없다' };
+    }
+    if (!price) {
+      return { ok: false, title: title || null, price: null, reason: '가격을 못 찾았다 (품절이거나 차단됐다)' };
+    }
+    return { ok: true, title: title || null, price: Number(price), reason: null };
   } catch (e) {
-    return { ok: false, reason: String(e.message).slice(0, 80) };
+    return { ok: false, title: null, price: null, reason: String(e.message).slice(0, 80) };
   }
 }
 
@@ -41,13 +47,14 @@ export default async function handler(req, res) {
   if (!/^[A-Z0-9]{10}$/.test(asin)) return res.status(400).json({ error: 'ASIN은 영문/숫자 10자다' });
   if (!tags.length) return res.status(400).json({ error: '태그를 하나 이상 달아라 — 이번 주 핵심이다' });
 
+  // 수집이 실패해도 저장은 한다. 대신 실패를 문서에 남겨 화면에 드러낸다.
   const got = await scrape(asin);
   const doc = {
-    title: got.ok ? got.title : null,
-    price: got.ok ? got.price : null,
+    title: got.title,
+    price: got.price,
     tagNames: tags,
     fetchOk: got.ok,
-    fetchNote: got.ok ? null : got.reason,
+    fetchNote: got.reason,
     addedAt: FieldValue.serverTimestamp(),
   };
 
