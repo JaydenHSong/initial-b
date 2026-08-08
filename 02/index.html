@@ -4,54 +4,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ASIN 스크랩북 — 태그로 걸러 보는 제품 노트</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
-  :root { --paper:#fafaf8; --card:#fff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  :root { --bg:#fff; --soft:#f6f7f9; --ink:#111827; --dim:#6b7280; --line:#e5e7eb; --acc:#2563eb; --hot:#ea580c; }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--paper); color:var(--ink); line-height:1.6; padding:0 18px 64px;
-    font-family:-apple-system,"Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:720px; margin:0 auto; }
-  header { padding:26px 0 18px; }
-  .k { font-family:ui-monospace,monospace; font-size:11.5px; letter-spacing:.2em; color:var(--acc); font-weight:600; }
-  h1 { font-size:23px; letter-spacing:-.02em; margin:5px 0 3px; }
-  .lede { color:var(--dim); font-size:14px; }
-  .links { margin-top:10px; font-size:13px; }
-  .links a { color:var(--dim); margin-right:12px; }
+  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 20px 80px;
+    font-family:"Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header { padding:36px 0 22px; }
+  .k { font-size:11.5px; font-weight:700; letter-spacing:.14em; color:var(--acc); }
+  h1 { font-size:34px; font-weight:800; letter-spacing:-.035em; margin:6px 0 6px; }
+  .lede { color:var(--dim); font-size:15px; font-weight:500; }
+  .lede b { color:var(--ink); font-weight:700; }
+  .links { margin-top:14px; font-size:13.5px; font-weight:600; }
+  .links a { color:var(--dim); margin-right:16px; text-decoration:none; }
+  .links a:hover { color:var(--acc); }
 
-  form { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px;
-    display:grid; gap:8px; grid-template-columns:1fr 1.4fr auto; align-items:center; }
-  input { font:inherit; font-size:14px; padding:9px 11px; border:1px solid var(--line);
-    border-radius:8px; background:var(--paper); color:var(--ink); width:100%; }
-  input:focus { outline:2px solid var(--acc); outline-offset:-1px; }
-  button { font:inherit; font-size:14px; font-weight:600; padding:9px 16px; border:0; border-radius:8px;
-    background:var(--ink); color:#fff; cursor:pointer; white-space:nowrap; }
+  form { background:var(--soft); border-radius:16px; padding:16px;
+    display:grid; gap:10px; grid-template-columns:1fr 1.4fr auto; align-items:center; }
+  input { font:inherit; font-size:15px; font-weight:500; padding:12px 14px; border:1.5px solid var(--line);
+    border-radius:10px; background:var(--bg); color:var(--ink); width:100%; }
+  input:focus { outline:0; border-color:var(--acc); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  button { font:inherit; font-size:15px; font-weight:700; padding:12px 26px; border:0; border-radius:10px;
+    background:var(--acc); color:#fff; cursor:pointer; }
   button:disabled { opacity:.45; cursor:default; }
-  .msg { grid-column:1/-1; font-size:13px; color:var(--dim); }
-  .msg.bad { color:#c0392b; }
+  .msg { grid-column:1/-1; font-size:13.5px; font-weight:500; color:var(--dim); }
+  .msg.bad { color:#dc2626; }
 
-  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:20px 0 8px; }
-  .chip { font-size:13px; padding:5px 11px; border:1px solid var(--line); border-radius:999px;
-    background:var(--card); cursor:pointer; user-select:none; }
-  .chip.on { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
-  .note { font-family:ui-monospace,monospace; font-size:11.5px; color:var(--dim); margin-bottom:14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:28px 0 10px; }
+  .chip { font-size:14px; font-weight:600; padding:8px 16px; border:1.5px solid var(--line);
+    border-radius:999px; background:var(--bg); cursor:pointer; color:#374151; }
+  .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+  .note { font-size:13px; font-weight:500; color:var(--dim); margin-bottom:18px; }
 
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px;
-    padding:13px 15px; margin-bottom:9px; }
-  .card h2 { font-size:15px; font-weight:600; margin-bottom:3px; }
-  .card .meta { font-family:ui-monospace,monospace; font-size:12px; color:var(--dim); }
-  .card .price { color:var(--ink); font-weight:600; }
-  .card .tags { margin-top:7px; display:flex; flex-wrap:wrap; gap:5px; }
-  .card .tags span { font-size:12px; padding:2px 9px; border-radius:999px;
-    background:var(--paper); border:1px solid var(--line); color:#3a3e47; }
-  .fail { color:#c0392b; font-size:12px; }
-  .empty { color:var(--dim); font-size:14px; padding:26px 0; text-align:center; }
-  @media (max-width:560px) { form { grid-template-columns:1fr; } }
+  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
+  .card { background:var(--bg); border:1.5px solid var(--line); border-radius:16px;
+    padding:14px; display:flex; flex-direction:column; }
+  .thumb { aspect-ratio:1/1; border-radius:10px; background:var(--soft); margin-bottom:12px;
+    display:grid; place-items:center; overflow:hidden; }
+  .thumb img { width:100%; height:100%; object-fit:contain; }
+  .thumb .none { font-size:12.5px; font-weight:600; color:#9ca3af; }
+  .card h2 { font-size:14.5px; font-weight:600; line-height:1.45; margin-bottom:10px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .card .price { font-size:24px; font-weight:800; letter-spacing:-.03em; color:var(--hot); }
+  .card .asin { font-size:12.5px; font-weight:600; color:var(--dim); margin-top:2px; }
+  .card .tags { margin-top:11px; display:flex; flex-wrap:wrap; gap:6px; }
+  .card .tags span { font-size:12.5px; font-weight:600; padding:4px 11px; border-radius:999px;
+    background:var(--soft); color:#374151; }
+  .card .tags span.auto { background:#eff6ff; color:var(--acc); }
+  .fail { color:#dc2626; font-size:13px; font-weight:600; }
+  .empty { grid-column:1/-1; color:var(--dim); font-size:15px; font-weight:500; padding:44px 0; text-align:center; }
+  @media (max-width:600px) { form { grid-template-columns:1fr; } h1 { font-size:27px; } }
 </style>
 
 <div class="wrap">
   <header>
     <div class="k">S02 · 데이터 저장</div>
     <h1>ASIN 스크랩북</h1>
-    <div class="lede">아마존 ASIN을 등록하면 제목·가격을 채워 저장하고, <b>태그를 여러 개 골라 전부 달린 것만</b> 봅니다.</div>
+    <div class="lede">아마존 ASIN을 등록하면 제목·가격·사진을 채워 저장하고, <b>태그를 여러 개 골라 전부 달린 것만</b> 봅니다.</div>
     <div class="links"><a href="/docs/plan.html">기획서 ↗</a><a href="/docs/report.html">리포트 ↗</a></div>
   </header>
 
@@ -64,7 +74,7 @@
 
   <div class="chips" id="chips"></div>
   <div class="note" id="note"></div>
-  <div id="list"></div>
+  <div class="grid" id="list"></div>
 </div>
 
 <script type="module">
@@ -83,17 +93,21 @@ const db = getFirestore(initializeApp({
 }));
 
 const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// 아마존 이미지 URL은 크기 토큰을 갈아끼울 수 있다 — 원본 1500px을 400px로 줄여 받는다.
+const small = (u) => u.replace(/\._[A-Z0-9_,]+_\./, '._SL400_.');
 const picked = new Set();
 let allTags = [];
 
 const row = (d) => `
   <div class="card">
+    <div class="thumb">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
     <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
-    <div class="meta">${d.asin}${d.price != null ? ` · <span class="price">$${d.price}</span>` : ''}${
-      d.fetchOk === false ? ` · <span class="fail">${esc(d.fetchNote ?? '수집 실패')}</span>` : ''}</div>
-    <div class="tags">${(d.tagNames ?? []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+    ${d.price != null ? `<div class="price">$${d.price}</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
+    <div class="asin">${d.asin}</div>
+    <div class="tags">${(d.tagNames ?? []).map((t) =>
+      `<span class="${t === d.autoTag ? 'auto' : ''}">${esc(t)}</span>`).join('')}</div>
   </div>`;
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 async function render() {
   const tags = [...picked];
@@ -136,7 +150,7 @@ $('f').onsubmit = async (e) => {
   e.preventDefault();
   $('btn').disabled = true;
   $('msg').className = 'msg';
-  $('msg').textContent = '아마존에서 제목·가격을 가져오는 중… (1~2초)';
+  $('msg').textContent = '아마존에서 제목·가격·사진을 가져오는 중… (1~2초)';
   try {
     const r = await fetch('/api/add', {
       method: 'POST', headers: { 'content-type': 'application/json' },
@@ -144,7 +158,9 @@ $('f').onsubmit = async (e) => {
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error ?? '등록 실패');
-    $('msg').textContent = j.fetchOk ? `저장됨 — ${j.title ?? j.asin}` : `저장됨 (수집은 실패) — ${j.asin}`;
+    $('msg').textContent = j.fetchOk
+      ? `저장됨 — ${j.title ?? j.asin}${j.autoTag ? ` · 카테고리 태그 «${j.autoTag}» 자동 추가` : ''}`
+      : `저장됨 (수집은 실패) — ${j.asin}`;
     $('asin').value = ''; $('tags').value = '';
     picked.clear();
     await render();
