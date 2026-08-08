@@ -126,5 +126,5 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: 'Firestore 쓰기 실패: ' + String(e.message).slice(0, 120) });
   }
-  res.status(200).json({ asin, ...doc, addedAt: null });
+  res.status(200).json({ asin, ...doc, addedAt: null, diag: got.diag });
 }
