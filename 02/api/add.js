@@ -58,6 +58,21 @@ async function scrape(asin) {
       if (tail) cats = [tail.trim()];
     }
 
+    // 어떤 카테고리 단서가 이 페이지에 남아 있는지 한 번에 훑는다 (조사용, 확인 후 제거).
+    diag.probe = {
+      subnav: one(/id="nav-subnav"[^>]*data-category="([^"]+)"/),
+      subnavText: one(/id="nav-subnav"[\s\S]{0,600}?class="nav-a-content">([^<]{2,40})</),
+      productGroup: one(/"productGroup"\s*:\s*"([^"]+)"/),
+      binding: one(/"binding"\s*:\s*"([^"]+)"/),
+      deptName: one(/"departmentName"\s*:\s*"([^"]+)"/),
+      browseNode: one(/"browseNodeName"\s*:\s*"([^"]+)"/),
+      jsonldCat: one(/"@type"\s*:\s*"Product"[\s\S]{0,800}?"category"\s*:\s*"([^"]+)"/),
+      keywords: one(/<meta name="keywords" content="([^"]{0,120})"/),
+      hasWayfinding: /wayfinding/i.test(html),
+      hasBSR: /Best Sellers Rank/i.test(html),
+      hasSubnav: /nav-subnav/i.test(html),
+    };
+
     title = title
       .replace(/^\s*Amazon\.com\s*:\s*/i, '')
       .replace(/\s*:\s*[^:]*$/, '')
