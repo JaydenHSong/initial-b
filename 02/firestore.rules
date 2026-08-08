@@ -1,0 +1,11 @@
+// 로그인 없는 사이트다. 브라우저는 읽기만 하고, 쓰기는 서버 함수(Admin SDK)만 한다.
+// Admin SDK는 이 규칙을 우회하므로 /api/add 는 영향을 받지 않는다.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /products/{asin} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
