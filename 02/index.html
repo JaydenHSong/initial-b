@@ -40,6 +40,7 @@
   .chips { display:flex; flex-wrap:wrap; gap:8px; margin:28px 0 10px; }
   .chip { font-size:14px; font-weight:600; padding:8px 16px; border:1.5px solid var(--line);
     border-radius:999px; background:var(--bg); cursor:pointer; color:#374151; }
+  .chip.auto { background:#eff6ff; border-color:#bfdbfe; color:var(--acc); }
   .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
   .note { font-size:13px; font-weight:500; color:var(--dim); margin-bottom:18px; }
 
@@ -108,6 +109,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const small = (u) => u.replace(/\._[A-Z0-9_,]+_\./, '._SL400_.');
 const picked = new Set();
 let allTags = [];
+let autoTags = new Set();
 
 const row = (d) => `
   <a class="card" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">
@@ -155,6 +157,9 @@ async function render() {
 
   if (!tags.length) {
     allTags = [...new Set(rows.flatMap((d) => d.tagNames ?? []))].sort();
+    // 자동으로 붙은 카테고리 태그. 손으로도 단 적이 있으면 내 태그로 친다.
+    const manual = new Set(rows.flatMap((d) => (d.tagNames ?? []).filter((t) => t !== d.autoTag)));
+    autoTags = new Set(rows.map((d) => d.autoTag).filter((t) => t && !manual.has(t)));
     renderPick();
     $('note').textContent = `제품 ${rows.length}개 · 문서 ${read}회 읽음`;
   } else {
@@ -162,7 +167,7 @@ async function render() {
       `태그 ${tags.length}개 AND — 서버가 ${read}개 돌려주고 ${rows.length}개가 정답 (${read - rows.length}개는 버렸지만 읽기 요금엔 포함된다)`;
   }
   $('chips').innerHTML = allTags
-    .map((t) => `<div class="chip${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('');
+    .map((t) => `<div class="chip${autoTags.has(t) ? ' auto' : ''}${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('');
   $('list').innerHTML = rows.length
     ? rows.map(row).join('')
     : `<div class="empty">${tags.length ? '이 태그를 모두 가진 제품이 없다' : '아직 등록된 제품이 없다. 위에서 ASIN 하나를 넣어봐라.'}</div>`;

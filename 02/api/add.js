@@ -71,6 +71,9 @@ async function scrape(asin) {
       hasWayfinding: /wayfinding/i.test(html),
       hasBSR: /Best Sellers Rank/i.test(html),
       hasSubnav: /nav-subnav/i.test(html),
+      // 마커 주변 원문을 잘라 본다 — 정규식이 왜 빗나가는지는 이걸 봐야 안다.
+      wayfindingSlice: (() => { const i = html.search(/wayfinding/i); return i < 0 ? null : html.slice(i - 120, i + 700); })(),
+      subnavSlice: (() => { const i = html.search(/nav-subnav/i); return i < 0 ? null : html.slice(i - 60, i + 500); })(),
     };
 
     title = title
