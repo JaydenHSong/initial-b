@@ -25,12 +25,24 @@
 - 배포 후 `사이트URL/docs/plan.html`이 열려야 한다 (갤러리 셀프 드랍으로 검증)
 - **태그는 다대다다.** 이걸 어떻게 표현했는지가 이번 주 비교의 핵심 — 스키마 설계를 리포트에 적을 수 있어야 한다
 
-**이번 주 작업 폴더:** `02/` · 다음 주부터 `03/`, `04/`로 늘린다. CLAUDE.md는 저장소 루트에 두고 매주 이 「이번 주」 칸만 갈아끼운다.
-호스팅은 **미정** — 새 Vercel 프로젝트(예: `initial-b02`, Root Directory `02`)를 만들거나 다른 호스트를 써도 된다. 프로젝트 개명 시 도메인이 재생성되므로 이름은 처음에 확정할 것. 팀 문서 템플릿은 이 레포 **`_template/public/docs/`** (plan.html · report.html — data-f 규약과 TSV 복사 버튼 포함).
+**이번 주 작업 폴더:** `02/` · 다음 주부터 `03/`, `04/`로 늘린다. **한 레포 안에서 주차 폴더로 분리하고, 폴더마다 독립 Vercel 프로젝트를 붙인다.** 팀 문서 템플릿은 이 레포 **`_template/public/docs/`** (plan.html · report.html — data-f 규약과 TSV 복사 버튼 포함).
 
-**주차 폴더마다 `vercel.json`에 빌드 경로 필터를 건다** (`ignoreCommand`: `git diff --quiet HEAD^ HEAD ./` — 종료 0이면 빌드 건너뜀). 안 걸면 어느 파일을 고쳐도 연결된 프로젝트가 전부 재빌드된다. `01/`·`02/`에는 이미 걸려 있다.
+호스팅은 **Vercel `initial-b02`** (Root Directory `02`, git 연결 — main에 푸시하면 자동 배포). 프로젝트 개명 시 도메인이 재생성되므로 이름은 처음에 확정할 것.
 
-**S01 결과물은 계속 살아 있다** — 팀 공식 갤러리 https://initialb.vercel.app (Vercel `initial-b01`, Root Directory `01`, DB는 Supabase iBD Coliseum `sites` 테이블). S02 제출도 여기에 드랍한다. 갤러리를 고치는 것은 그 주 스프린트가 아니라 별도 작업이다 — 큰 개선은 미드시즌 브레이크(9/28~10/2)에 몰아서.
+**주차 폴더마다 빌드 경로 필터를 반드시 건다.** 안 걸면 어느 파일을 고쳐도 연결된 프로젝트가 전부 재빌드된다. 방법이 둘인데 **Vercel 설정 쪽이 낫다**:
+- Settings → Git → **Skip deployments**(루트 디렉터리에 변경이 없으면 건너뜀) — 푸시에 담긴 커밋 전체를 본다
+- `vercel.json`의 `ignoreCommand`(`git diff --quiet HEAD^ HEAD ./`) — **마지막 커밋 하나만** 비교하므로, 여러 커밋을 한 번에 푸시하며 앞 커밋에서만 그 폴더를 고쳤다면 빌드가 잘못 건너뛰어진다
+
+---
+
+## 01/ = 팀 공식 갤러리 (S01 결과물 — 계속 살아 있다)
+
+https://initialb.vercel.app · Vercel `initial-b01`(Root Directory `01`, git 연결 — **main에 푸시하면 자동 배포**) · DB는 Supabase iBD Coliseum `sites` 테이블, 쓰기는 `SUPABASE_SERVICE_KEY`를 쓰는 `01/api/drop.js`만.
+
+- 매주 제출(드랍)을 받는 살아 있는 인프라다. **스프린트 기간에도 계속 떠 있어야 한다** — 반쯤 만든 상태로 두지 마라.
+- 「안 만드는 것 3개」는 S01 스프린트 판정 기준이었고 제출로 종료됐다. 이제 갤러리 개선은 **별도 작업**으로 다룬다.
+- `01/vercel.json`의 `ignoreCommand`(`git diff --quiet HEAD^ HEAD ./`, 종료 0이면 빌드 건너뜀)로 `01/` 밖 변경에는 재빌드되지 않는다. 단 **마지막 커밋 하나만 비교**하므로, 여러 커밋을 한 번에 푸시하며 앞 커밋에서만 `01/`을 고쳤다면 빌드가 건너뛰어진다 — 빈 커밋을 하나 더 밀면 된다.
+- 매주 CLAUDE.md의 「이번 주」 칸을 갈면 갤러리 공개본도 같이 갱신한다: `cp CLAUDE.md 01/docs/CLAUDE.md`
 
 **레포 하나에 18주를 담는 구조 — 배포 시 주의**
 - 호스트별 GitHub 연동은 서로 독립이다. 한 레포를 Vercel·Cloudflare·Netlify에 동시에 붙여도 충돌하지 않는다. 주차마다 다른 호스트를 써도 된다.
