@@ -52,6 +52,18 @@
   .chip:hover { border-color:var(--green); color:var(--green); }
   .chip.on { background:var(--green); border-color:var(--green); color:#0c1310; }
   .chip-sep { width:1px; background:var(--line); margin:2px 4px; }
+  /* 주차 바로가기 — 주차가 쌓여도 칩처럼 줄바꿈으로 번지지 않는다 */
+  #jump {
+    font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
+    padding:5px 28px 5px 13px; border-radius:999px; border:1px solid var(--line);
+    background:none; color:var(--dim); cursor:pointer; max-width:min(320px,72vw);
+    appearance:none; text-overflow:ellipsis;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:calc(100% - 15px) 12px, calc(100% - 11px) 12px;
+    background-size:4px 4px, 4px 4px; background-repeat:no-repeat;
+  }
+  #jump:hover, #jump:focus-visible { border-color:var(--green); color:var(--green); }
+  #jump option { background:var(--panel); color:var(--text); font-weight:400; }
   /* 타임라인 */
   main { max-width:980px; margin:36px auto 90px; position:relative; padding:0 24px; }
   main::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px;
@@ -105,7 +117,13 @@
     .eyebrow { font-size:10.5px; letter-spacing:.24em; }
     .sub { font-size:13px; }
     form { margin-top:16px; }
-    nav { padding:10px 16px; }
+    /* 사람·스택 칩이 늘어도 헤더가 부풀지 않게 — 한 줄로 눕히고 가로로 밀어 본다 */
+    nav {
+      padding:10px 16px; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start;
+      scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    }
+    nav::-webkit-scrollbar { display:none; }
+    nav > * { flex:0 0 auto; }
     main { margin-top:24px; }
     main::before { left:28px; }
     .node { text-align:left; }
@@ -142,6 +160,7 @@ const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 
 let ALL = [];          // 전체 레코드
 let FILTER = null;     // 선택된 스택 옵션
+let WHO = null;        // 선택된 만든 사람
 
 // 시즌 로드맵 — guide.html 달력과 같은 데이터. [id, 시작일(월), 날짜 라벨, 주제, 스택 카드]
 const ROAD = [
@@ -236,7 +255,8 @@ function entry(r, side) {
 }
 
 function render() {
-  const rows = FILTER ? ALL.filter(r => r.stack_option === FILTER) : ALL;
+  const rows = ALL.filter(r =>
+    (!FILTER || r.stack_option === FILTER) && (!WHO || r.author === WHO));
   $('tagline').innerHTML =
     `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 목 18:00 마감 <b>D-${dday()}</b>`;
 
@@ -245,15 +265,27 @@ function render() {
   // 정렬은 타임라인과 같은 오름차순(미분류는 맨 뒤).
   const sprints = [...new Set(rows.map(r => r.sprint || '미분류'))]
     .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
+  // 사람·스택 칩은 언제나 전체 기준으로 그린다 — 하나를 고른 뒤에도 다른 값으로 갈아탈 수 있어야 한다
   const opts = [...new Set(ALL.map(r => r.stack_option).filter(Boolean))];
+  const whos = [...new Set(ALL.map(r => r.author).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ko'));
+  // 주차 바로가기는 드랍다운으로 — 주차마다 무슨 주였는지 한 줄 설명이 같이 보인다
+  const jump = sprints.length
+    ? `<select id="jump" aria-label="주차로 이동">
+        <option value="">주차로 이동…</option>` +
+      sprints.map(s => {
+        const ri = roadOf(s);
+        return `<option value="sp-${esc(s)}">${esc(ri ? `${s} · ${ri[3]} · ${ri[4]}` : s)}</option>`;
+      }).join('') + `</select>`
+    : '';
   $('nav').hidden = !ALL.length;
-  $('nav').innerHTML =
-    sprints.map(s => `<a class="chip" href="#sp-${esc(s)}">${esc(s)}</a>`).join('') +
+  $('nav').innerHTML = jump +
+    (whos.length ? '<span class="chip-sep"></span>' : '') +
+    whos.map(w => `<button class="chip who${WHO === w ? ' on' : ''}" data-w="${esc(w)}">${esc(w)}</button>`).join('') +
     (opts.length ? '<span class="chip-sep"></span>' : '') +
     opts.map(o => `<button class="chip${FILTER === o ? ' on' : ''}" data-f="${esc(o)}">${esc(o)}</button>`).join('');
 
   if (!rows.length) {
-    $('main').innerHTML = `<div class="state">${ALL.length ? '이 스택으로 등록된 시작이 아직 없다.' : '아직 제출이 없다. 첫 URL을 드랍해보자.'}</div>`;
+    $('main').innerHTML = `<div class="state">${ALL.length ? '이 조건에 맞는 시작이 없다.' : '아직 제출이 없다. 첫 URL을 드랍해보자.'}</div>`;
     return;
   }
   // 스프린트별 마디, 시간순(오래된 게 위). 마디 안은 드랍 순서, 좌우 교차.
@@ -332,10 +364,19 @@ $('dropform').addEventListener('submit', async e => {
 });
 
 document.addEventListener('click', e => {
+  const w = e.target.closest('[data-w]');
+  if (w) { WHO = WHO === w.dataset.w ? null : w.dataset.w; animatedRender(); return; }
   const f = e.target.closest('[data-f]');
   if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; animatedRender(); return; }
   const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
+});
+
+// 주차 드랍다운에서 고르면 그 마디로 이동한다 (고른 값은 다시 비워 재선택 가능하게)
+document.addEventListener('change', e => {
+  if (e.target.id !== 'jump' || !e.target.value) return;
+  document.getElementById(e.target.value)?.scrollIntoView({ block: 'start' });
+  e.target.value = '';
 });
 
 // 카드 위에서 Enter·Space로도 열린다 (마우스 없이 쓰는 사람용)
