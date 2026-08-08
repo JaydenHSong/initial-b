@@ -48,7 +48,23 @@
     font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim); }
   footer a { color:var(--dim); text-decoration:none; margin:0 10px; }
   footer a:hover { color:var(--green); }
-  @media (max-width:600px) { h1 { font-size:24px; } main { padding:18px 12px 60px; } }
+  /* 좁은 화면 — 11열짜리 표를 가로로 미는 건 무리다. 한 줄을 카드 하나로 세운다 */
+  .cards { display:none; }
+  @media (max-width:760px) {
+    h1 { font-size:24px; } main { padding:18px 12px 60px; }
+    .wrap { display:none; }
+    .cards { display:grid; gap:12px; }
+    .rec { border:1px solid var(--line); border-radius:12px; background:var(--panel); padding:14px 16px; }
+    .rec .top { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .rec .who2 { font-weight:700; font-size:15px; color:var(--text); text-decoration:none; }
+    .rec .who2:hover { color:var(--green); }
+    .rec .meta { font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dim); }
+    .rec dl { display:grid; grid-template-columns:74px 1fr; gap:6px 10px; margin:0; }
+    .rec dt { font-family:"IBM Plex Mono",monospace; font-size:11px; color:#5b6672; letter-spacing:.06em; }
+    .rec dd { margin:0; font-size:13.5px; color:var(--dim); line-height:1.55; }
+    .rec .grades { display:flex; gap:14px; margin:10px 0; font-size:12.5px; }
+    .rec .grades span { color:#5b6672; font-family:"IBM Plex Mono",monospace; font-size:11px; }
+  }
 </style>
 <header>
   <div class="eyebrow">iBD VIBE CODING · SEASON 1</div>
@@ -69,6 +85,7 @@
     </tr></thead>
     <tbody id="body"><tr><td colspan="11" class="state">불러오는 중…</td></tr></tbody>
   </table></div>
+  <div class="cards" id="cards"></div>
 </main>
 <footer>
   <a href="/">갤러리</a>·<a href="/guide.html">훈련 가이드</a>
@@ -88,11 +105,33 @@ fetch(`${SUPA}/rest/v1/sites?select=*&order=sprint.asc,author.asc`, {
   const filled = rows.filter(has);
   document.getElementById('sub').textContent =
     `${filled.length}개 리포트 · 전체 제출 ${rows.length}개`;
+  const empty = '아직 채워진 리포트가 없다. 리포트를 채우고 갤러리에 다시 드랍하면 여기 쌓인다.';
   if (!filled.length) {
-    document.getElementById('body').innerHTML =
-      '<tr><td colspan="11" class="state">아직 채워진 리포트가 없다. 리포트를 채우고 갤러리에 다시 드랍하면 여기 쌓인다.</td></tr>';
+    document.getElementById('body').innerHTML = `<tr><td colspan="11" class="state">${empty}</td></tr>`;
+    document.getElementById('cards').innerHTML = `<div class="state">${empty}</div>`;
     return;
   }
+
+  // 좁은 화면용 — 같은 줄을 카드 하나로 세운다 (표를 가로로 미는 대신)
+  const dd = v => v ? esc(v) : dash;
+  document.getElementById('cards').innerHTML = filled.map(r => `<div class="rec">
+    <div class="top">
+      <a class="who2" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.author || r.title)} ↗</a>
+      <span class="meta">${esc(r.sprint) || ''} · ${esc(r.stack_card) || ''}</span>
+    </div>
+    ${r.stack_option ? `<span class="opt">${esc(r.stack_option)}</span>` : ''}
+    <div class="grades">
+      <span>분</span> ${r.minutes != null ? r.minutes : dash}
+      <span>문서</span> ${grade(r.docs_grade)}
+      <span>AI</span> ${grade(r.ai_grade)}
+      <span>적합</span> ${grade(r.fit)}
+    </div>
+    <dl>
+      <dt>막힌 지점</dt><dd>${dd(r.blocker)}</dd>
+      <dt>무료 한도</dt><dd>${dd(r.free_limit)}</dd>
+      <dt>한 줄 결론</dt><dd>${dd(r.conclusion)}</dd>
+    </dl>
+  </div>`).join('');
   document.getElementById('body').innerHTML = filled.map(r => `<tr>
     <td class="mono sp sprint">${esc(r.sprint) || dash}</td>
     <td class="card">${esc(r.stack_card) || dash}</td>
