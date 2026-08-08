@@ -32,8 +32,8 @@
   .sp { color:var(--green); font-weight:600; }
   .opt { display:inline-block; font-family:"IBM Plex Mono",monospace; font-size:11px; font-weight:600;
     background:rgba(95,212,162,.12); color:var(--green); padding:2px 8px; border-radius:999px; }
-  /* 짧은 칸이 세로로 쪼개지지 않게 — "잘 맞음"이 세 줄로 끊기던 문제 */
-  .g, td.card, td.sprint { white-space:nowrap; }
+  /* 짧은 칸이 세로로 쪼개지지 않게 — "잘 맞음"이 세 줄로, "Jong Oun Kim"이 석 줄로 끊기던 문제 */
+  .g, td.card, td.sprint, td.who { white-space:nowrap; }
   .g { font-family:"IBM Plex Mono",monospace; font-weight:600; }
   .g.hi { color:var(--green); } .g.mid { color:#e8c56a; } .g.lo { color:#ff8f8f; }
   .num { font-family:"IBM Plex Mono",monospace; text-align:right; white-space:nowrap; }
@@ -97,7 +97,7 @@ fetch(`${SUPA}/rest/v1/sites?select=*&order=sprint.asc,author.asc`, {
     <td class="mono sp sprint">${esc(r.sprint) || dash}</td>
     <td class="card">${esc(r.stack_card) || dash}</td>
     <td>${r.stack_option ? `<span class="opt">${esc(r.stack_option)}</span>` : dash}</td>
-    <td><a class="site" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.author || r.title)} ↗</a></td>
+    <td class="who"><a class="site" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.author || r.title)} ↗</a></td>
     <td class="num">${r.minutes != null ? r.minutes : dash}</td>
     <td>${grade(r.docs_grade)}</td>
     <td>${grade(r.ai_grade)}</td>
