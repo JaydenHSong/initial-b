@@ -32,15 +32,21 @@ async function scrape(asin) {
     // 카테고리 — <title> 꼬리(": Electronics")가 전부다.
     // 브레드크럼·베스트셀러 순위·JSON-LD를 전부 시도했으나, 아마존이 데이터센터 IP에
     // 주는 축약 페이지에는 그 블록들이 아예 없다 (2026-08-08 실측, SPIKE.md 참고).
-    const cats = [];
-    const tail = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/);
-    if (tail) cats.push(tail.trim());
+    const category = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/)?.trim() ?? null;
 
     title = title
       .replace(/^\s*Amazon\.com\s*:\s*/i, '')
       .replace(/\s*:\s*[^:]*$/, '')
       .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
       .trim();
+
+    // 가격대 — 달러 기준 구간. 제품을 고를 때 실제로 쓰는 축이다.
+    const p = price ? Number(price) : null;
+    const band = p == null ? null
+      : p < 25 ? '$0–25' : p < 50 ? '$25–50' : p < 100 ? '$50–100'
+      : p < 200 ? '$100–200' : p < 500 ? '$200–500' : '$500+';
+
+    const cats = [category, band].filter(Boolean);
     // 없는 ASIN이어도 아마존은 200에 "Page Not Found" 페이지를 준다 — 제목만 보고 성공으로 치면 안 된다.
     if (/page not found|sorry! we couldn't find/i.test(title)) {
       return { ok: false, title: null, price: null, image: null, cats: [], reason: '아마존에 그 ASIN 페이지가 없다' };
@@ -84,16 +90,16 @@ export default async function handler(req, res) {
   // 수집이 실패해도 저장은 한다. 대신 실패를 문서에 남겨 화면에 드러낸다.
   const got = await scrape(asin);
 
-  // 카테고리에서 자동 태그 하나를 얹는다 (가장 구체적인 것). 손으로 단 태그가 앞에 온다.
-  const auto = got.cats.length ? got.cats[got.cats.length - 1] : null;
-  const tagNames = [...new Set(auto ? [...tags, auto] : tags)];
+  // 자동 태그(카테고리·가격대)를 얹는다. 손으로 단 태그가 앞에 온다.
+  const autoTags = got.cats.filter((t) => !tags.includes(t));
+  const tagNames = [...new Set([...tags, ...autoTags])];
 
   const doc = {
     title: got.title,
     price: got.price,
     image: got.image,
     tagNames,
-    autoTag: auto,
+    autoTags,
     fetchOk: got.ok,
     fetchNote: got.reason,
     addedAt: FieldValue.serverTimestamp(),
