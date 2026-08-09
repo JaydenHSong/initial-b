@@ -6,109 +6,141 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
-  :root { --bg:#fff; --soft:#f6f7f9; --ink:#111827; --dim:#6b7280; --line:#e5e7eb; --acc:#2563eb; --hot:#ea580c; }
+  :root { --bg:#fff; --soft:#f4f5f7; --ink:#0f172a; --dim:#64748b; --line:#e2e8f0; --acc:#2563eb; --win:#15803d; }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 20px 80px;
+  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 22px 72px;
     font-family:"Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif; }
-  .wrap { max-width:960px; margin:0 auto; }
-  header { padding:36px 0 22px; }
-  .k { font-size:11.5px; font-weight:700; letter-spacing:.14em; color:var(--acc); }
-  h1 { font-size:34px; font-weight:800; letter-spacing:-.035em; margin:6px 0 6px; }
-  .lede { color:var(--dim); font-size:15px; font-weight:500; }
-  .lede b { color:var(--ink); font-weight:700; }
-  .links { margin-top:14px; font-size:13.5px; font-weight:600; }
-  .links a { color:var(--dim); margin-right:16px; text-decoration:none; }
+  .w { max-width:1120px; margin:0 auto; }
+
+  /* ── 헤더: 컴팩트하게. 주인공은 목록이다 ── */
+  header { padding:26px 0 16px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .k { font-size:11px; font-weight:700; letter-spacing:.16em; color:var(--acc); }
+  h1 { font-size:25px; font-weight:800; letter-spacing:-.035em; }
+  .lede { font-size:13.5px; font-weight:500; color:var(--dim); }
+  .links { margin-left:auto; font-size:13px; font-weight:600; }
+  .links a { color:var(--dim); margin-left:14px; text-decoration:none; }
   .links a:hover { color:var(--acc); }
 
-  form { background:var(--soft); border-radius:16px; padding:16px;
-    display:grid; gap:10px; grid-template-columns:1fr 1.4fr auto; align-items:center; }
-  input { font:inherit; font-size:15px; font-weight:500; padding:12px 14px; border:1.5px solid var(--line);
-    border-radius:10px; background:var(--bg); color:var(--ink); width:100%; }
+  /* ── 등록: 기본은 접혀 있다. 등록은 가끔이고 보는 게 대부분이다 ── */
+  .addbar { display:flex; justify-content:flex-end; margin-bottom:10px; }
+  .add { font:inherit; font-size:14px; font-weight:700; padding:9px 18px; border:1.5px solid var(--line);
+    border-radius:10px; background:#fff; color:var(--ink); cursor:pointer; }
+  .add:hover { border-color:var(--acc); color:var(--acc); }
+  .add.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+  form { display:none; background:var(--soft); border-radius:14px; padding:14px; margin-bottom:18px;
+    grid-template-columns:1fr 1.3fr auto; gap:10px; }
+  form.open { display:grid; }
+  input { font:inherit; font-size:14.5px; padding:11px 13px; border:1.5px solid var(--line);
+    border-radius:9px; background:#fff; color:var(--ink); width:100%; }
   input:focus { outline:0; border-color:var(--acc); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-  button { font:inherit; font-size:15px; font-weight:700; padding:12px 26px; border:0; border-radius:10px;
-    background:var(--acc); color:#fff; cursor:pointer; }
-  button:disabled { opacity:.45; cursor:default; }
-  .msg { grid-column:1/-1; font-size:13.5px; font-weight:500; color:var(--dim); }
-  .msg.bad { color:#dc2626; }
-  .pick { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-  .pick .lbl { font-size:12.5px; font-weight:600; color:#9ca3af; margin-right:2px; }
-  .pick button { font-size:12.5px; font-weight:600; padding:4px 11px; border:1.5px solid var(--line);
-    border-radius:999px; background:var(--bg); color:#374151; cursor:pointer; }
+  .go-btn { font:inherit; font-size:14.5px; font-weight:700; padding:11px 24px; border:0; border-radius:9px;
+    background:var(--acc); color:#fff; cursor:pointer; white-space:nowrap; }
+  .go-btn:disabled { opacity:.45; cursor:default; }
+  .pick { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+  .pick .lbl { font-size:11.5px; font-weight:700; color:#94a3b8; letter-spacing:.04em; margin-right:2px; }
+  .pick button { font:inherit; font-size:11.5px; font-weight:600; padding:3px 9px; border:1px solid var(--line);
+    border-radius:6px; background:#fff; color:#475569; cursor:pointer; }
   .pick button:hover { border-color:var(--acc); color:var(--acc); }
   .pick button.used { opacity:.35; }
+  .msg { grid-column:1/-1; font-size:13px; font-weight:500; color:var(--dim); }
+  .msg.bad { color:#dc2626; }
 
-  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:28px 0 10px; }
-  .chip { font-size:14px; font-weight:600; padding:8px 16px; border:1.5px solid var(--line);
-    border-radius:999px; background:var(--bg); cursor:pointer; color:#374151; }
-  .chip.auto { background:#eff6ff; border-color:#bfdbfe; color:var(--acc); }
+  /* ── 태그를 축으로 묶는다. 축이 보이면 30개가 돼도 안 무너진다 ── */
+  .axes { border-top:1px solid var(--line); padding-top:14px; }
+  .axis { display:flex; gap:8px; align-items:flex-start; margin-bottom:7px; }
+  .axis > b { flex:0 0 62px; font-size:11.5px; font-weight:700; color:#94a3b8; letter-spacing:.04em; padding-top:7px; }
+  .axis .row { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { font-size:13.5px; font-weight:600; padding:6px 13px; border:1.5px solid var(--line);
+    border-radius:9px; background:#fff; cursor:pointer; color:#334155; user-select:none; }
+  .chip:hover { border-color:#cbd5e1; }
   .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
-  .note { font-size:13px; font-weight:500; color:var(--dim); margin-bottom:18px; }
 
-  .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); }
-  /* 카드 뒤집기 — 앞면이 높이를 정하고 뒷면은 그 위에 겹친다 */
-  .card { perspective:1200px; cursor:pointer; }
+  /* ── 필터 상태줄: 무엇으로 걸러졌고 몇 개가 버려졌나 + 초기화 ── */
+  .status { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin:16px 0 14px; font-size:13px; font-weight:500; color:var(--dim); }
+  .status .on { color:var(--ink); font-weight:700; }
+  .status .clear { font:inherit; font-size:12.5px; font-weight:700; padding:4px 11px; border:1.5px solid var(--line);
+    border-radius:7px; background:#fff; color:#475569; cursor:pointer; }
+  .status .clear:hover { border-color:#dc2626; color:#dc2626; }
+
+  /* ── 카드: 앞면에 가격 맥락. 카드 클릭은 아마존, 기록은 별도 버튼 ── */
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); }
+  .card { perspective:1200px; }
   .inner { position:relative; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.4,.1,.2,1); }
   .card.flip .inner { transform:rotateY(180deg); }
-  .face { background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:14px;
+  .face { border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden;
     backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .front { display:flex; flex-direction:column; transition:border-color .12s, box-shadow .12s; }
-  .card:hover .front { border-color:var(--acc); box-shadow:0 4px 14px rgba(17,24,39,.08); }
-  .back { position:absolute; inset:0; transform:rotateY(180deg); overflow:auto;
-    display:flex; flex-direction:column; cursor:default; }
+  .front { display:flex; flex-direction:column; }
+  .card:hover .front { border-color:#cbd5e1; box-shadow:0 4px 14px rgba(15,23,42,.07); }
+  .shop { text-decoration:none; color:inherit; display:block; }
+  .ph { aspect-ratio:4/3; background:var(--soft); overflow:hidden; }
+  .ph img { width:100%; height:100%; object-fit:cover; display:block; }
+  .ph .none { height:100%; display:grid; place-items:center; font-size:12.5px; font-weight:600; color:#94a3b8; }
+  .body { padding:11px 13px 12px; }
+  .t { font-size:13px; font-weight:600; color:#334155; line-height:1.35;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+  .pr { font-size:22px; font-weight:800; letter-spacing:-.03em; }
+  .ctx { font-size:12px; font-weight:600; color:var(--dim); margin-top:2px; }
+  .ctx .gap { color:var(--acc); }
+  .ctx .hit { color:var(--win); }
+  .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:9px; }
+  .tags i { font-style:normal; font-size:11px; font-weight:600; padding:3px 8px; border-radius:5px;
+    background:var(--soft); color:#475569; }
+  .tags i.a { background:#eff6ff; color:var(--acc); }
+  .more { display:block; width:100%; font:inherit; font-size:12px; font-weight:700; padding:8px;
+    border:0; border-top:1px solid var(--line); background:#fff; color:var(--dim); cursor:pointer; }
+  .more:hover { background:var(--soft); color:var(--acc); }
+  .fail { color:#dc2626; font-size:12.5px; font-weight:600; }
+
+  /* ── 뒷면 ── */
+  .back { position:absolute; inset:0; transform:rotateY(180deg); overflow:auto; padding:13px;
+    display:flex; flex-direction:column; }
   .bk-h { display:flex; justify-content:space-between; align-items:center;
-    font-size:13px; font-weight:700; color:var(--dim); margin-bottom:10px; }
-  .bk-x { cursor:pointer; font-size:15px; color:#9ca3af; padding:0 4px; }
-  .hist { font-size:13.5px; }
-  .hist .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--line); }
-  .hist .r b { font-weight:700; }
-  .hist .r.low b { color:var(--hot); }
-  .hist .none { color:var(--dim); }
-  .hist .cost { margin-top:8px; font-size:12px; color:#9ca3af; }
-  .tg { display:flex; gap:6px; align-items:center; margin-top:12px; }
-  .tg label { font-size:13px; font-weight:600; color:var(--dim); white-space:nowrap; }
-  .tg input { font-size:14px; padding:7px 10px; min-width:0; }
-  .tg .save { font-size:13px; font-weight:700; padding:7px 14px; border-radius:8px; white-space:nowrap; flex:0 0 auto; }
-  .tg-msg { font-size:12.5px; color:var(--dim); margin-top:6px; min-height:1em; }
+    font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:9px; }
+  .bk-x { cursor:pointer; font-size:15px; color:#94a3b8; padding:0 4px; }
+  .hist { font-size:13px; }
+  .hist .r { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
+  .hist .r.low b { color:var(--acc); }
+  .hist .none { color:#94a3b8; font-size:12px; padding:4px 0; }
+  .hist .cost { margin-top:7px; font-size:11.5px; color:#94a3b8; }
+  .tg { display:flex; gap:6px; align-items:center; margin-top:11px; }
+  .tg label { font-size:12.5px; font-weight:700; color:var(--dim); white-space:nowrap; }
+  .tg input { font-size:13.5px; padding:7px 9px; min-width:0; }
+  .tg .save { font:inherit; font-size:12.5px; font-weight:700; padding:7px 13px; border:0; border-radius:8px;
+    background:var(--acc); color:#fff; cursor:pointer; white-space:nowrap; flex:0 0 auto; }
+  .tg-msg { font-size:12px; color:var(--dim); margin-top:6px; min-height:1em; }
   .tg-msg.bad { color:#dc2626; }
-  .amz { margin-top:10px; font-size:13px; font-weight:600; color:var(--acc); text-decoration:none; }
-  .tgt { font-size:12.5px; font-weight:700; color:var(--dim); margin-left:8px;
-    padding:2px 8px; border-radius:999px; background:var(--soft); vertical-align:middle; }
-  .tgt.hit { background:#dcfce7; color:#15803d; }
-  .thumb { aspect-ratio:1/1; border-radius:10px; background:var(--soft); margin-bottom:12px;
-    display:grid; place-items:center; overflow:hidden; }
-  .thumb img { width:100%; height:100%; object-fit:contain; }
-  .thumb .none { font-size:12.5px; font-weight:600; color:#9ca3af; }
-  .card h2 { font-size:14.5px; font-weight:600; line-height:1.45; margin-bottom:10px;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .card .price { font-size:24px; font-weight:800; letter-spacing:-.03em; color:var(--hot); }
-  .card .asin { font-size:12.5px; font-weight:600; color:var(--dim); margin-top:2px; }
-  .card .tags { margin-top:11px; display:flex; flex-wrap:wrap; gap:6px; }
-  .card .tags span { font-size:12.5px; font-weight:600; padding:4px 11px; border-radius:999px;
-    background:var(--soft); color:#374151; }
-  .card .tags span.auto { background:#eff6ff; color:var(--acc); }
-  .fail { color:#dc2626; font-size:13px; font-weight:600; }
-  .empty { grid-column:1/-1; color:var(--dim); font-size:15px; font-weight:500; padding:44px 0; text-align:center; }
-  @media (max-width:600px) { form { grid-template-columns:1fr; } h1 { font-size:27px; } }
+
+  .empty { grid-column:1/-1; color:var(--dim); font-size:14.5px; font-weight:500; padding:52px 0; text-align:center; }
+  @media (max-width:620px) {
+    form { grid-template-columns:1fr; }
+    header { gap:8px; } .links { margin-left:0; width:100%; }
+    .axis { flex-direction:column; gap:4px; } .axis > b { padding-top:0; }
+  }
 </style>
 
-<div class="wrap">
+<div class="w">
   <header>
-    <div class="k">S02 · 데이터 저장</div>
-    <h1>ASIN 스크랩북</h1>
-    <div class="lede">아마존 ASIN을 등록하면 제목·가격·사진을 채워 저장하고, <b>태그를 여러 개 골라 전부 달린 것만</b> 봅니다.</div>
+    <div>
+      <div class="k">S02 · 데이터 저장</div>
+      <h1>ASIN 스크랩북</h1>
+    </div>
+    <div class="lede">태그로 좁혀 보고, 목표가를 걸어 매일 지켜본다</div>
     <div class="links"><a href="/docs/plan.html">기획서 ↗</a><a href="/docs/report.html">리포트 ↗</a></div>
   </header>
+
+  <div class="addbar"><button class="add" id="toggle" type="button">+ 제품 추가</button></div>
 
   <form id="f">
     <input id="asin" placeholder="ASIN 또는 아마존 상품 URL" autocomplete="off" required>
     <input id="tags" placeholder="태그 쉼표로 — 방열, 5만원대" autocomplete="off" required>
-    <button id="btn">등록</button>
+    <button class="go-btn" id="btn">등록</button>
     <div class="pick" id="pick"></div>
     <div class="msg" id="msg"></div>
   </form>
 
-  <div class="chips" id="chips"></div>
-  <div class="note" id="note"></div>
+  <div class="axes" id="axes"></div>
+  <div class="status" id="status"></div>
   <div class="grid" id="list"></div>
 </div>
 
@@ -129,31 +161,57 @@ const db = getFirestore(initializeApp({
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-// 아마존 이미지 URL은 크기 토큰을 갈아끼울 수 있다 — 원본 1500px을 400px로 줄여 받는다.
-const small = (u) => u.replace(/\._[A-Z0-9_,]+_\./, '._SL400_.');
-const picked = new Set();
-let allTags = [];
-// 자동으로 붙은 태그는 파랗게 — 어느 쪽이 내가 단 분류인지 한눈에 보여야 한다.
-// autoTag(단수)는 예전 문서 형식이라 같이 받아준다.
+// 아마존 이미지 URL은 크기 토큰을 갈아끼울 수 있다 — 원본 1500px을 500px로 줄여 받는다.
+const small = (u) => u.replace(/\._[A-Z0-9_,]+_\./, '._SL500_.');
+const money = (n) => '$' + Number(n).toFixed(2);
 const isAuto = (d, t) => (d.autoTags ?? (d.autoTag ? [d.autoTag] : [])).includes(t);
-const autoSet = (rows) => new Set(rows.flatMap((d) => d.autoTags ?? (d.autoTag ? [d.autoTag] : [])));
-let autoTags = new Set();
+
+const picked = new Set();
+let rowsAll = [];   // 필터 없이 읽은 전체 — 축을 만드는 근거
+
+// 태그를 세 축으로 가른다. 가격대는 $로 시작하고, 카테고리는 자동으로 붙은 나머지, 그 외는 내 분류다.
+function axesOf(rows) {
+  const mine = new Set(), cat = new Set(), band = new Set();
+  for (const d of rows) for (const t of d.tagNames ?? []) {
+    if (/^\$/.test(t)) band.add(t);
+    else if (isAuto(d, t)) cat.add(t);
+    else mine.add(t);
+  }
+  const srt = (s) => [...s].sort();
+  return { 내: srt(mine), 카테고리: srt(cat), 가격대: srt(band) };
+}
+
+// 앞면 가격 맥락 — 숫자 하나가 아니라 최저가·목표가와의 관계를 보여준다.
+function ctxOf(d) {
+  if (d.price == null) return `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`;
+  const bits = [];
+  if (d.minPrice != null) bits.push(d.minPrice >= d.price ? '지금이 최저' : `최저 ${money(d.minPrice)}`);
+  if (d.targetPrice != null) {
+    bits.push(d.price <= d.targetPrice
+      ? `<span class="hit">목표 ${money(d.targetPrice)} 도달</span>`
+      : `목표까지 <span class="gap">${money(d.price - d.targetPrice)}</span>`);
+  }
+  return `<div class="ctx">${bits.join(' · ') || '&nbsp;'}</div>`;
+}
 
 const row = (d) => `
   <div class="card" data-asin="${esc(d.asin)}">
    <div class="inner">
     <div class="face front">
-      <div class="thumb">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
-      <h2>${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</h2>
-      ${d.price != null ? `<div class="price">$${d.price}${
-          d.targetPrice != null ? `<span class="tgt${d.lastPrice != null && d.lastPrice <= d.targetPrice ? ' hit' : ''}">목표 $${d.targetPrice}</span>` : ''
-        }</div>` : `<div class="fail">${esc(d.fetchNote ?? '가격 없음')}</div>`}
-      <div class="asin">${d.asin} · 눌러서 가격 기록 ↻</div>
-      <div class="tags">${(d.tagNames ?? []).map((t) =>
-        `<span class="${isAuto(d, t) ? 'auto' : ''}">${esc(t)}</span>`).join('')}</div>
+      <a class="shop" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">
+        <div class="ph">${d.image ? `<img src="${esc(small(d.image))}" alt="" loading="lazy">` : `<div class="none">사진 없음</div>`}</div>
+        <div class="body">
+          <div class="t">${d.title ? esc(d.title) : `<span class="fail">제목 수집 실패</span>`}</div>
+          ${d.price != null ? `<div class="pr">${money(d.price)}</div>` : ''}
+          ${ctxOf(d)}
+          <div class="tags">${(d.tagNames ?? []).map((t) =>
+            `<i class="${isAuto(d, t) ? 'a' : ''}">${esc(t)}</i>`).join('')}</div>
+        </div>
+      </a>
+      <button class="more" type="button">가격 기록 · 목표가 ↻</button>
     </div>
     <div class="face back">
-      <div class="bk-h">가격 기록<span class="bk-x">✕</span></div>
+      <div class="bk-h"><span>가격 기록</span><span class="bk-x">✕</span></div>
       <div class="hist">불러오는 중…</div>
       <div class="tg">
         <label>목표가</label>
@@ -161,16 +219,24 @@ const row = (d) => `
         <button class="save" type="button">저장</button>
       </div>
       <div class="tg-msg"></div>
-      <a class="amz" href="https://www.amazon.com/dp/${esc(d.asin)}" target="_blank" rel="noopener noreferrer">아마존에서 보기 ↗</a>
     </div>
    </div>
   </div>`;
 
+// ── 등록 폼 접기/펼치기 ──
+$('toggle').onclick = () => {
+  const open = $('f').classList.toggle('open');
+  $('toggle').classList.toggle('on', open);
+  $('toggle').textContent = open ? '− 닫기' : '+ 제품 추가';
+  if (open) $('asin').focus();
+};
+
 // 기존 태그를 눌러 넣는다. 손으로 다시 치면 오타가 나고, 오타 난 태그는 AND 필터에서 조용히 빠진다.
 function renderPick() {
   const typed = new Set($('tags').value.split(',').map((s) => s.trim()).filter(Boolean));
-  $('pick').innerHTML = allTags.length
-    ? `<span class="lbl">기존 태그</span>` + allTags
+  const mine = axesOf(rowsAll).내;
+  $('pick').innerHTML = mine.length
+    ? `<span class="lbl">내 태그</span>` + mine
         .map((t) => `<button type="button" class="${typed.has(t) ? 'used' : ''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')
     : '';
 }
@@ -178,14 +244,57 @@ $('pick').onclick = (e) => {
   const t = e.target.dataset?.t;
   if (!t) return;
   const cur = $('tags').value.split(',').map((s) => s.trim()).filter(Boolean);
-  const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
-  $('tags').value = next.join(', ');
+  $('tags').value = (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]).join(', ');
   renderPick();
 };
 $('tags').oninput = renderPick;
 
-// 카드 뒤집기. 뒷면을 열 때 비로소 그 제품의 prices 서브컬렉션을 읽는다 —
-// 목록에서 미리 읽지 않는 이유가 이번 주 리포트의 핵심이다(제품 N개면 읽기가 N배로 는다).
+async function render() {
+  const tags = [...picked];
+  // Firestore는 array-contains를 질의당 하나만 허용한다 (array-contains-all 은 없다).
+  // 그래서 첫 태그로만 서버에서 좁히고, 나머지 AND 조건은 여기서 버린다.
+  const q = tags.length
+    ? query(collection(db, 'products'), where('tagNames', 'array-contains', tags[0]))
+    : collection(db, 'products');
+
+  let snap;
+  try { snap = await getDocs(q); }
+  catch (e) { $('list').innerHTML = `<div class="empty">읽기 실패 — ${esc(e.message)}</div>`; return; }
+
+  const read = snap.size;
+  const got = snap.docs.map((d) => ({ asin: d.id, ...d.data() }));
+  const rows = got.filter((d) => tags.every((t) => (d.tagNames ?? []).includes(t)));
+  if (!tags.length) rowsAll = rows;
+
+  // 축
+  const ax = axesOf(rowsAll);
+  $('axes').innerHTML = Object.entries(ax).filter(([, v]) => v.length).map(([name, list]) =>
+    `<div class="axis"><b>${name}</b><div class="row">${list
+      .map((t) => `<div class="chip${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('')}</div></div>`).join('');
+
+  // 상태줄 — 무엇으로 걸렀고 몇 개를 버렸나. 버린 수가 이번 주 리포트의 핵심이다.
+  $('status').innerHTML = tags.length
+    ? `<span><span class="on">${tags.map(esc).join(' + ')}</span> — 전체 ${rowsAll.length}개 중 <span class="on">${rows.length}개</span></span>`
+      + `<span>· 서버가 ${read}개를 돌려주고 ${read - rows.length}개를 버렸다 (버린 것도 읽기 요금)</span>`
+      + `<button class="clear" id="clear" type="button">초기화</button>`
+    : `<span>제품 ${rows.length}개 · 문서 ${read}회 읽음</span>`;
+  const cl = $('clear');
+  if (cl) cl.onclick = () => { picked.clear(); render(); };
+
+  $('list').innerHTML = rows.length
+    ? rows.map(row).join('')
+    : `<div class="empty">${tags.length ? '이 태그를 모두 가진 제품이 없다' : '아직 등록된 제품이 없다. 위 「+ 제품 추가」로 시작해라.'}</div>`;
+  renderPick();
+}
+
+$('axes').onclick = (e) => {
+  const t = e.target.dataset.t;
+  if (!t) return;
+  picked.has(t) ? picked.delete(t) : picked.add(t);
+  render();
+};
+
+// 카드 클릭은 아마존으로 간다(자연스러운 동작). 기록은 별도 버튼으로만 뒤집는다.
 $('list').onclick = async (e) => {
   const card = e.target.closest('.card');
   if (!card) return;
@@ -204,29 +313,21 @@ $('list').onclick = async (e) => {
       const j = await r.json();
       if (!r.ok) throw new Error(j.error ?? '저장 실패');
       msg.textContent = j.targetPrice == null ? '목표가를 지웠다'
-        : j.alreadyBelow ? `저장됨 — 지금 $${j.lastPrice}로 이미 목표 아래다`
+        : j.alreadyBelow ? `저장됨 — 지금 ${money(j.lastPrice)}로 이미 목표 아래다`
         : `저장됨 — 다음 수집부터 감시한다`;
-      // 앞면 칩을 그 자리에서 갱신한다. 전체를 다시 그리면 뒤집힌 카드가 닫혀버린다.
-      const priceBox = card.querySelector('.front .price');
-      if (priceBox) {
-        let chip = priceBox.querySelector('.tgt');
-        if (j.targetPrice == null) {
-          chip?.remove();
-        } else {
-          if (!chip) { chip = document.createElement('span'); chip.className = 'tgt'; priceBox.appendChild(chip); }
-          chip.textContent = `목표 $${j.targetPrice}`;
-          chip.classList.toggle('hit', j.lastPrice != null && j.lastPrice <= j.targetPrice);
-        }
-      }
+      // 앞면 맥락줄을 그 자리에서 갱신한다. 전체를 다시 그리면 뒤집힌 카드가 닫혀버린다.
+      const d = rowsAll.find((x) => x.asin === asin) ?? {};
+      d.targetPrice = j.targetPrice;
+      const ctx = card.querySelector('.front .ctx, .front .fail');
+      if (ctx) ctx.outerHTML = ctxOf({ ...d, price: j.lastPrice ?? d.price });
     } catch (err) {
       msg.className = 'tg-msg bad';
       msg.textContent = err.message;
     }
     return;
   }
-  if (e.target.closest('.amz') || e.target.closest('.tg')) return;      // 링크·입력은 뒤집지 않는다
-  if (card.classList.contains('flip') && !e.target.closest('.bk-x')) return;  // 뒷면에선 ✕로만 닫는다
 
+  if (!e.target.closest('.more') && !e.target.closest('.bk-x')) return;  // 나머지는 링크가 처리
   card.classList.toggle('flip');
   if (!card.classList.contains('flip')) return;
 
@@ -238,7 +339,7 @@ $('list').onclick = async (e) => {
     const pts = snap.docs.map((p) => ({ at: p.id, ...p.data() })).sort((a, b) => (a.at < b.at ? 1 : -1));
     const min = pts.length ? Math.min(...pts.map((p) => p.price)) : null;
     box.innerHTML = pts.length
-      ? pts.map((p) => `<div class="r${p.price === min ? ' low' : ''}"><span>${esc(p.at)}</span><b>$${p.price}</b></div>`).join('')
+      ? pts.map((p) => `<div class="r${p.price === min ? ' low' : ''}"><span>${esc(p.at)}</span><b>${money(p.price)}</b></div>`).join('')
         + (pts.length === 1 ? `<div class="none">크론이 하루 한 번 한 줄씩 쌓는다.</div>` : '')
         + `<div class="cost">이 카드 하나에 문서 ${snap.size}회 읽음 · ${Math.round(performance.now() - t0)}ms</div>`
       : `<div class="none">아직 기록이 없다. 크론이 하루 한 번 쌓는다.</div>`;
@@ -246,47 +347,6 @@ $('list').onclick = async (e) => {
   } catch (err) {
     box.innerHTML = `<div class="none">읽기 실패 — ${esc(err.message)}</div>`;
   }
-};
-
-async function render() {
-  const tags = [...picked];
-  // Firestore는 array-contains를 질의당 하나만 허용한다 (array-contains-all 은 없다).
-  // 그래서 첫 태그로만 서버에서 좁히고, 나머지 AND 조건은 여기서 버린다.
-  const q = tags.length
-    ? query(collection(db, 'products'), where('tagNames', 'array-contains', tags[0]))
-    : collection(db, 'products');
-
-  let snap;
-  try { snap = await getDocs(q); }
-  catch (e) { $('list').innerHTML = `<div class="empty">읽기 실패 — ${esc(e.message)}</div>`; return; }
-
-  const read = snap.size;
-  const rows = snap.docs.map((d) => ({ asin: d.id, ...d.data() }))
-    .filter((d) => tags.every((t) => (d.tagNames ?? []).includes(t)));
-
-  if (!tags.length) {
-    allTags = [...new Set(rows.flatMap((d) => d.tagNames ?? []))].sort();
-    // 자동으로 붙은 태그(카테고리·가격대). 손으로도 단 적이 있으면 내 태그로 친다.
-    const manual = new Set(rows.flatMap((d) => (d.tagNames ?? []).filter((t) => !isAuto(d, t))));
-    autoTags = new Set([...autoSet(rows)].filter((t) => !manual.has(t)));
-    renderPick();
-    $('note').textContent = `제품 ${rows.length}개 · 문서 ${read}회 읽음`;
-  } else {
-    $('note').textContent =
-      `태그 ${tags.length}개 AND — 서버가 ${read}개 돌려주고 ${rows.length}개가 정답 (${read - rows.length}개는 버렸지만 읽기 요금엔 포함된다)`;
-  }
-  $('chips').innerHTML = allTags
-    .map((t) => `<div class="chip${autoTags.has(t) ? ' auto' : ''}${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('');
-  $('list').innerHTML = rows.length
-    ? rows.map(row).join('')
-    : `<div class="empty">${tags.length ? '이 태그를 모두 가진 제품이 없다' : '아직 등록된 제품이 없다. 위에서 ASIN 하나를 넣어봐라.'}</div>`;
-}
-
-$('chips').onclick = (e) => {
-  const t = e.target.dataset.t;
-  if (!t) return;
-  picked.has(t) ? picked.delete(t) : picked.add(t);
-  render();
 };
 
 $('f').onsubmit = async (e) => {
