@@ -206,6 +206,18 @@ $('list').onclick = async (e) => {
       msg.textContent = j.targetPrice == null ? '목표가를 지웠다'
         : j.alreadyBelow ? `저장됨 — 지금 $${j.lastPrice}로 이미 목표 아래다`
         : `저장됨 — 다음 수집부터 감시한다`;
+      // 앞면 칩을 그 자리에서 갱신한다. 전체를 다시 그리면 뒤집힌 카드가 닫혀버린다.
+      const priceBox = card.querySelector('.front .price');
+      if (priceBox) {
+        let chip = priceBox.querySelector('.tgt');
+        if (j.targetPrice == null) {
+          chip?.remove();
+        } else {
+          if (!chip) { chip = document.createElement('span'); chip.className = 'tgt'; priceBox.appendChild(chip); }
+          chip.textContent = `목표 $${j.targetPrice}`;
+          chip.classList.toggle('hit', j.lastPrice != null && j.lastPrice <= j.targetPrice);
+        }
+      }
     } catch (err) {
       msg.className = 'tg-msg bad';
       msg.textContent = err.message;
