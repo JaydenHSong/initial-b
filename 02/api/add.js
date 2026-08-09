@@ -35,13 +35,20 @@ async function scrape(asin) {
     // 카테고리 — <title> 꼬리(": Electronics")가 전부다.
     // 브레드크럼·베스트셀러 순위·JSON-LD를 전부 시도했으나, 아마존이 데이터센터 IP에
     // 주는 축약 페이지에는 그 블록들이 아예 없다 (2026-08-08 실측, SPIKE.md 참고).
-    const category = one(/<title>[^<]*?:\s*([^:<]+)<\/title>/)?.trim() ?? null;
+    // <title>은 HTML 엔티티가 들어 있는 원문이다. 제목이든 카테고리든 풀어서 써야 한다 —
+    // 안 풀면 "Sports &amp; Outdoors"가 그대로 태그가 되고, 화면에서 한 번 더 이스케이프돼
+    // 사용자 눈에 &amp; 로 보인다.
+    const decode = (s) => s == null ? null : s
+      .replace(/&amp;/g, '&').replace(/&#0?39;|&#x27;/gi, "'")
+      .replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ')
+      .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ').trim();
 
-    title = title
+    const category = decode(one(/<title>[^<]*?:\s*([^:<]+)<\/title>/));
+
+    title = decode(title
       .replace(/^\s*Amazon\.com\s*:\s*/i, '')
-      .replace(/\s*:\s*[^:]*$/, '')
-      .replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"')
-      .trim();
+      .replace(/\s*:\s*[^:]*$/, ''));
 
     // 가격대 — 달러 기준 구간. 제품을 고를 때 실제로 쓰는 축이다.
     const p = price ? Number(price) : null;
