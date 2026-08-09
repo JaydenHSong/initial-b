@@ -58,7 +58,7 @@
   .bk-h { display:flex; justify-content:space-between; align-items:center;
     font-size:13px; font-weight:700; color:var(--dim); margin-bottom:10px; }
   .bk-x { cursor:pointer; font-size:15px; color:#9ca3af; padding:0 4px; }
-  .hist { flex:1; font-size:13.5px; }
+  .hist { font-size:13.5px; }
   .hist .r { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--line); }
   .hist .r b { font-weight:700; }
   .hist .r.low b { color:var(--hot); }
@@ -227,8 +227,9 @@ $('list').onclick = async (e) => {
     const min = pts.length ? Math.min(...pts.map((p) => p.price)) : null;
     box.innerHTML = pts.length
       ? pts.map((p) => `<div class="r${p.price === min ? ' low' : ''}"><span>${esc(p.at)}</span><b>$${p.price}</b></div>`).join('')
+        + (pts.length === 1 ? `<div class="none">크론이 하루 한 번 한 줄씩 쌓는다.</div>` : '')
         + `<div class="cost">이 카드 하나에 문서 ${snap.size}회 읽음 · ${Math.round(performance.now() - t0)}ms</div>`
-      : `<div class="none">아직 기록이 하나뿐이거나 없다. 크론이 하루 한 번 쌓는다.</div>`;
+      : `<div class="none">아직 기록이 없다. 크론이 하루 한 번 쌓는다.</div>`;
     box.dataset.loaded = '1';
   } catch (err) {
     box.innerHTML = `<div class="none">읽기 실패 — ${esc(err.message)}</div>`;
