@@ -26,7 +26,19 @@ async function fetchPrice(asin) {
       return { ok: false, reason: '페이지 없음' };
     }
     const p = html.match(/"priceAmount":([0-9.]+)/)?.[1];
-    return p ? { ok: true, price: Number(p) } : { ok: false, reason: `가격 표시 없음 (품절이거나 판매자 없음, ${html.length}B)` };
+    if (p) return { ok: true, price: Number(p) };
+    // 1MB짜리 정상 페이지인데 가격이 없는 경우가 생겼다. 셀렉터가 바뀐 건지
+    // 진짜 품절인지 가르려면 어떤 가격 마크업이 남아 있는지 봐야 한다. (조사용, 확인 후 제거)
+    const n = (re) => (html.match(re) ?? []).length;
+    const probe = [
+      `whole=${n(/a-price-whole/g)}`,
+      `off=${n(/a-offscreen/g)}`,
+      `core=${n(/corePrice/g)}`,
+      `block=${n(/priceblock/gi)}`,
+      `unavail=${/currently unavailable|일시 품절/i.test(html) ? 1 : 0}`,
+      `sample=${(html.match(/a-offscreen">([^<]{1,12})</) ?? [])[1] ?? '-'}`,
+    ].join(' ');
+    return { ok: false, reason: `가격 없음 ${html.length}B [${probe}]` };
   } catch (e) {
     return { ok: false, reason: String(e.message).slice(0, 60) };
   }
