@@ -163,8 +163,13 @@ export default async function handler(req, res) {
       `• ${h.title.slice(0, 60)}\n  $${h.price} (목표 $${h.target}) — https://www.amazon.com/dp/${h.asin}`).join('\n'));
   } else if (fails.length) {
     // 수집이 실패해도 조용히 죽지 않는다. 며칠째 못 긁고 있는 걸 모르는 게 더 나쁘다.
-    notified = await notify(`*가격 수집 실패 ${fails.length}건* (${day})\n`
-      + fails.map((f) => `• ${f.asin} — ${f.reason}`).join('\n'));
+    // 실패 건수만 적으면 전부 실패한 것처럼 읽힌다 — 성공한 쪽과 경로도 같이 적는다.
+    const ok = results.length - fails.length;
+    notified = await notify(
+      `*가격 수집 ${ok}/${results.length}* (${day})\n`
+      + `성공: 직접 ${results.filter((r) => r.ok && r.via === '직접').length} · 프록시 ${viaProxy}\n`
+      + `실패 ${fails.length}건\n`
+      + fails.map((f) => `• ${f.asin} [${f.via}] ${f.reason}`).join('\n'));
   }
 
   res.status(200).json({
