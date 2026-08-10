@@ -103,8 +103,13 @@ export default async function handler(req, res) {
     got.set(d.id, { ...(await direct(d.id)), via: '직접' });
   }
 
-  // ── 2단계: 차단된 것만 프록시로. 연결은 한 번만 연다.
-  const blocked = [...got.entries()].filter(([, v]) => v.blocked).map(([a]) => a);
+  // ── 2단계: 직접 경로가 가격을 못 얻은 것만 프록시로. 연결은 한 번만 연다.
+  // 처음엔 봇 페이지(v.blocked)만 넘겼는데, 직접 경로에서 "판매자 없음"이던 제품이
+  // 프록시로는 $31.99 로 나왔다 (2026-08-10). 아마존이 의심 IP에는 봇 페이지 대신
+  // 가격만 뺀 페이지를 주기도 한다 — 그 소프트 차단은 품절과 구분이 안 된다.
+  // 페이지 자체가 없는 경우만 빼고 전부 다시 받아본다.
+  const blocked = [...got.entries()]
+    .filter(([, v]) => !v.ok && v.reason !== '페이지 없음').map(([a]) => a);
   let browser = null;
   if (blocked.length && process.env.BRD_WS) {
     try {
