@@ -46,14 +46,21 @@ async function direct(asin) {
   }
 }
 
-// 이미지·폰트·CSS는 막는다. 가격은 HTML 안에 있고, 트래픽이 곧 요금이다(건당 ~1.1MB).
+// 이미지·폰트·미디어는 막는다 — 가격은 HTML 안에 있고 트래픽이 곧 요금이다(건당 ~1.1MB).
+// CSS는 막지 않는다. 처음엔 같이 막았는데 아마존 JS 렌더 타이밍이 틀어져서
+// 291KB짜리 반쪽 HTML을 읽거나 아예 타임아웃 났다 (2026-08-10).
 async function viaBrowser(browser, asin) {
   const page = await browser.newPage();
   try {
     await page.setRequestInterception(true);
     page.on('request', (req) =>
-      ['image', 'font', 'stylesheet', 'media'].includes(req.resourceType()) ? req.abort() : req.continue());
-    await page.goto(`https://www.amazon.com/dp/${asin}`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+      ['image', 'font', 'media'].includes(req.resourceType()) ? req.abort() : req.continue());
+    await page.goto(`https://www.amazon.com/dp/${asin}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // domcontentloaded 시점엔 가격이 아직 없을 수 있다. 나올 때까지만 짧게 기다린다.
+    await page.waitForFunction(
+      () => /"priceAmount":|currently unavailable|see all buying options/i.test(document.documentElement.innerHTML),
+      { timeout: 12000 },
+    ).catch(() => {});   // 못 기다려도 일단 읽어보고 사유는 readPrice 가 가른다
     return readPrice(await page.content());
   } catch (e) {
     return { ok: false, reason: '프록시 실패: ' + String(e.message).slice(0, 60) };
