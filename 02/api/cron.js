@@ -12,21 +12,27 @@ const db = getFirestore();
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
 // add.js 의 수집과 달리 여기서는 가격만 필요하다. 제목·사진·카테고리는 등록 때 이미 채웠다.
+// 실패 사유를 뭉뚱그리지 않는다 — 차단인지 품절인지 알아야 대응이 갈린다.
 async function fetchPrice(asin) {
   try {
     const r = await fetch(`https://www.amazon.com/dp/${asin}`, {
       headers: { 'user-agent': UA, 'accept-language': 'en-US,en;q=0.9' },
     });
     const html = await r.text();
+    if (/api-services-support@amazon\.com|Enter the characters you see|automated access/i.test(html)) {
+      return { ok: false, reason: `아마존이 차단했다 (봇 확인 페이지 ${html.length}B)` };
+    }
     if (/page not found|sorry! we couldn't find/i.test(html.match(/<title>([^<]*)/)?.[1] ?? '')) {
       return { ok: false, reason: '페이지 없음' };
     }
     const p = html.match(/"priceAmount":([0-9.]+)/)?.[1];
-    return p ? { ok: true, price: Number(p) } : { ok: false, reason: '가격 못 찾음 (품절이거나 차단)' };
+    return p ? { ok: true, price: Number(p) } : { ok: false, reason: `가격 표시 없음 (품절이거나 판매자 없음, ${html.length}B)` };
   } catch (e) {
     return { ok: false, reason: String(e.message).slice(0, 60) };
   }
 }
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function notify(text) {
   const url = process.env.GCHAT_WEBHOOK;
@@ -57,13 +63,18 @@ export default async function handler(req, res) {
   const day = new Date().toISOString().slice(0, 10);
   const snap = await db.collection('products').get();
 
-  // 제품 하나당 1.4초쯤 걸린다. 함수 상한이 10초라 직렬로 돌리면 6개에서 죽는다 — 반드시 병렬.
-  const results = await Promise.all(snap.docs.map(async (d) => {
+  // 병렬로 쐈더니 아마존이 같은 IP에서 동시에 들어온 요청 대부분에 봇 페이지를 줬다
+  // (2026-08-10: 5개 중 1개만 통과, 통과하는 제품이 매번 바뀜). 그래서 한 건씩 순서대로,
+  // 사이에 무작위 간격을 둔다. 함수 시간은 vercel.json 의 maxDuration 으로 늘렸다.
+  const results = [];
+  for (const d of snap.docs) {
+    if (results.length) await sleep(700 + Math.floor(Math.random() * 900));
     const p = d.data();
     const got = await fetchPrice(d.id);
     if (!got.ok) {
       await d.ref.set({ checkedAt: FieldValue.serverTimestamp(), fetchNote: got.reason, fetchOk: false }, { merge: true });
-      return { asin: d.id, ok: false, reason: got.reason };
+      results.push({ asin: d.id, ok: false, reason: got.reason });
+      continue;
     }
 
     const price = got.price;
@@ -81,8 +92,8 @@ export default async function handler(req, res) {
       ...(target != null && price > target && p.hitAt ? { hitAt: null } : {}),
     }, { merge: true });
 
-    return { asin: d.id, ok: true, price, prev: p.lastPrice ?? null, target, hit, title: p.title ?? d.id };
-  }));
+    results.push({ asin: d.id, ok: true, price, prev: p.lastPrice ?? null, target, hit, title: p.title ?? d.id });
+  }
 
   const hits = results.filter((r) => r.ok && r.hit);
   const fails = results.filter((r) => !r.ok);
