@@ -34,6 +34,18 @@ async function fetchPrice(asin) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// 차단은 간헐적이다 — 같은 요청을 몇 초 뒤에 다시 보내면 통과하는 경우가 많다.
+// 품절·페이지 없음은 다시 시도해도 답이 같으니 재시도하지 않는다.
+async function fetchPriceRetry(asin, tries = 3) {
+  let last;
+  for (let i = 0; i < tries; i++) {
+    if (i) await sleep(2500 + Math.floor(Math.random() * 2500));
+    last = await fetchPrice(asin);
+    if (last.ok || !/차단했다/.test(last.reason)) return { ...last, tries: i + 1 };
+  }
+  return { ...last, tries };
+}
+
 async function notify(text) {
   const url = process.env.GCHAT_WEBHOOK;
   if (!url) return 'GCHAT_WEBHOOK 없음';
@@ -70,10 +82,10 @@ export default async function handler(req, res) {
   for (const d of snap.docs) {
     if (results.length) await sleep(700 + Math.floor(Math.random() * 900));
     const p = d.data();
-    const got = await fetchPrice(d.id);
+    const got = await fetchPriceRetry(d.id);
     if (!got.ok) {
       await d.ref.set({ checkedAt: FieldValue.serverTimestamp(), fetchNote: got.reason, fetchOk: false }, { merge: true });
-      results.push({ asin: d.id, ok: false, reason: got.reason });
+      results.push({ asin: d.id, ok: false, reason: got.reason, tries: got.tries });
       continue;
     }
 
@@ -92,7 +104,7 @@ export default async function handler(req, res) {
       ...(target != null && price > target && p.hitAt ? { hitAt: null } : {}),
     }, { merge: true });
 
-    results.push({ asin: d.id, ok: true, price, prev: p.lastPrice ?? null, target, hit, title: p.title ?? d.id });
+    results.push({ asin: d.id, ok: true, price, prev: p.lastPrice ?? null, target, hit, tries: got.tries, title: p.title ?? d.id });
   }
 
   const hits = results.filter((r) => r.ok && r.hit);
