@@ -56,21 +56,14 @@ async function viaBrowser(browser, asin) {
     page.on('request', (req) =>
       ['image', 'font', 'media'].includes(req.resourceType()) ? req.abort() : req.continue());
     await page.goto(`https://www.amazon.com/dp/${asin}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    // domcontentloaded 시점엔 가격이 아직 없을 수 있다. 두 단계로 기다린다.
-    // 1) 가격이든 품절 표시든 뭐라도 나올 때까지 12초
-    const has = (re) => page.evaluate((s) => new RegExp(s, 'i').test(document.documentElement.innerHTML), re);
+    // domcontentloaded 시점엔 가격이 아직 없을 수 있다. 나올 때까지만 짧게 기다린다.
+    // 가격이 없을 때 8초를 더 주는 2단계 대기를 시도했다가 되돌렸다 — 못 잡던 건은
+    // 그대로 못 잡고(474KB), 전체가 길어지면서 멀쩡하던 건이 항해 타임아웃에 걸렸다.
+    // 56초 4/5 가 95초 3/5 로 나빠졌다 (2026-08-10).
     await page.waitForFunction(
       () => /"priceAmount":|currently unavailable|see all buying options/i.test(document.documentElement.innerHTML),
       { timeout: 12000 },
     ).catch(() => {});
-    // 2) 품절 표시만 먼저 뜨고 가격이 늦게 붙는 경우가 있다. 가격이 아직 없으면 8초 더 준다.
-    //    (491KB짜리 반쪽 HTML을 읽고 "가격 표시 없음"으로 판정한 사례가 있었다)
-    if (!(await has('"priceAmount":'))) {
-      await page.waitForFunction(
-        () => /"priceAmount":/.test(document.documentElement.innerHTML),
-        { timeout: 8000 },
-      ).catch(() => {});
-    }
     return readPrice(await page.content());
   } catch (e) {
     return { ok: false, reason: '프록시 실패: ' + String(e.message).slice(0, 60) };
