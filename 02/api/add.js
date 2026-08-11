@@ -120,7 +120,6 @@ export default async function handler(req, res) {
     autoTags,
     fetchOk: got.ok,
     fetchNote: got.reason,
-    lastPrice: got.price,
     minPrice,
     checkedAt: FieldValue.serverTimestamp(),
     addedAt: prev.addedAt ?? FieldValue.serverTimestamp(),

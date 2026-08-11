@@ -28,11 +28,11 @@ export default async function handler(req, res) {
   // 목표가를 바꾸면 알림 이력을 지운다 — 새 기준으로 다시 판정해야 한다.
   await ref.set({ targetPrice: target, hitAt: null }, { merge: true });
 
-  const now = snap.data().lastPrice ?? null;
+  const now = snap.data().price ?? null;
   res.status(200).json({
     asin,
     targetPrice: target,
-    lastPrice: now,
+    price: now,
     alreadyBelow: target != null && now != null && now <= target,
   });
 }

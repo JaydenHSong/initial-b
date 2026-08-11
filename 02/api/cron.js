@@ -146,14 +146,14 @@ export default async function handler(req, res) {
 
     await d.ref.collection('prices').doc(day).set({ price, at: day });
     await d.ref.set({
-      lastPrice: price, minPrice, fetchOk: true, fetchNote: null, fetchVia: g.via,
+      price, minPrice, fetchOk: true, fetchNote: null, fetchVia: g.via,
       checkedAt: FieldValue.serverTimestamp(),
       ...(hit ? { hitAt: FieldValue.serverTimestamp() } : {}),
       // 목표가 위로 다시 올라가면 다음 하락 때 또 알리도록 이력을 푼다.
       ...(target != null && price > target && p.hitAt ? { hitAt: null } : {}),
     }, { merge: true });
 
-    results.push({ asin: d.id, ok: true, price, via: g.via, prev: p.lastPrice ?? null, target, hit, title: p.title ?? d.id });
+    results.push({ asin: d.id, ok: true, price, via: g.via, prev: p.price ?? null, target, hit, title: p.title ?? d.id });
   }
 
   const hits = results.filter((r) => r.hit);

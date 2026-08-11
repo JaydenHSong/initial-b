@@ -388,13 +388,13 @@ $('list').onclick = async (e) => {
       const j = await r.json();
       if (!r.ok) throw new Error(j.error ?? '저장 실패');
       msg.textContent = j.targetPrice == null ? '목표가를 지웠다'
-        : j.alreadyBelow ? `저장됨 — 지금 ${money(j.lastPrice)}로 이미 목표 아래다`
+        : j.alreadyBelow ? `저장됨 — 지금 ${money(j.price)}로 이미 목표 아래다`
         : `저장됨 — 다음 수집부터 감시한다`;
       // 앞면 맥락줄을 그 자리에서 갱신한다. 전체를 다시 그리면 뒤집힌 카드가 닫혀버린다.
       const d = rowsAll.find((x) => x.asin === asin) ?? {};
       d.targetPrice = j.targetPrice;
       const ctx = card.querySelector('.front .ctx, .front .fail');
-      if (ctx) ctx.outerHTML = ctxOf({ ...d, price: j.lastPrice ?? d.price });
+      if (ctx) ctx.outerHTML = ctxOf({ ...d, price: j.price ?? d.price });
     } catch (err) {
       msg.className = 'tg-msg bad';
       msg.textContent = err.message;
