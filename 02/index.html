@@ -62,6 +62,21 @@
   .status .clear { font:inherit; font-size:12.5px; font-weight:700; padding:4px 11px; border:1.5px solid var(--line);
     border-radius:7px; background:#fff; color:#475569; cursor:pointer; }
   .status .clear:hover { border-color:#dc2626; color:#dc2626; }
+  /* AND / OR — 문서형에서 둘의 처리 방식이 정반대라 나란히 두고 비교한다 */
+  .mode { display:inline-flex; border:1.5px solid var(--line); border-radius:8px; overflow:hidden; }
+  .mode button { font:inherit; font-size:12.5px; font-weight:700; padding:5px 12px; border:0;
+    background:#fff; color:#64748b; cursor:pointer; }
+  .mode button.on { background:var(--ink); color:#fff; }
+  .cost { color:#94a3b8; }
+  .free { color:var(--win); font-weight:700; }
+
+  /* ── 태그 자동완성: 칩은 태그가 늘면 안 통한다 ── */
+  .ac { grid-column:1/-1; position:relative; }
+  .ac-list { position:absolute; z-index:5; top:-6px; left:0; right:0; background:#fff;
+    border:1.5px solid var(--line); border-radius:10px; box-shadow:0 8px 22px rgba(15,23,42,.10); overflow:hidden; }
+  .ac-list button { display:block; width:100%; text-align:left; font:inherit; font-size:13.5px; font-weight:600;
+    padding:8px 12px; border:0; background:#fff; color:#334155; cursor:pointer; }
+  .ac-list button:hover, .ac-list button.sel { background:var(--soft); color:var(--acc); }
 
   /* ── 카드: 앞면에 가격 맥락. 카드 클릭은 아마존, 기록은 별도 버튼 ── */
   .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); }
@@ -100,8 +115,13 @@
   .back .bk-x { margin-top:auto; }
   .bk-h { font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:9px; }
   .hist { font-size:13px; }
+  .hist .sum { font-size:12px; font-weight:700; color:var(--dim); background:var(--soft);
+    border-radius:7px; padding:6px 9px; margin-bottom:8px; }
   .hist .r { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
   .hist .r.low b { color:var(--acc); }
+  .hist em { font-style:normal; font-size:11.5px; font-weight:700; margin-left:6px; }
+  .hist em.dn { color:var(--win); }   /* 내렸으면 좋은 일이다 */
+  .hist em.up { color:#dc2626; }
   .hist .none { color:#94a3b8; font-size:12px; padding:4px 0; }
   .hist .cost { margin-top:7px; font-size:11.5px; color:#94a3b8; }
   .tg { display:flex; gap:6px; align-items:center; margin-top:11px; }
@@ -136,6 +156,7 @@
     <input id="asin" placeholder="ASIN 또는 아마존 상품 URL" autocomplete="off" required>
     <input id="tags" placeholder="태그 쉼표로 — 방열, 5만원대" autocomplete="off" required>
     <button class="go-btn" id="btn">등록</button>
+    <div class="ac"><div id="ac"></div></div>
     <div class="pick" id="pick"></div>
     <div class="msg" id="msg"></div>
   </form>
@@ -169,6 +190,13 @@ const isAuto = (d, t) => (d.autoTags ?? (d.autoTag ? [d.autoTag] : [])).includes
 
 const picked = new Set();
 let rowsAll = [];   // 필터 없이 읽은 전체 — 축을 만드는 근거
+let mode = 'AND';   // AND: 서버가 못 좁혀서 클라이언트가 버린다 / OR: 서버가 한 방에 준다
+
+// 날짜를 사람이 읽는 말로. 기록이 여러 줄 쌓이면 2026-08-12 보다 "3일 전"이 빠르다.
+const relDay = (iso) => {
+  const d = Math.round((Date.parse(new Date().toISOString().slice(0, 10)) - Date.parse(iso)) / 86400000);
+  return d <= 0 ? '오늘' : d === 1 ? '어제' : `${d}일 전`;
+};
 
 // 태그를 세 축으로 가른다. 가격대는 $로 시작하고, 카테고리는 자동으로 붙은 나머지, 그 외는 내 분류다.
 function axesOf(rows) {
@@ -251,15 +279,48 @@ $('pick').onclick = (e) => {
   $('tags').value = (cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t]).join(', ');
   renderPick();
 };
-$('tags').oninput = renderPick;
+// 자동완성 — 쉼표 뒤 마지막 토막만 보고 기존 태그를 제안한다.
+// 칩 클릭으로도 넣을 수 있지만 태그가 늘면 칩 줄이 길어져 못 쓴다.
+let acHit = [];
+function renderAc() {
+  const raw = $('tags').value;
+  const last = raw.split(',').pop().trim();
+  const already = new Set(raw.split(',').map((s) => s.trim()).filter(Boolean));
+  acHit = !last ? [] : [...new Set(rowsAll.flatMap((d) => d.tagNames ?? []))]
+    .filter((t) => !already.has(t) && t.toLowerCase().includes(last.toLowerCase()))
+    .sort().slice(0, 6);
+  $('ac').innerHTML = acHit.length
+    ? `<div class="ac-list">${acHit.map((t, i) =>
+        `<button type="button" data-ac="${esc(t)}" class="${i === 0 ? 'sel' : ''}">${esc(t)}</button>`).join('')}</div>`
+    : '';
+}
+function applyAc(tag) {
+  const parts = $('tags').value.split(',');
+  parts[parts.length - 1] = ` ${tag}`;
+  $('tags').value = parts.join(',').replace(/^\s+/, '') + ', ';
+  $('ac').innerHTML = '';
+  acHit = [];
+  $('tags').focus();
+  renderPick();
+}
+$('ac').onclick = (e) => { const t = e.target.dataset?.ac; if (t) applyAc(t); };
+$('tags').oninput = () => { renderPick(); renderAc(); };
+$('tags').onkeydown = (e) => {
+  if (e.key === 'Tab' && acHit.length) { e.preventDefault(); applyAc(acHit[0]); }
+  if (e.key === 'Escape') { $('ac').innerHTML = ''; acHit = []; }
+};
+$('tags').onblur = () => setTimeout(() => { $('ac').innerHTML = ''; acHit = []; }, 150);
 
 async function render() {
   const tags = [...picked];
-  // Firestore는 array-contains를 질의당 하나만 허용한다 (array-contains-all 은 없다).
-  // 그래서 첫 태그로만 서버에서 좁히고, 나머지 AND 조건은 여기서 버린다.
-  const q = tags.length
-    ? query(collection(db, 'products'), where('tagNames', 'array-contains', tags[0]))
-    : collection(db, 'products');
+  // 같은 저장소인데 AND와 OR의 처리 방식이 정반대다 — 이게 이번 주에 본 것이다.
+  //  AND: array-contains 가 질의당 하나뿐이고 array-contains-all 이 없다.
+  //       첫 태그로만 서버에서 좁히고 나머지는 여기서 버린다. 버린 문서도 읽기 요금.
+  //  OR : array-contains-any 가 최대 30개를 한 번에 받는다. 서버가 정확히 답하고 버릴 게 없다.
+  const q = !tags.length ? collection(db, 'products')
+    : mode === 'OR'
+      ? query(collection(db, 'products'), where('tagNames', 'array-contains-any', tags.slice(0, 30)))
+      : query(collection(db, 'products'), where('tagNames', 'array-contains', tags[0]));
 
   let snap;
   try { snap = await getDocs(q); }
@@ -267,7 +328,8 @@ async function render() {
 
   const read = snap.size;
   const got = snap.docs.map((d) => ({ asin: d.id, ...d.data() }));
-  const rows = got.filter((d) => tags.every((t) => (d.tagNames ?? []).includes(t)));
+  // OR은 서버가 이미 정확히 답했다. AND만 여기서 더 걸러낸다.
+  const rows = mode === 'OR' ? got : got.filter((d) => tags.every((t) => (d.tagNames ?? []).includes(t)));
   if (!tags.length) rowsAll = rows;
 
   // 축
@@ -277,13 +339,22 @@ async function render() {
       .map((t) => `<div class="chip${picked.has(t) ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</div>`).join('')}</div></div>`).join('');
 
   // 상태줄 — 무엇으로 걸렀고 몇 개를 버렸나. 버린 수가 이번 주 리포트의 핵심이다.
+  const toggle = `<span class="mode">`
+    + `<button type="button" data-m="AND" class="${mode === 'AND' ? 'on' : ''}">모두 (AND)</button>`
+    + `<button type="button" data-m="OR" class="${mode === 'OR' ? 'on' : ''}">하나라도 (OR)</button></span>`;
   $('status').innerHTML = tags.length
-    ? `<span><span class="on">${tags.map(esc).join(' + ')}</span> — 전체 ${rowsAll.length}개 중 <span class="on">${rows.length}개</span></span>`
-      + `<span>· 서버가 ${read}개를 돌려주고 ${read - rows.length}개를 버렸다 (버린 것도 읽기 요금)</span>`
+    ? toggle
+      + `<span><span class="on">${tags.map(esc).join(mode === 'OR' ? ' 또는 ' : ' + ')}</span> — 전체 ${rowsAll.length}개 중 <span class="on">${rows.length}개</span></span>`
+      + (mode === 'OR'
+        ? `<span class="free">· 서버가 ${read}개를 정확히 돌려줬다 — 버린 것 0 (array-contains-any)</span>`
+        : `<span class="cost">· 서버가 ${read}개를 돌려주고 ${read - rows.length}개를 버렸다 — 버린 것도 읽기 요금</span>`)
       + `<button class="clear" id="clear" type="button">초기화</button>`
-    : `<span>제품 ${rows.length}개 · 문서 ${read}회 읽음</span>`;
+    : toggle + `<span>제품 ${rows.length}개 · 문서 ${read}회 읽음</span>`;
   const cl = $('clear');
   if (cl) cl.onclick = () => { picked.clear(); render(); };
+  $('status').querySelectorAll('.mode button').forEach((b) => {
+    b.onclick = () => { mode = b.dataset.m; render(); };
+  });
 
   $('list').innerHTML = rows.length
     ? rows.map(row).join('')
@@ -341,9 +412,21 @@ $('list').onclick = async (e) => {
   try {
     const snap = await getDocs(collection(db, 'products', asin, 'prices'));
     const pts = snap.docs.map((p) => ({ at: p.id, ...p.data() })).sort((a, b) => (a.at < b.at ? 1 : -1));
-    const min = pts.length ? Math.min(...pts.map((p) => p.price)) : null;
+    const vals = pts.map((p) => p.price);
+    const min = pts.length ? Math.min(...vals) : null;
+    const max = pts.length ? Math.max(...vals) : null;
+    // 요약 한 줄 — 줄이 늘어날수록 목록만 봐서는 폭이 안 보인다.
+    const sum = pts.length > 1
+      ? `<div class="sum">${pts.length}일치 · ${money(min)} ~ ${money(max)}${pts[0].price === min ? ' · 지금이 최저' : ''}</div>`
+      : '';
     box.innerHTML = pts.length
-      ? pts.map((p) => `<div class="r${p.price === min ? ' low' : ''}"><span>${esc(p.at)}</span><b>${money(p.price)}</b></div>`).join('')
+      ? sum + pts.map((p, i) => {
+          // pts 는 최신순이라 다음 항목이 그 전날이다.
+          const dv = pts[i + 1] ? p.price - pts[i + 1].price : null;
+          const delta = dv == null || Math.abs(dv) < 0.005 ? ''
+            : `<em class="${dv < 0 ? 'dn' : 'up'}">${dv < 0 ? '▼' : '▲'}${money(Math.abs(dv)).slice(1)}</em>`;
+          return `<div class="r${p.price === min ? ' low' : ''}"><span>${relDay(p.at)}</span><b>${money(p.price)}${delta}</b></div>`;
+        }).join('')
         + (pts.length === 1 ? `<div class="none">크론이 하루 한 번 한 줄씩 쌓는다.</div>` : '')
         + `<div class="cost">이 카드 하나에 문서 ${snap.size}회 읽음 · ${Math.round(performance.now() - t0)}ms</div>`
       : `<div class="none">아직 기록이 없다. 크론이 하루 한 번 쌓는다.</div>`;
