@@ -6,137 +6,157 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
-  :root { --bg:#fff; --soft:#f4f5f7; --ink:#0f172a; --dim:#64748b; --line:#e2e8f0; --acc:#2563eb; --win:#15803d; }
+  /* ── 성격을 만드는 건 셋이다: 압도적인 주인공 하나 · 타이포 대비 · 성격 있는 바탕.
+       흰 배경 + 회색선 + 파란 악센트는 못생기진 않지만 아무 말도 안 한다. ── */
+  :root {
+    --bg:#f3efe7;        /* 따뜻한 종이 — 흰색은 성격이 없다 */
+    --card:#fffdfa;
+    --ink:#1a1714;       /* 잉크. 순검정보다 따뜻하다 */
+    --dim:#8a8073;
+    --line:#e2dbcd;
+    --acc:#b3421f;       /* 딱 하나. 가격과 선택에만 쓴다 */
+    --win:#2f6b45;
+  }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 22px 72px;
-    font-family:"Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif; }
-  .w { max-width:1120px; margin:0 auto; }
+  body { background:var(--bg); color:var(--ink); line-height:1.5; padding:0 26px 96px;
+    font-family:"Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif;
+    -webkit-font-smoothing:antialiased; }
+  .w { max-width:1160px; margin:0 auto; }
 
-  /* ── 헤더: 컴팩트하게. 주인공은 목록이다 ── */
-  header { padding:26px 0 16px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
-  .k { font-size:11px; font-weight:700; letter-spacing:.16em; color:var(--acc); }
-  h1 { font-size:25px; font-weight:800; letter-spacing:-.035em; }
-  .lede { font-size:13.5px; font-weight:500; color:var(--dim); }
-  .links { margin-left:auto; font-size:13px; font-weight:600; }
-  .links a { color:var(--dim); margin-left:14px; text-decoration:none; }
-  .links a:hover { color:var(--acc); }
+  /* ── 헤더: 제목이 화면의 주인공이다 ── */
+  header { padding:52px 0 26px; display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap;
+    border-bottom:1px solid var(--line); margin-bottom:26px; }
+  .k { font-size:11px; font-weight:700; letter-spacing:.26em; color:var(--acc); text-transform:uppercase; }
+  h1 { font-size:52px; font-weight:800; letter-spacing:-.045em; line-height:1; margin:12px 0 6px; }
+  .lede { font-size:15px; font-weight:500; color:var(--dim); }
+  .links { margin-left:auto; font-size:13px; font-weight:600; padding-bottom:4px; }
+  .links a { color:var(--dim); margin-left:18px; text-decoration:none; border-bottom:1px solid transparent; }
+  .links a:hover { color:var(--acc); border-bottom-color:var(--acc); }
 
-  /* ── 등록: 기본은 접혀 있다. 등록은 가끔이고 보는 게 대부분이다 ── */
-  .addbar { display:flex; justify-content:flex-end; margin-bottom:10px; }
-  .add { font:inherit; font-size:14px; font-weight:700; padding:9px 18px; border:1.5px solid var(--line);
-    border-radius:10px; background:#fff; color:var(--ink); cursor:pointer; }
-  .add:hover { border-color:var(--acc); color:var(--acc); }
-  .add.on { background:var(--ink); border-color:var(--ink); color:#fff; }
-  form { display:none; background:var(--soft); border-radius:14px; padding:14px; margin-bottom:18px;
-    grid-template-columns:1fr 1.3fr auto; gap:10px; }
+  /* ── 등록: 접혀 있다 ── */
+  .addbar { display:flex; justify-content:flex-end; margin-bottom:14px; }
+  .add { font:inherit; font-size:13.5px; font-weight:700; letter-spacing:.02em; padding:10px 20px;
+    border:1.5px solid var(--ink); border-radius:999px; background:transparent; color:var(--ink); cursor:pointer;
+    transition:background .15s, color .15s; }
+  .add:hover, .add.on { background:var(--ink); color:var(--card); }
+  form { display:none; background:var(--card); border:1px solid var(--line); border-radius:18px;
+    padding:18px; margin-bottom:22px; grid-template-columns:1fr 1.3fr auto; gap:11px;
+    box-shadow:0 2px 10px rgba(26,23,20,.05); }
   form.open { display:grid; }
-  input { font:inherit; font-size:14.5px; padding:11px 13px; border:1.5px solid var(--line);
-    border-radius:9px; background:#fff; color:var(--ink); width:100%; }
-  input:focus { outline:0; border-color:var(--acc); box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-  .go-btn { font:inherit; font-size:14.5px; font-weight:700; padding:11px 24px; border:0; border-radius:9px;
-    background:var(--acc); color:#fff; cursor:pointer; white-space:nowrap; }
-  .go-btn:disabled { opacity:.45; cursor:default; }
+  input { font:inherit; font-size:15px; padding:12px 14px; border:1.5px solid var(--line);
+    border-radius:11px; background:var(--bg); color:var(--ink); width:100%; }
+  input:focus { outline:0; border-color:var(--acc); background:var(--card); }
+  .go-btn { font:inherit; font-size:15px; font-weight:700; padding:12px 26px; border:0; border-radius:11px;
+    background:var(--ink); color:var(--card); cursor:pointer; white-space:nowrap; }
+  .go-btn:disabled { opacity:.4; cursor:default; }
   .pick { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
-  .pick .lbl { font-size:11.5px; font-weight:700; color:#94a3b8; letter-spacing:.04em; margin-right:2px; }
-  .pick button { font:inherit; font-size:11.5px; font-weight:600; padding:3px 9px; border:1px solid var(--line);
-    border-radius:6px; background:#fff; color:#475569; cursor:pointer; }
+  .pick .lbl { font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--dim); margin-right:3px; }
+  .pick button { font:inherit; font-size:11.5px; font-weight:600; padding:3px 10px; border:1px solid var(--line);
+    border-radius:999px; background:var(--bg); color:#6b6459; cursor:pointer; }
   .pick button:hover { border-color:var(--acc); color:var(--acc); }
-  .pick button.used { opacity:.35; }
-  .msg { grid-column:1/-1; font-size:13px; font-weight:500; color:var(--dim); }
-  .msg.bad { color:#dc2626; }
+  .pick button.used { opacity:.3; }
+  .msg { grid-column:1/-1; font-size:13px; color:var(--dim); }
+  .msg.bad { color:var(--acc); }
 
-  /* ── 태그를 축으로 묶는다. 축이 보이면 30개가 돼도 안 무너진다 ── */
-  .axes { border-top:1px solid var(--line); padding-top:14px; }
-  .axis { display:flex; gap:8px; align-items:flex-start; margin-bottom:7px; }
-  .axis > b { flex:0 0 62px; font-size:11.5px; font-weight:700; color:#94a3b8; letter-spacing:.04em; padding-top:7px; }
-  .axis .row { display:flex; flex-wrap:wrap; gap:6px; }
-  .chip { font-size:13.5px; font-weight:600; padding:6px 13px; border:1.5px solid var(--line);
-    border-radius:9px; background:#fff; cursor:pointer; color:#334155; user-select:none; }
-  .chip:hover { border-color:#cbd5e1; }
-  .chip.on { background:var(--ink); border-color:var(--ink); color:#fff; }
+  /* ── 태그 축: 필터는 도구다. 눌러 둔다 ── */
+  .axes { margin-bottom:4px; }
+  .axis { display:flex; gap:10px; align-items:flex-start; margin-bottom:6px; }
+  .axis > b { flex:0 0 54px; font-size:10.5px; font-weight:700; letter-spacing:.12em; color:#b3a893;
+    padding-top:6px; text-transform:uppercase; }
+  .axis .row { display:flex; flex-wrap:wrap; gap:5px; }
+  .chip { font-size:13px; font-weight:600; padding:5px 13px; border:1px solid var(--line);
+    border-radius:999px; background:var(--card); cursor:pointer; color:#5c5449; user-select:none;
+    transition:border-color .12s, color .12s; }
+  .chip:hover { border-color:var(--ink); color:var(--ink); }
+  .chip.on { background:var(--ink); border-color:var(--ink); color:var(--card); }
 
-  /* ── 필터 상태줄: 무엇으로 걸러졌고 몇 개가 버려졌나 + 초기화 ── */
-  .status { display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    margin:16px 0 14px; font-size:13px; font-weight:500; color:var(--dim); }
+  /* ── 상태줄 ── */
+  .status { display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    margin:18px 0 20px; font-size:12.5px; color:var(--dim); }
   .status .on { color:var(--ink); font-weight:700; }
-  .status .clear { font:inherit; font-size:12.5px; font-weight:700; padding:4px 11px; border:1.5px solid var(--line);
-    border-radius:7px; background:#fff; color:#475569; cursor:pointer; }
-  .status .clear:hover { border-color:#dc2626; color:#dc2626; }
-  /* AND / OR — 문서형에서 둘의 처리 방식이 정반대라 나란히 두고 비교한다 */
-  .mode { display:inline-flex; border:1.5px solid var(--line); border-radius:8px; overflow:hidden; }
-  .mode button { font:inherit; font-size:12.5px; font-weight:700; padding:5px 12px; border:0;
-    background:#fff; color:#64748b; cursor:pointer; }
-  .mode button.on { background:var(--ink); color:#fff; }
-  .cost { color:#94a3b8; }
+  .status .clear { font:inherit; font-size:12px; font-weight:700; padding:4px 12px; border:1px solid var(--line);
+    border-radius:999px; background:var(--card); color:#6b6459; cursor:pointer; }
+  .status .clear:hover { border-color:var(--acc); color:var(--acc); }
+  .mode { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:var(--card); }
+  .mode button { font:inherit; font-size:12px; font-weight:700; padding:5px 14px; border:0;
+    background:transparent; color:#8a8073; cursor:pointer; }
+  .mode button.on { background:var(--ink); color:var(--card); }
+  .cost { color:#b3a893; }
   .free { color:var(--win); font-weight:700; }
 
-  /* ── 태그 자동완성: 칩은 태그가 늘면 안 통한다 ── */
+  /* ── 자동완성 ── */
   .ac { grid-column:1/-1; position:relative; }
-  .ac-list { position:absolute; z-index:5; top:-6px; left:0; right:0; background:#fff;
-    border:1.5px solid var(--line); border-radius:10px; box-shadow:0 8px 22px rgba(15,23,42,.10); overflow:hidden; }
+  .ac-list { position:absolute; z-index:5; top:-8px; left:0; right:0; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 28px rgba(26,23,20,.13); overflow:hidden; }
   .ac-list button { display:block; width:100%; text-align:left; font:inherit; font-size:13.5px; font-weight:600;
-    padding:8px 12px; border:0; background:#fff; color:#334155; cursor:pointer; }
-  .ac-list button:hover, .ac-list button.sel { background:var(--soft); color:var(--acc); }
+    padding:9px 14px; border:0; background:transparent; color:#5c5449; cursor:pointer; }
+  .ac-list button:hover, .ac-list button.sel { background:var(--bg); color:var(--acc); }
 
-  /* ── 카드: 앞면에 가격 맥락. 카드 클릭은 아마존, 기록은 별도 버튼 ── */
-  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(232px,1fr)); }
-  .card { perspective:1200px; }
-  .inner { position:relative; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.4,.1,.2,1); }
+  /* ── 카드: 3열로 키우고, 사진은 자르지 않는다 ── */
+  .grid { display:grid; gap:22px; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); }
+  .card { perspective:1400px; }
+  .inner { position:relative; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.1,.2,1); }
   .card.flip .inner { transform:rotateY(180deg); }
-  .face { border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden;
+  .face { border:0; border-radius:18px; background:var(--card); overflow:hidden;
+    box-shadow:0 1px 2px rgba(26,23,20,.05), 0 6px 20px rgba(26,23,20,.07);
     backface-visibility:hidden; -webkit-backface-visibility:hidden; }
-  .front { display:flex; flex-direction:column; }
-  .card:hover .front { border-color:#cbd5e1; box-shadow:0 4px 14px rgba(15,23,42,.07); }
+  .front { display:flex; flex-direction:column; transition:transform .18s, box-shadow .18s; }
+  .card:hover .front { transform:translateY(-3px); box-shadow:0 2px 4px rgba(26,23,20,.06), 0 14px 34px rgba(26,23,20,.12); }
   .shop { text-decoration:none; color:inherit; display:block; }
-  .ph { aspect-ratio:4/3; background:var(--soft); overflow:hidden; }
-  .ph img { width:100%; height:100%; object-fit:cover; display:block; }
-  .ph .none { height:100%; display:grid; place-items:center; font-size:12.5px; font-weight:600; color:#94a3b8; }
-  .body { padding:11px 13px 12px; }
-  .t { font-size:13px; font-weight:600; color:#334155; line-height:1.35;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
-  .pr { font-size:22px; font-weight:800; letter-spacing:-.03em; }
-  .ctx { font-size:12px; font-weight:600; color:var(--dim); margin-top:2px; }
-  .ctx .gap { color:var(--acc); }
+  /* contain — 원본이 문구 박힌 배너라 cover 로 자르면 글자가 날아간다 */
+  .ph { aspect-ratio:1/1; background:#fff; overflow:hidden; padding:14px; }
+  .ph img { width:100%; height:100%; object-fit:contain; display:block; }
+  .ph .none { height:100%; display:grid; place-items:center; font-size:12.5px; font-weight:600; color:#b3a893; }
+  .body { padding:16px 18px 18px; }
+  .t { font-size:13px; font-weight:600; color:#7a7264; line-height:1.35;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px; }
+  /* 가격이 카드의 주인공이다 */
+  .pr { font-size:34px; font-weight:800; letter-spacing:-.045em; line-height:1; color:var(--acc); }
+  .ctx { font-size:12.5px; font-weight:600; color:var(--dim); margin-top:7px; }
+  .ctx .gap { color:var(--ink); }
   .ctx .hit { color:var(--win); }
-  .tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:9px; }
-  .tags i { font-style:normal; font-size:11px; font-weight:600; padding:3px 8px; border-radius:5px;
-    background:var(--soft); color:#475569; }
-  .tags i.a { background:#eff6ff; color:var(--acc); }
-  .more { display:block; width:100%; font:inherit; font-size:12px; font-weight:700; padding:8px;
-    border:0; border-top:1px solid var(--line); background:#fff; color:var(--dim); cursor:pointer; }
-  .more:hover { background:var(--soft); color:var(--acc); }
-  .fail { color:#dc2626; font-size:12.5px; font-weight:600; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:13px; }
+  .tags i { font-style:normal; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px;
+    background:var(--bg); color:#7a7264; }
+  .tags i.a { background:transparent; color:#b3a893; border:1px solid var(--line); }
+  .more { display:block; width:100%; font:inherit; font-size:11.5px; font-weight:700; letter-spacing:.04em;
+    padding:11px; border:0; border-top:1px solid var(--line); background:transparent; color:#b3a893; cursor:pointer; }
+  .more:hover { background:var(--bg); color:var(--acc); }
+  .fail { color:var(--acc); font-size:12.5px; font-weight:600; }
 
   /* ── 뒷면 ── */
-  /* 여는 버튼이 카드 아래에 있으니 닫는 버튼도 같은 자리여야 한다 — 눌렀던 곳을 다시 누른다 */
   .back { position:absolute; inset:0; transform:rotateY(180deg); padding:0;
     display:flex; flex-direction:column; }
-  .bk-body { padding:13px; overflow:auto; flex:1; }
+  .bk-body { padding:18px; overflow:auto; flex:1; }
   .back .bk-x { margin-top:auto; }
-  .bk-h { font-size:12.5px; font-weight:700; color:var(--dim); margin-bottom:9px; }
-  .hist { font-size:13px; }
-  .hist .sum { font-size:12px; font-weight:700; color:var(--dim); background:var(--soft);
-    border-radius:7px; padding:6px 9px; margin-bottom:8px; }
-  .hist .r { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--line); }
+  .bk-h { font-size:10.5px; font-weight:700; letter-spacing:.14em; color:#b3a893; margin-bottom:12px; text-transform:uppercase; }
+  .hist { font-size:13.5px; }
+  .hist .sum { font-size:12px; font-weight:700; color:#6b6459; background:var(--bg);
+    border-radius:9px; padding:8px 11px; margin-bottom:11px; }
+  .hist .r { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line); }
   .hist .r.low b { color:var(--acc); }
   .hist em { font-style:normal; font-size:11.5px; font-weight:700; margin-left:6px; }
-  .hist em.dn { color:var(--win); }   /* 내렸으면 좋은 일이다 */
-  .hist em.up { color:#dc2626; }
-  .hist .none { color:#94a3b8; font-size:12px; padding:4px 0; }
-  .hist .cost { margin-top:7px; font-size:11.5px; color:#94a3b8; }
-  .tg { display:flex; gap:6px; align-items:center; margin-top:11px; }
-  .tg label { font-size:12.5px; font-weight:700; color:var(--dim); white-space:nowrap; }
-  .tg input { font-size:13.5px; padding:7px 9px; min-width:0; }
-  .tg .save { font:inherit; font-size:12.5px; font-weight:700; padding:7px 13px; border:0; border-radius:8px;
-    background:var(--acc); color:#fff; cursor:pointer; white-space:nowrap; flex:0 0 auto; }
-  .tg-msg { font-size:12px; color:var(--dim); margin-top:6px; min-height:1em; }
-  .tg-msg.bad { color:#dc2626; }
+  .hist em.dn { color:var(--win); }
+  .hist em.up { color:var(--acc); }
+  .hist .none { color:#b3a893; font-size:12px; padding:5px 0; }
+  .hist .cost { margin-top:9px; font-size:11px; color:#b3a893; }
+  .tg { display:flex; gap:7px; align-items:center; margin-top:14px; }
+  .tg label { font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--dim); white-space:nowrap; text-transform:uppercase; }
+  .tg input { font-size:14px; padding:8px 10px; min-width:0; }
+  .tg .save { font:inherit; font-size:12.5px; font-weight:700; padding:8px 15px; border:0; border-radius:9px;
+    background:var(--ink); color:var(--card); cursor:pointer; white-space:nowrap; flex:0 0 auto; }
+  .tg-msg { font-size:12px; color:var(--dim); margin-top:7px; min-height:1em; }
+  .tg-msg.bad { color:var(--acc); }
 
-  .empty { grid-column:1/-1; color:var(--dim); font-size:14.5px; font-weight:500; padding:52px 0; text-align:center; }
-  @media (max-width:620px) {
+  .empty { grid-column:1/-1; color:var(--dim); font-size:15px; padding:64px 0; text-align:center; }
+  @media (max-width:640px) {
+    body { padding:0 18px 72px; }
+    h1 { font-size:36px; }
+    header { padding:34px 0 20px; gap:10px; }
     form { grid-template-columns:1fr; }
-    header { gap:8px; } .links { margin-left:0; width:100%; }
-    .axis { flex-direction:column; gap:4px; } .axis > b { padding-top:0; }
+    .links { margin-left:0; width:100%; }
+    .axis { flex-direction:column; gap:5px; } .axis > b { padding-top:0; }
+    .grid { grid-template-columns:1fr; }
   }
 </style>
 
