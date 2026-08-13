@@ -23,18 +23,17 @@
     -webkit-font-smoothing:antialiased; }
   .w { max-width:1160px; margin:0 auto; }
 
-  /* ── 헤더: 제목이 화면의 주인공이다 ── */
-  header { padding:52px 0 26px; display:flex; align-items:flex-end; gap:22px; flex-wrap:wrap;
-    border-bottom:1px solid var(--line); margin-bottom:26px; }
+  /* ── 헤더: 제목이 주인공이고 부제는 그 아래. 오른쪽에 문서 링크와 등록 버튼을 모은다 ──
+       (등록 버튼이 헤더 밖에 혼자 떠 있으면 어디에도 안 속한 것처럼 보인다) */
+  header { padding:52px 0 26px; display:flex; justify-content:space-between; align-items:flex-end;
+    gap:24px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin-bottom:26px; }
   .k { font-size:11px; font-weight:700; letter-spacing:.26em; color:var(--acc); text-transform:uppercase; }
-  h1 { font-size:52px; font-weight:800; letter-spacing:-.045em; line-height:1; margin:12px 0 6px; }
+  h1 { font-size:52px; font-weight:800; letter-spacing:-.045em; line-height:1; margin:12px 0 8px; }
   .lede { font-size:15px; font-weight:500; color:var(--dim); }
-  .links { margin-left:auto; font-size:13px; font-weight:600; padding-bottom:4px; }
+  .hr { display:flex; flex-direction:column; align-items:flex-end; gap:14px; }
+  .links { font-size:13px; font-weight:600; }
   .links a { color:var(--dim); margin-left:18px; text-decoration:none; border-bottom:1px solid transparent; }
   .links a:hover { color:var(--acc); border-bottom-color:var(--acc); }
-
-  /* ── 등록: 접혀 있다 ── */
-  .addbar { display:flex; justify-content:flex-end; margin-bottom:14px; }
   .add { font:inherit; font-size:13.5px; font-weight:700; letter-spacing:.02em; padding:10px 20px;
     border:1.5px solid var(--ink); border-radius:999px; background:transparent; color:var(--ink); cursor:pointer;
     transition:background .15s, color .15s; }
@@ -61,8 +60,9 @@
   /* ── 태그 축: 필터는 도구다. 눌러 둔다 ── */
   .axes { margin-bottom:4px; }
   .axis { display:flex; gap:10px; align-items:flex-start; margin-bottom:6px; }
-  .axis > b { flex:0 0 54px; font-size:10.5px; font-weight:700; letter-spacing:.12em; color:#b3a893;
-    padding-top:6px; text-transform:uppercase; }
+  /* 라벨을 너무 눌렀더니 안 읽혔다 — 축이 보여야 칩이 무리로 안 보인다 */
+  .axis > b { flex:0 0 58px; font-size:11.5px; font-weight:700; letter-spacing:.06em; color:#6b6459;
+    padding-top:6px; }
   .axis .row { display:flex; flex-wrap:wrap; gap:5px; }
   .chip { font-size:13px; font-weight:600; padding:5px 13px; border:1px solid var(--line);
     border-radius:999px; background:var(--card); cursor:pointer; color:#5c5449; user-select:none;
@@ -119,8 +119,12 @@
   .tags i { font-style:normal; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px;
     background:var(--bg); color:#7a7264; }
   .tags i.a { background:transparent; color:#b3a893; border:1px solid var(--line); }
+  /* 카드마다 반복되는 버튼이라 기본은 거의 안 보이게 두고, 카드에 마우스가 올 때만 드러낸다.
+     자리는 앞뒤가 같아야 해서(눌렀던 곳을 다시 누른다) 폭과 위치는 그대로 둔다. */
   .more { display:block; width:100%; font:inherit; font-size:11.5px; font-weight:700; letter-spacing:.04em;
-    padding:11px; border:0; border-top:1px solid var(--line); background:transparent; color:#b3a893; cursor:pointer; }
+    padding:11px; border:0; background:transparent; color:#cfc6b5; cursor:pointer;
+    transition:color .15s, background .15s; }
+  .card:hover .more { color:#8a8073; }
   .more:hover { background:var(--bg); color:var(--acc); }
   .fail { color:var(--acc); font-size:12.5px; font-weight:600; }
 
@@ -162,15 +166,16 @@
 
 <div class="w">
   <header>
-    <div>
+    <div class="hl">
       <div class="k">S02 · 데이터 저장</div>
       <h1>ASIN 스크랩북</h1>
+      <div class="lede">태그로 좁혀 보고, 목표가를 걸어 매일 지켜본다</div>
     </div>
-    <div class="lede">태그로 좁혀 보고, 목표가를 걸어 매일 지켜본다</div>
-    <div class="links"><a href="/docs/plan.html">기획서 ↗</a><a href="/docs/report.html">리포트 ↗</a></div>
+    <div class="hr">
+      <div class="links"><a href="/docs/plan.html">기획서 ↗</a><a href="/docs/report.html">리포트 ↗</a></div>
+      <button class="add" id="toggle" type="button">+ 제품 추가</button>
+    </div>
   </header>
-
-  <div class="addbar"><button class="add" id="toggle" type="button">+ 제품 추가</button></div>
 
   <form id="f">
     <input id="asin" placeholder="ASIN 또는 아마존 상품 URL" autocomplete="off" required>
