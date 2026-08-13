@@ -156,12 +156,19 @@
   @media (max-width:640px) {
     body { padding:0 18px 72px; }
     h1 { font-size:36px; }
-    header { padding:34px 0 20px; gap:10px; }
+    header { padding:34px 0 20px; gap:14px; }
+    .hr { align-items:flex-start; flex-direction:row-reverse; justify-content:space-between; width:100%; }
+    .links a { margin:0 18px 0 0; }
     form { grid-template-columns:1fr; }
-    .links { margin-left:0; width:100%; }
-    .axis { flex-direction:column; gap:5px; } .axis > b { padding-top:0; }
-    .grid { grid-template-columns:1fr; }
+    /* 세로로 세우면 flex-basis 가 폭이 아니라 높이가 된다 — 58px 빈칸이 생겼다 */
+    .axis { flex-direction:column; gap:5px; }
+    .axis > b { flex:none; padding-top:0; }
+    /* 1fr 의 최소 폭은 min-content 다. 카드 제목이 nowrap 이라 제목 전체 길이가
+       최소 폭이 되어 화면을 944px 넘쳤다. minmax(0,1fr) 로 최소를 0 으로 눌러야 한다. */
+    .grid { grid-template-columns:minmax(0,1fr); }
   }
+  /* 어느 폭에서든 카드가 트랙을 밀어내지 못하게 한다 */
+  .card, .face, .body { min-width:0; }
 </style>
 
 <div class="w">
