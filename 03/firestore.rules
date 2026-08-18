@@ -1,0 +1,33 @@
+// S02 + S03 shared project (initial-b). Keep S02's products rules intact —
+// that site is still live and read-only in the browser.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ── S02 ASIN scrapbook (unchanged) ──
+    match /products/{asin}/{sub=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /products/{asin} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ── S03 dinner-vote board ──
+    // Anyone can read the board; only signed-in users write, and only as themselves.
+    match /candidates/{id} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.ownerUid == request.auth.uid;
+      allow update: if false; // no edit UI this week
+    }
+    // One vote per person, enforced by the schema: the doc ID *is* the uid.
+    // Moving your vote = overwriting your own doc.
+    match /votes/{uid} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
