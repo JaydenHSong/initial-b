@@ -57,10 +57,11 @@
   .name a:hover{color:var(--stamp)}
   .name .ext{font-size:12px;color:var(--dim);font-weight:400;margin-left:4px}
   .meta{font-size:13px;color:var(--dim)}
+  .dday-line{font-size:12.5px;color:var(--stamp);font-weight:700;margin-top:2px}
   .who{font-size:12px;color:var(--dim);margin-top:8px}
   .who button{border:0;background:none;color:var(--stamp);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
 
-  .votebox{grid-row:1/5;grid-column:2;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center}
+  .votebox{grid-row:1/6;grid-column:2;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center}
   .stamp{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
     font-size:24px;font-weight:600;transition:transform .08s;background:none}
   .stamp:active{transform:scale(.92)}
@@ -214,8 +215,9 @@ let boardWhen = '', boardLabel = ''; // label = legacy free text, kept as fallba
 onSnapshot(doc(db, 'board', 'config'), (snap) => {
   const d = snap.exists() ? snap.data() : {};
   boardWhen = d.when || ''; boardLabel = d.label || '';
-  renderDday();
+  renderDday(); render(); // header line + lead card both show it
 }, () => renderDday()); // read denied → just hide the line
+const ddayText = () => boardWhen ? fmtWhen(boardWhen) : boardLabel;
 const fmtWhen = (w) => {
   const d = new Date(w);
   if (isNaN(d)) return w;
@@ -293,6 +295,7 @@ function render() {
         ? `<a href="${esc(c.yelpUrl)}" target="_blank" rel="noopener">${esc(c.name)}<span class="ext">${linkLabel(c.yelpUrl)} ↗</span></a>`
         : esc(c.name)}</div>
       ${c.area ? `<div class="meta">${esc(c.area)}</div>` : ''}
+      ${isLead && ddayText() ? `<div class="dday-line">회식일 ${esc(ddayText())}</div>` : ''}
       <div class="who">등록 ${esc(c.ownerName)}${own ? ` · <button onclick="removeCand('${c.id}')">삭제</button>` : ''}</div>
       <div class="votebox">
         <button class="stamp ${isMine ? 'mine' : 'empty'}" ${me ? '' : 'disabled'}
