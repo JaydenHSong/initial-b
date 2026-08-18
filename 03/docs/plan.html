@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ══════════════════════════════════════════════════════════════
+     iBD 팀 템플릿 · 1페이지 기획서 (별도 업로드 없음 — 사이트와 함께 배포된다)
+     · 레이아웃과 CSS를 건드리지 마라 — 18주 내내 같은 모양이어야 비교된다
+     · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
+     · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
+     ══════════════════════════════════════════════════════════════ -->
+<title>S03 기획서 — 회식 메뉴 투표 보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#fafaf8; --card:#ffffff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:"Pretendard Variable",-apple-system,sans-serif;
+    line-height:1.7; padding:0 20px 72px; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .topbar { max-width:760px; margin:0 auto; padding:18px 0; display:flex; gap:18px; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+  .topbar a { color:var(--dim); text-decoration:none; }
+  .topbar a:hover { color:var(--acc); }
+  .doc { max-width:760px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:44px 46px 40px; box-shadow:0 1px 3px rgba(20,24,32,.05); }
+  .kicker { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; color:var(--acc);
+    font-weight:600; }
+  h1 { font-size:27px; letter-spacing:-.02em; margin:6px 0 4px; }
+  .intro-line { color:var(--dim); font-size:14.5px; margin-bottom:26px; }
+  table.core { border-collapse:collapse; width:100%; margin:0 0 8px; }
+  table.core td { border:1px solid var(--line); padding:9px 14px; font-size:14px; }
+  table.core td:first-child { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim);
+    width:118px; background:var(--paper); white-space:nowrap; }
+  .hint { font-size:12px; color:var(--dim); margin-bottom:6px; }
+  h2 { font-size:15.5px; margin:34px 0 10px; display:flex; align-items:baseline; gap:10px; }
+  h2 .no { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--acc); font-weight:600; }
+  p, li { font-size:14.5px; color:#3a3e47; }
+  ul, ol { padding-left:22px; } li { margin:5px 0; }
+  ul.nolist li::marker { color:#c0392b; }
+  .risk { border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-top:8px;
+    font-size:14px; background:var(--paper); }
+  .risk b { color:var(--ink); }
+  footer { max-width:760px; margin:26px auto 0; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; color:var(--dim); }
+  @media (max-width:600px) { .doc { padding:30px 22px; } }
+  @media print { .topbar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
+</style>
+
+<div class="topbar">
+  <a href="../">← 사이트로</a>
+  <a href="https://initialb.vercel.app">갤러리</a>
+  <span style="margin-left:auto" class="mono">사이트와 함께 배포된다</span>
+</div>
+
+<div class="doc">
+  <div class="kicker">1-PAGE PLAN</div>
+  <!-- 제목: 프로젝트 이름으로 바꾼다 -->
+  <h1 data-f="title">회식 메뉴 투표 보드</h1>
+  <div class="intro-line" data-f="intro">로그인한 팀원이 Yelp 링크로 회식 후보를 올리고, 1인 1표로 이번 회식 1위를 정한다.</div>
+
+  <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
+  <table class="core">
+    <tr><td>스프린트</td><td data-f="sprint">S03</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">인증</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Firebase Auth (Google 로그인)</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/JaydenHSong/initial-b">github.com/JaydenHSong/initial-b</a></td></tr>
+  </table>
+
+  <h2><span class="no">01</span>누가 쓰나</h2>
+  <p>매달 회식 장소를 정해야 하는 우리 팀. 특히 "이번엔 어디 가요?"를 채팅방에 던지고 답을 취합하는 총무 역할 — 한 달에 한 번, 회식 전 주마다 겪는 일이다.</p>
+
+  <h2><span class="no">02</span>지금은</h2>
+  <p>채팅방에 후보를 묻는다. 링크 몇 개가 올라오고 이모지 반응이 애매하게 갈리다가 스레드가 가라앉고, 결국 당일에 목소리 큰 사람 의견으로 정해진다. 누가 어디에 손들었는지는 스레드를 거슬러 올라가며 다시 세어야 한다.</p>
+
+  <h2><span class="no">03</span>없앨 동작 하나</h2>
+  <p><b>채팅 스레드를 거슬러 올라가며 표를 세는 것.</b> 후보와 표가 한 화면에 있고, 1위가 항상 계산돼 있다.</p>
+
+  <h2><span class="no">04</span>핵심 기능 1개</h2>
+  <p><b>로그인한 팀원이 Yelp 링크를 붙여넣으면 가게 이름·별점·가격대·인기 메뉴가 채워진 후보 카드로 등록되고, 각자 1표를 던지거나 옮기면 현재 1위가 바로 보인다.</b></p>
+  <p>Google 로그인 → Yelp 링크 붙여넣기 → 서버 함수가 가게 정보 수집 → 후보 카드 등록 → 투표(다른 후보를 찍으면 표가 옮겨간다) → 1위 표시. 쓰기 경로가 S02와 정반대다: S02는 브라우저 읽기전용 + 서버(Admin SDK) 쓰기였고, 이번 주는 <b>로그인한 브라우저가 Firestore에 직접 쓰고 보안 규칙이 막는다.</b> 서버는 크롤링(브라우저에서 못 하는 것) 하나만 맡는다.</p>
+  <p><b>범위를 늘린 것을 인지하고 간다.</b> Yelp 수집은 <b>S04(크롤링)</b> 스택 카드를 당겨 쓴 것이다. S02가 크론(S09)·알림(S12)을 당겨 쓴 것과 같은 방식으로, 당겨 쓴다고 적어두고 그 주에 다시 판단한다. 화요일 스파이크가 실패하면 그날 안에 "이름만 수동 입력"으로 후퇴한다 — 이번 주 주제는 어디까지나 인증이다.</p>
+
+  <h2><span class="no">05</span>안 만드는 것 3개</h2>
+  <ul class="nolist">
+    <li><b>회식 라운드/이력 관리</b> — 후보 풀 하나만. 회식이 끝나면 투표는 콘솔에서 리셋한다</li>
+    <li><b>Yelp 검색·자동완성</b> — 링크 붙여넣기만. 검색을 붙이는 순간 범위가 터진다</li>
+    <li><b>댓글·수정 UI</b> — 잘못 올리면 본인이 지우고 다시 올린다 (본인 삭제만 허용 — 이건 이번 주 주제라 만든다)</li>
+  </ul>
+
+  <h2><span class="no">06</span>성공 판정</h2>
+  <ul>
+    <li>두 계정으로 각자 Google 로그인이 된다 (입력 필드 0개)</li>
+    <li>Yelp 링크를 붙여넣으면 가게 이름·별점·가격대·인기 메뉴가 채워진 후보 카드가 등록된다</li>
+    <li>각자 1표를 던지고, 다른 후보를 찍으면 표가 <b>옮겨진다</b> — 어떤 방법으로도 1인 2표가 안 된다</li>
+    <li>현재 1위가 화면에서 바로 보인다</li>
+    <li>남의 후보 삭제 시도가 <b>보안 규칙에서 거부</b>되고, 본인 것은 지워진다</li>
+    <li>새로고침·다른 기기에서 같은 보드가 보인다 (하드코딩 아님)</li>
+    <li>수집 로직과 키가 브라우저에 노출되지 않는다 (Yelp 수집은 서버 함수)</li>
+    <li>1인 1표를 스키마(투표 문서 ID = uid)로 어떻게 보장했는지 설명한다</li>
+  </ul>
+
+  <h2><span class="no">07</span>내 옵션 + 이유</h2>
+  <p><b>Firebase Auth (Google 로그인).</b> S02의 Firestore를 이어 쓰면 인증과 데이터 권한이 한 생태계에서 연결되는 것(보안 규칙의 <span class="mono">request.auth</span>)을 바로 볼 수 있다. 이번 주 주제가 "인증이 데이터 모델에 미치는 영향"인데, 문서형에는 unique 제약이 없어서 1인 1표를 <b>문서 경로(votes/{uid})로</b> 풀어야 한다 — 관계형이면 <span class="mono">unique(user_id)</span> 한 줄인 것을 경로 설계로 푸는 차이를 몸으로 확인한다(S05 Postgres 주에 반대쪽을 확인할 비교거리). Google 로그인이라 가입·비번 화면이 없고 입력 필드 0개로 제약도 통과한다.</p>
+
+  <h2><span class="no">08</span>리스크 + 검증법</h2>
+  <div class="risk">
+    <b>걱정되는 것:</b> ① Yelp 크롤링 차단 — 아마존이 S02에서 3일 만에 차단한 전례가 있고 Yelp도 봇 차단이 심하다고 알려져 있다. ② 보안 규칙이 실제로 남의 글 삭제와 중복 투표를 막아주나.<br>
+    <b>화요일 스파이크로 확인:</b> 1순위 — 서버리스에서 Yelp 가게 페이지의 이름·별점·인기 메뉴가 긁히나 (공식 Fusion API의 키·요금도 같이 확인). 안 긁히면 그날 안에 "이름만 수동 입력"으로 후퇴. 2순위 — Google 로그인 두 계정으로 남의 문서 삭제·votes/{남의uid} 쓰기를 시도해 규칙이 거부하는지 실호출로 확인.
+  </div>
+</div>
+
+<footer>iBD 바이브 코딩 · 이 문서는 팀 템플릿이다 — 레이아웃·CSS·data-f를 바꾸지 말 것</footer>
+</html>
