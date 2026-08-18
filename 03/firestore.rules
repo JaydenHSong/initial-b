@@ -23,6 +23,12 @@ service cloud.firestore {
                     && resource.data.ownerUid == request.auth.uid;
       allow update: if false; // no edit UI this week
     }
+    // Board meta (dinner date label). Read-only for clients; edited in the console
+    // during the monthly reset — no round management, just one label.
+    match /board/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
     // One vote per person, enforced by the schema: the doc ID *is* the uid.
     // Moving your vote = overwriting your own doc.
     match /votes/{uid} {

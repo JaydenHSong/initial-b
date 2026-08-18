@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iBD 회식 투표소</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='44' fill='none' stroke='%23c02e20' stroke-width='10'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='%23c02e20'>卜</text></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Serif+KR:wght@900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f6f4ec; --card:#fffdf8; --ink:#242833; --dim:#7a7d85;
+    --line:#ddd9cc; --stamp:#c02e20; --bar:#33415e; --gold:#8a6d1f;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--paper);color:var(--ink);font-family:"Pretendard Variable",-apple-system,sans-serif;line-height:1.6;padding:0 16px 60px}
+  .wrap{max-width:680px;margin:0 auto}
+
+  .top{display:flex;align-items:center;gap:10px;padding:14px 0;font-size:13px;color:var(--dim);flex-wrap:wrap}
+  .top .brand{display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:700;font-size:14px}
+  .brand .seal{width:22px;height:22px;border:2px solid var(--stamp);border-radius:50%;color:var(--stamp);
+    display:grid;place-items:center;font-size:13px;font-weight:600;transform:rotate(-8deg)}
+  .top .me{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .me .avatar{width:24px;height:24px;border-radius:50%;background:var(--bar);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:700}
+  .top button{border:0;background:none;color:var(--dim);font-size:13px;cursor:pointer;text-decoration:underline;padding:0}
+  .top .login-btn{border:1px solid var(--ink);border-radius:8px;background:var(--ink);color:#fff;
+    padding:7px 14px;font-weight:700;text-decoration:none;font-size:13px}
+
+  .eyebrow{font-family:"Noto Serif KR",serif;font-weight:900;color:var(--stamp);font-size:13px;letter-spacing:.35em;margin:26px 0 6px}
+  h1{font-size:clamp(24px,5.5vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.25}
+  .sub{color:var(--dim);font-size:14px;margin-top:6px}
+  .sub b{color:var(--ink)}
+
+  .reg{display:flex;gap:8px;margin:20px 0 6px;flex-wrap:wrap}
+  .reg input{border:1.5px solid var(--line);border-radius:10px;background:var(--card);
+    padding:12px 14px;font-size:14px;font-family:inherit;color:var(--ink);min-width:0}
+  #name{flex:2;min-width:140px} #yelp{flex:3;min-width:160px}
+  .reg input::placeholder{color:#b3b0a5}
+  .reg button{border:0;border-radius:10px;background:var(--ink);color:#fff;font-weight:700;font-size:14px;
+    padding:12px 18px;cursor:pointer;white-space:nowrap}
+  .reg button:disabled{opacity:.45;cursor:not-allowed}
+  .reg-hint{font-size:12px;color:var(--dim);margin-bottom:26px}
+
+  .tally{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:14px;margin-top:8px}
+  .tally h2{font-size:15px;font-weight:800}
+  .tally .count{margin-left:auto;font-size:12.5px;color:var(--dim)}
+  .tally .count b{color:var(--ink)}
+
+  ol{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px}
+  .cand{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px 14px;display:grid;grid-template-columns:1fr auto;gap:2px 16px}
+  .cand.lead{border-color:var(--ink);box-shadow:0 2px 0 var(--ink)}
+  .ticket{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);letter-spacing:.08em}
+  .lead-badge{position:absolute;top:-10px;right:14px;background:var(--ink);color:#ffe9a8;font-size:11px;
+    font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.12em}
+  .name{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .name a{color:inherit;text-decoration:none}
+  .name a:hover{color:var(--stamp)}
+  .name .ext{font-size:12px;color:var(--dim);font-weight:400;margin-left:4px}
+  .who{font-size:12px;color:var(--dim);margin-top:8px}
+  .who button{border:0;background:none;color:var(--stamp);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
+
+  .votebox{grid-row:1/4;grid-column:2;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center}
+  .stamp{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
+    font-size:24px;font-weight:600;transition:transform .08s;background:none}
+  .stamp:active{transform:scale(.92)}
+  .stamp.empty{border:2px dashed #c9c5b8;color:#c9c5b8}
+  .stamp.empty:hover{border-color:var(--stamp);color:var(--stamp)}
+  .stamp.mine{border:0;background:radial-gradient(circle at 35% 35%, #d8483a, var(--stamp) 70%);
+    color:#fff;transform:rotate(-8deg);box-shadow:inset 0 0 0 3px rgba(255,255,255,.25)}
+  .stamp:disabled{cursor:not-allowed;opacity:.55}
+  .stamp:focus-visible{outline:3px solid var(--bar);outline-offset:2px}
+  .votelabel{font-size:11px;color:var(--dim)}
+  .votelabel.mine{color:var(--stamp);font-weight:700}
+  .num{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600}
+
+  .barrow{grid-column:1/3;display:flex;align-items:center;gap:8px;margin-top:12px}
+  .bartrack{flex:1;height:8px;border-radius:4px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+  .barfill{height:100%;background:var(--bar);border-radius:4px}
+  .lead .barfill{background:var(--stamp)}
+  .barpct{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim);width:34px;text-align:right}
+
+  .empty{border:1.5px dashed var(--line);border-radius:14px;padding:34px 20px;text-align:center;color:var(--dim);font-size:14px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;
+    font-size:13px;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s}
+  #toast.on{opacity:1}
+  footer{max-width:680px;margin:34px auto 0;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--dim)}
+  footer a{color:inherit}
+  @media (max-width:520px){
+    .cand{grid-template-columns:1fr}
+    .votebox{grid-row:auto;grid-column:1;flex-direction:row;justify-content:flex-start;margin-top:10px}
+    .barrow{grid-column:1}
+  }
+  @media (prefers-reduced-motion: reduce){ .stamp{transition:none} #toast{transition:none} }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <span class="brand"><span class="seal">卜</span>iBD 회식 투표소</span>
+    <span class="me" id="me"></span>
+  </div>
+
+  <div class="eyebrow">제3회 회식 총선</div>
+  <h1>이번 회식, 어디로 모실까요</h1>
+  <p class="sub"><span id="dday"></span>회식 후보를 올리고 투표하세요. <b>1인 1표</b>, 표는 언제든 옮길 수 있습니다.</p>
+
+  <form class="reg" id="reg">
+    <input id="name" placeholder="가게 이름 (필수)" maxlength="60" required>
+    <input id="yelp" placeholder="Yelp 링크 (선택)" type="url">
+    <button id="regBtn" type="submit">후보 등록</button>
+  </form>
+  <div class="reg-hint" id="regHint">로그인하면 후보를 올리고 투표할 수 있습니다</div>
+
+  <div class="tally">
+    <h2>개표 현황</h2>
+    <span class="count" id="count">—</span>
+  </div>
+
+  <ol id="board"></ol>
+  <div class="empty" id="emptyMsg" hidden>아직 후보가 없습니다 — 첫 후보를 올려보세요</div>
+</div>
+
+<div id="toast"></div>
+<footer>iBD 바이브 코딩 S03 · <a href="docs/plan.html">기획서</a> · <a href="docs/report.html">리포트</a></footer>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import { getFirestore, collection, onSnapshot, addDoc, doc, setDoc, deleteDoc, serverTimestamp, query, orderBy }
+  from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+
+// Public web config — the real defense is the published security rules.
+const app = initializeApp({
+  apiKey: 'AIzaSyAYS4Os_XoJUyGRYBrN3Pmb5mDm4dox0b4',
+  authDomain: 'initial-b.firebaseapp.com',
+  projectId: 'initial-b',
+  storageBucket: 'initial-b.firebasestorage.app',
+  messagingSenderId: '678214115027',
+  appId: '1:678214115027:web:c8fd3d32846d4c24483e26',
+});
+const auth = getAuth(app), db = getFirestore(app);
+const $ = (id) => document.getElementById(id);
+
+let me = null;            // current user or null
+let cands = [];           // [{id, name, yelpUrl, ownerUid, ownerName, createdAt}]
+let votes = new Map();    // uid -> candidateId
+
+const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('on');
+  clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.remove('on'), 2600); };
+
+// ── auth ──
+onAuthStateChanged(auth, (u) => { me = u; renderTop(); render(); });
+function renderTop() {
+  const el = $('me');
+  if (me) {
+    const initial = (me.displayName || me.email)[0].toUpperCase();
+    el.innerHTML = `<span class="avatar">${initial}</span>${me.email} · <button id="out">로그아웃</button>`;
+    $('out').onclick = () => signOut(auth);
+    $('regHint').textContent = '가게 이름만 필수입니다. Yelp 링크는 참고용으로 카드에 붙습니다';
+  } else {
+    el.innerHTML = `<a class="login-btn" id="in" href="#">Google로 로그인</a>`;
+    $('in').onclick = (e) => { e.preventDefault();
+      signInWithPopup(auth, new GoogleAuthProvider()).catch((err) => toast('로그인 실패: ' + err.code)); };
+    $('regHint').textContent = '로그인하면 후보를 올리고 투표할 수 있습니다';
+  }
+}
+
+// ── register ──
+$('reg').onsubmit = async (e) => {
+  e.preventDefault();
+  if (!me) return toast('로그인이 필요합니다');
+  const name = $('name').value.trim();
+  if (!name) return;
+  $('regBtn').disabled = true;
+  try {
+    await addDoc(collection(db, 'candidates'), {
+      name, yelpUrl: $('yelp').value.trim(), ownerUid: me.uid,
+      ownerName: me.displayName || me.email.split('@')[0], createdAt: serverTimestamp(),
+    });
+    $('name').value = ''; $('yelp').value = '';
+  } catch (err) { toast('등록 실패: ' + err.code); }
+  $('regBtn').disabled = false;
+};
+
+// ── live data ──
+// board/config: {label: '8/28 (금) 저녁'} — set in the console, display-only here.
+onSnapshot(doc(db, 'board', 'config'), (snap) => {
+  const label = snap.exists() && snap.data().label;
+  document.getElementById('dday').innerHTML = label ? `회식일 <b>${esc(label)}</b> · ` : '';
+});
+onSnapshot(query(collection(db, 'candidates'), orderBy('createdAt', 'asc')), (snap) => {
+  cands = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  render();
+});
+onSnapshot(collection(db, 'votes'), (snap) => {
+  votes = new Map(snap.docs.map((d) => [d.id, d.data().candidateId]));
+  render();
+});
+
+// ── actions ──
+window.vote = async (cid) => {
+  if (!me) return toast('로그인이 필요합니다');
+  if (votes.get(me.uid) === cid) return;
+  try { await setDoc(doc(db, 'votes', me.uid), { candidateId: cid, at: serverTimestamp() }); }
+  catch (err) { toast('투표 실패: ' + err.code); }
+};
+window.removeCand = async (cid) => {
+  if (!confirm('이 후보를 삭제할까요?')) return;
+  try { await deleteDoc(doc(db, 'candidates', cid)); }
+  catch (err) { toast('삭제 실패: ' + err.code); } // 남의 글이면 규칙이 거부한다
+};
+
+// ── render ──
+const esc = (s) => (s || '').replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function render() {
+  const counts = new Map();
+  for (const cid of votes.values()) counts.set(cid, (counts.get(cid) || 0) + 1);
+  const total = [...counts.entries()].filter(([cid]) => cands.some((c) => c.id === cid))
+    .reduce((a, [, n]) => a + n, 0);
+  $('count').innerHTML = `<b>${total}표</b> · 후보 ${cands.length}곳`;
+  $('emptyMsg').hidden = cands.length > 0;
+
+  const ticket = new Map(cands.map((c, i) => [c.id, i + 1])); // registration order, fixed
+  const sorted = [...cands].sort((a, b) => (counts.get(b.id) || 0) - (counts.get(a.id) || 0));
+  const top = sorted.length && (counts.get(sorted[0].id) || 0) > 0 ? sorted[0].id : null;
+  const myVote = me && votes.get(me.uid);
+
+  $('board').innerHTML = sorted.map((c) => {
+    const n = counts.get(c.id) || 0;
+    const pct = total ? Math.round((n / total) * 100) : 0;
+    const isMine = myVote === c.id, isLead = c.id === top, own = me && c.ownerUid === me.uid;
+    return `<li class="cand${isLead ? ' lead' : ''}">
+      ${isLead ? '<span class="lead-badge">당선 유력</span>' : ''}
+      <div class="ticket">기호 ${ticket.get(c.id)}번${own ? ' · 내 후보' : ''}</div>
+      <div class="name">${c.yelpUrl
+        ? `<a href="${esc(c.yelpUrl)}" target="_blank" rel="noopener">${esc(c.name)}<span class="ext">Yelp ↗</span></a>`
+        : esc(c.name)}</div>
+      <div class="who">등록 ${esc(c.ownerName)}${own ? ` · <button onclick="removeCand('${c.id}')">삭제</button>` : ''}</div>
+      <div class="votebox">
+        <button class="stamp ${isMine ? 'mine' : 'empty'}" ${me ? '' : 'disabled'}
+          onclick="vote('${c.id}')" aria-label="${esc(c.name)}에 투표">卜</button>
+        <span class="num">${n}표</span>
+        <span class="votelabel${isMine ? ' mine' : ''}">${isMine ? '내 한 표' : (myVote ? '표 옮기기' : '투표')}</span>
+      </div>
+      <div class="barrow"><div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
+        <span class="barpct">${pct}%</span></div>
+    </li>`;
+  }).join('');
+}
+render();
+</script>
+</html>
