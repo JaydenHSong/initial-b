@@ -303,7 +303,13 @@ function render() {
   // 미분류는 맨 아래로 (스프린트를 못 읽은 카드라 시간축에 놓을 자리가 없다)
   const keys = [...bySprint.keys()].sort((a, b) =>
     a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
-  const up = ROAD.find(r => new Date(r[1]) > new Date()); // 다음 스프린트 (시즌 끝나면 없음)
+  // 하단 노드 — 이번 주가 아직 비었으면 이번 주를, 아니면 다음 주를 가리킨다.
+  // 다음 주만 가리키면 월요일에 주가 시작된 뒤 첫 제출이 올 때까지 이번 주가 어디에도 안 보인다.
+  const started = ROAD.filter(r => new Date(r[1]) <= new Date());
+  const cur = started[started.length - 1];                    // 이미 시작한 스프린트 중 가장 최근
+  const nxt = ROAD.find(r => new Date(r[1]) > new Date());     // 다음 스프린트 (시즌 끝나면 없음)
+  const up = cur && !bySprint.has(cur[0]) ? cur : nxt;
+  const upWhen = up === cur ? '이번 주' : '다음 주';
   $('main').innerHTML = keys.map(k => {
     const ri = roadOf(k);
     const label = ri ? `${ri[2]} · ${ri[3]} · ${ri[4]}` : '';
@@ -311,7 +317,7 @@ function render() {
       ${label ? `<a class="label" href="/guide.html#${k.toLowerCase()}">${esc(label)}</a>` : ''}</div>` +
       bySprint.get(k).map((r, i) => entry(r, i % 2 ? 'r' : 'l')).join('');
   }).join('') + (up ? `<div class="next"><div class="dot">${up[0]}</div>
-    <a class="label" href="/guide.html#${up[0].toLowerCase()}">다음 주 · ${esc(`${up[2]} · ${up[3]} · ${up[4]}`)}</a></div>` : '');
+    <a class="label" href="/guide.html#${up[0].toLowerCase()}">${upWhen} · ${esc(`${up[2]} · ${up[3]} · ${up[4]}`)}</a></div>` : '');
 }
 
 // 첫 로딩에 이번 주 마디로 내려둔다 — 지난 주는 스크롤 업으로 본다.
