@@ -33,7 +33,7 @@
   .reg{display:flex;gap:8px;margin:20px 0 6px;flex-wrap:wrap}
   .reg input{border:1.5px solid var(--line);border-radius:10px;background:var(--card);
     padding:12px 14px;font-size:14px;font-family:inherit;color:var(--ink);min-width:0}
-  #name{flex:2;min-width:140px} #yelp{flex:3;min-width:160px}
+  #name{flex:2;min-width:130px} #yelp{flex:3;min-width:150px} #area{flex:1;min-width:100px}
   .reg input::placeholder{color:#b3b0a5}
   .reg button{border:0;border-radius:10px;background:var(--ink);color:#fff;font-weight:700;font-size:14px;
     padding:12px 18px;cursor:pointer;white-space:nowrap}
@@ -56,10 +56,11 @@
   .name a{color:inherit;text-decoration:none}
   .name a:hover{color:var(--stamp)}
   .name .ext{font-size:12px;color:var(--dim);font-weight:400;margin-left:4px}
+  .meta{font-size:13px;color:var(--dim)}
   .who{font-size:12px;color:var(--dim);margin-top:8px}
   .who button{border:0;background:none;color:var(--stamp);font-size:12px;cursor:pointer;padding:0;text-decoration:underline}
 
-  .votebox{grid-row:1/4;grid-column:2;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center}
+  .votebox{grid-row:1/5;grid-column:2;display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center}
   .stamp{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;cursor:pointer;
     font-size:24px;font-weight:600;transition:transform .08s;background:none}
   .stamp:active{transform:scale(.92)}
@@ -105,7 +106,8 @@
 
   <form class="reg" id="reg">
     <input id="name" placeholder="가게 이름 (필수)" maxlength="60" required>
-    <input id="yelp" placeholder="Yelp 링크 (선택)" type="url">
+    <input id="yelp" placeholder="가게 링크 (Yelp·Google 등, 선택)" type="url">
+    <input id="area" placeholder="지역 (선택)" maxlength="30">
     <button id="regBtn" type="submit">후보 등록</button>
   </form>
   <div class="reg-hint" id="regHint">로그인하면 후보를 올리고 투표할 수 있습니다</div>
@@ -149,14 +151,14 @@ const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add(
   clearTimeout(toast._h); toast._h = setTimeout(() => t.classList.remove('on'), 2600); };
 
 // ── auth ──
-onAuthStateChanged(auth, (u) => { me = u; renderTop(); render(); });
+onAuthStateChanged(auth, (u) => { me = u; renderTop(); renderDday(); render(); });
 function renderTop() {
   const el = $('me');
   if (me) {
     const initial = (me.displayName || me.email)[0].toUpperCase();
     el.innerHTML = `<span class="avatar">${initial}</span>${me.email} · <button id="out">로그아웃</button>`;
     $('out').onclick = () => signOut(auth);
-    $('regHint').textContent = '가게 이름만 필수입니다. Yelp 링크는 참고용으로 카드에 붙습니다';
+    $('regHint').textContent = '가게 이름만 필수. 링크(Yelp·Google)와 지역은 참고용으로 카드에 붙습니다';
   } else {
     el.innerHTML = `<a class="login-btn" id="in" href="#">Google로 로그인</a>`;
     $('in').onclick = (e) => { e.preventDefault();
@@ -174,20 +176,34 @@ $('reg').onsubmit = async (e) => {
   $('regBtn').disabled = true;
   try {
     await addDoc(collection(db, 'candidates'), {
-      name, yelpUrl: $('yelp').value.trim(), ownerUid: me.uid,
+      name, yelpUrl: $('yelp').value.trim(), area: $('area').value.trim(), ownerUid: me.uid,
       ownerName: me.displayName || me.email.split('@')[0], createdAt: serverTimestamp(),
     });
-    $('name').value = ''; $('yelp').value = '';
+    $('name').value = ''; $('yelp').value = ''; $('area').value = '';
   } catch (err) { toast('등록 실패: ' + err.code); }
   $('regBtn').disabled = false;
 };
 
 // ── live data ──
-// board/config: {label: '8/28 (금) 저녁'} — set in the console, display-only here.
+// board/config: {label: '8/28 (금) 저녁'} — any signed-in member edits it in-app.
+let dateLabel = '';
 onSnapshot(doc(db, 'board', 'config'), (snap) => {
-  const label = snap.exists() && snap.data().label;
-  document.getElementById('dday').innerHTML = label ? `회식일 <b>${esc(label)}</b> · ` : '';
-});
+  dateLabel = (snap.exists() && snap.data().label) || '';
+  renderDday();
+}, () => renderDday()); // read denied → just hide the line
+function renderDday() {
+  const el = $('dday');
+  if (dateLabel) el.innerHTML = `회식일 <b>${esc(dateLabel)}</b>${me ? ' <a href="#" id="dEdit">✎</a>' : ''} · `;
+  else el.innerHTML = me ? '<a href="#" id="dEdit">회식일 정하기 ✎</a> · ' : '';
+  const btn = document.getElementById('dEdit');
+  if (btn) btn.onclick = async (e) => {
+    e.preventDefault();
+    const v = prompt('회식일 표시 텍스트 (예: 8/28 (금) 저녁)', dateLabel);
+    if (v === null) return;
+    try { await setDoc(doc(db, 'board', 'config'), { label: v.trim() }, { merge: true }); }
+    catch (err) { toast('저장 실패: ' + err.code); }
+  };
+}
 onSnapshot(query(collection(db, 'candidates'), orderBy('createdAt', 'asc')), (snap) => {
   cands = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   render();
@@ -213,6 +229,7 @@ window.removeCand = async (cid) => {
 // ── render ──
 const esc = (s) => (s || '').replace(/[&<>"']/g, (c) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const linkLabel = (u) => /yelp\./i.test(u) ? 'Yelp' : /google|goo\.gl|maps\.app/i.test(u) ? 'Google' : '링크';
 
 function render() {
   const counts = new Map();
@@ -235,8 +252,9 @@ function render() {
       ${isLead ? '<span class="lead-badge">당선 유력</span>' : ''}
       <div class="ticket">기호 ${ticket.get(c.id)}번${own ? ' · 내 후보' : ''}</div>
       <div class="name">${c.yelpUrl
-        ? `<a href="${esc(c.yelpUrl)}" target="_blank" rel="noopener">${esc(c.name)}<span class="ext">Yelp ↗</span></a>`
+        ? `<a href="${esc(c.yelpUrl)}" target="_blank" rel="noopener">${esc(c.name)}<span class="ext">${linkLabel(c.yelpUrl)} ↗</span></a>`
         : esc(c.name)}</div>
+      ${c.area ? `<div class="meta">${esc(c.area)}</div>` : ''}
       <div class="who">등록 ${esc(c.ownerName)}${own ? ` · <button onclick="removeCand('${c.id}')">삭제</button>` : ''}</div>
       <div class="votebox">
         <button class="stamp ${isMine ? 'mine' : 'empty'}" ${me ? '' : 'disabled'}
