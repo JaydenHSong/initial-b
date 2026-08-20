@@ -130,6 +130,7 @@
   </div>
 
   <ol id="board"></ol>
+  <div class="empty" id="loadingMsg">개표소 여는 중…</div>
   <div class="empty" id="emptyMsg" hidden>아직 후보가 없습니다 — 첫 후보를 올려보세요</div>
 </div>
 
@@ -169,6 +170,7 @@ const auth = getAuth(app), db = getFirestore(app);
 const $ = (id) => document.getElementById(id);
 
 let me = null;            // current user or null
+let loaded = false;       // first candidates snapshot arrived
 let cands = [];           // [{id, name, yelpUrl, ownerUid, ownerName, createdAt}]
 let votes = new Map();    // uid -> candidateId
 
@@ -246,6 +248,7 @@ $('dform').onsubmit = async (e) => {
 };
 onSnapshot(query(collection(db, 'candidates'), orderBy('createdAt', 'asc')), (snap) => {
   cands = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  loaded = true;
   render();
 });
 onSnapshot(collection(db, 'votes'), (snap) => {
@@ -276,8 +279,9 @@ function render() {
   for (const cid of votes.values()) counts.set(cid, (counts.get(cid) || 0) + 1);
   const total = [...counts.entries()].filter(([cid]) => cands.some((c) => c.id === cid))
     .reduce((a, [, n]) => a + n, 0);
-  $('count').innerHTML = `<b>${total}표</b> · 후보 ${cands.length}곳`;
-  $('emptyMsg').hidden = cands.length > 0;
+  $('count').innerHTML = loaded ? `<b>${total}표</b> · 후보 ${cands.length}곳` : '—';
+  $('loadingMsg').hidden = loaded;
+  $('emptyMsg').hidden = !loaded || cands.length > 0;
 
   const ticket = new Map(cands.map((c, i) => [c.id, i + 1])); // registration order, fixed
   const sorted = [...cands].sort((a, b) => (counts.get(b.id) || 0) - (counts.get(a.id) || 0));
