@@ -9,7 +9,7 @@
      · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
      · minutes는 숫자만 / docs·ai는 상·중·하 / fit은 잘 맞음·보통·안 맞음
      ══════════════════════════════════════════════════════════════ -->
-<title>S00 스택 리포트 — 제목</title>
+<title>S03 리포트 — 회식 메뉴 투표 보드</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">회식 메뉴 투표 보드</h1>
+  <div class="intro-line" data-f="intro">로그인한 팀원이 회식 후보를 올리고, 1인 1표로 이번 회식 1위를 정한다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">45</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">15분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.2초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S03</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">인증</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Firebase Auth (Google 로그인)</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">Yelp 수집(S04 카드 당겨 쓰기) — DataDome이 데이터센터 IP를 첫 요청부터 403으로 막고, Bright Data 프록시도 11런 중 1런만 성공(9~47초, 타임아웃 40%). 화요일 반나절을 쓰고 기획서의 후퇴 경로대로 수동 입력으로 접었다. 정작 이번 주 주제인 인증은 45분에 끝났다 — 시간을 뺏은 건 스택이 아니라 범위였다. 덤: 같은 IP에서 Google Maps는 200·0.5초로 열려 있었다(S04 재료)</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">상</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">Spark 무료 — 소셜 로그인 무료(과금은 SMS 전화 인증뿐) · Firestore 일 읽기 5만/쓰기 2만. 팀 투표 규모엔 무관</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b03.vercel.app">initial-b03.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">Firestore를 이미 쓰는 앱에 로그인을 얹는 경우라면 Firebase Auth를 쓰겠다 — 콘솔 3단계·입력 필드 0개로 45분에 붙고, 권한 검사가 앱 코드가 아니라 보안 규칙(request.auth)으로 내려간다. 남의 글 삭제가 규칙에서 거부되는 것을 실계정 2개로 확인했고, 1인 1표는 문서형에 unique 제약이 없어 투표 문서 ID를 uid로 박아 스키마로 보장했다 — 관계형이면 unique(user_id) 한 줄일 것을 경로 설계로 푼 차이(S05에서 반대쪽 확인 예정). 다만 화면이 임베디드 웹뷰 안에서 돌아야 하는 경우라면 안 쓰겠다 — Google이 웹뷰 OAuth를 차단한다(disallowed_useragent).</div>
 
 </div>
 
