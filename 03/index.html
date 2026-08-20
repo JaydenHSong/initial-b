@@ -33,7 +33,7 @@
   .reg{display:flex;gap:8px;margin:20px 0 6px;flex-wrap:wrap}
   .reg input{border:1.5px solid var(--line);border-radius:10px;background:var(--card);
     padding:12px 14px;font-size:14px;font-family:inherit;color:var(--ink);min-width:0}
-  #name{flex:2;min-width:130px} #yelp{flex:3;min-width:150px} #area{flex:1;min-width:100px}
+  #name{flex:2;min-width:140px} #yelp{flex:3;min-width:160px}
   .reg input::placeholder{color:#b3b0a5}
   .reg button{border:0;border-radius:10px;background:var(--ink);color:#fff;font-weight:700;font-size:14px;
     padding:12px 18px;cursor:pointer;white-space:nowrap}
@@ -119,7 +119,6 @@
   <form class="reg" id="reg">
     <input id="name" placeholder="가게 이름 (필수)" maxlength="60" required>
     <input id="yelp" placeholder="가게 링크 (Yelp·Google 등, 선택)" type="url">
-    <input id="area" placeholder="지역 (선택)" maxlength="30">
     <button id="regBtn" type="submit">후보 등록</button>
   </form>
   <div class="reg-hint" id="regHint">로그인하면 후보를 올리고 투표할 수 있습니다</div>
@@ -185,7 +184,7 @@ function renderTop() {
     const initial = (me.displayName || me.email)[0].toUpperCase();
     el.innerHTML = `<span class="avatar">${initial}</span>${me.email} · <button id="out">로그아웃</button>`;
     $('out').onclick = () => signOut(auth);
-    $('regHint').textContent = '가게 이름만 필수. 링크(Yelp·Google)와 지역은 참고용으로 카드에 붙습니다';
+    $('regHint').textContent = '가게 이름만 필수. 링크(Yelp·Google)는 참고용으로 카드에 붙습니다';
   } else {
     el.innerHTML = `<a class="login-btn" id="in" href="#">Google로 로그인</a>`;
     $('in').onclick = (e) => { e.preventDefault();
@@ -203,10 +202,10 @@ $('reg').onsubmit = async (e) => {
   $('regBtn').disabled = true;
   try {
     await addDoc(collection(db, 'candidates'), {
-      name, yelpUrl: $('yelp').value.trim(), area: $('area').value.trim(), ownerUid: me.uid,
+      name, yelpUrl: $('yelp').value.trim(), ownerUid: me.uid,
       ownerName: me.displayName || me.email.split('@')[0], createdAt: serverTimestamp(),
     });
-    $('name').value = ''; $('yelp').value = ''; $('area').value = '';
+    $('name').value = ''; $('yelp').value = '';
   } catch (err) { toast('등록 실패: ' + err.code); }
   $('regBtn').disabled = false;
 };
