@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ══════════════════════════════════════════════════════════════
+     iBD 팀 템플릿 · 1페이지 기획서 (별도 업로드 없음 — 사이트와 함께 배포된다)
+     · 레이아웃과 CSS를 건드리지 마라 — 18주 내내 같은 모양이어야 비교된다
+     · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
+     · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
+     ══════════════════════════════════════════════════════════════ -->
+<title>S04 기획서 — 경쟁사 가격 수집기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#fafaf8; --card:#ffffff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:"Pretendard Variable",-apple-system,sans-serif;
+    line-height:1.7; padding:0 20px 72px; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .topbar { max-width:760px; margin:0 auto; padding:18px 0; display:flex; gap:18px; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+  .topbar a { color:var(--dim); text-decoration:none; }
+  .topbar a:hover { color:var(--acc); }
+  .doc { max-width:760px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:44px 46px 40px; box-shadow:0 1px 3px rgba(20,24,32,.05); }
+  .kicker { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; color:var(--acc);
+    font-weight:600; }
+  h1 { font-size:27px; letter-spacing:-.02em; margin:6px 0 4px; }
+  .intro-line { color:var(--dim); font-size:14.5px; margin-bottom:26px; }
+  table.core { border-collapse:collapse; width:100%; margin:0 0 8px; }
+  table.core td { border:1px solid var(--line); padding:9px 14px; font-size:14px; }
+  table.core td:first-child { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim);
+    width:118px; background:var(--paper); white-space:nowrap; }
+  .hint { font-size:12px; color:var(--dim); margin-bottom:6px; }
+  h2 { font-size:15.5px; margin:34px 0 10px; display:flex; align-items:baseline; gap:10px; }
+  h2 .no { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--acc); font-weight:600; }
+  p, li { font-size:14.5px; color:#3a3e47; }
+  ul, ol { padding-left:22px; } li { margin:5px 0; }
+  ul.nolist li::marker { color:#c0392b; }
+  .risk { border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-top:8px;
+    font-size:14px; background:var(--paper); }
+  .risk b { color:var(--ink); }
+  footer { max-width:760px; margin:26px auto 0; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; color:var(--dim); }
+  @media (max-width:600px) { .doc { padding:30px 22px; } }
+  @media print { .topbar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
+</style>
+
+<div class="topbar">
+  <a href="../">← 사이트로</a>
+  <a href="https://initialb.vercel.app">갤러리</a>
+  <span style="margin-left:auto" class="mono">사이트와 함께 배포된다</span>
+</div>
+
+<div class="doc">
+  <div class="kicker">1-PAGE PLAN</div>
+  <!-- 제목: 프로젝트 이름으로 바꾼다 -->
+  <h1 data-f="title">경쟁사 가격 수집기</h1>
+  <div class="intro-line" data-f="intro">아마존 상품 URL을 드랍하면 등록은 즉시 끝나고, 백그라운드 수집이 가격을 채운다.</div>
+
+  <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
+  <table class="core">
+    <tr><td>스프린트</td><td data-f="sprint">S04</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">크롤링/스크래핑</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">직접 fetch → 실패 건만 Bright Data 폴백 + waitUntil 백그라운드 수집 · 저장은 Supabase</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/JaydenHSong/initial-b">github.com/JaydenHSong/initial-b</a></td></tr>
+  </table>
+
+  <h2><span class="no">01</span>누가 쓰나</h2>
+  <p>경쟁 제품의 아마존 가격을 챙겨야 하는 이커머스 운영 담당자. 아침마다 경쟁 ASIN을 탭으로 하나씩 열어 확인한다.</p>
+
+  <h2><span class="no">02</span>지금은</h2>
+  <p>상품 페이지를 브라우저로 열고 가격을 눈으로 읽어 옮겨 적는다. 제품 수 × 탭 하나씩. 긁는 도구를 만들려던 S03 시도는 "요청 안에서 기다리는 동기 수집은 성립 안 한다"(9~47초 지연, 타임아웃 40%)로 판정 났다.</p>
+
+  <h2><span class="no">03</span>없앨 동작 하나</h2>
+  <p>수집이 끝날 때까지 화면 앞에서 기다리는 것. 등록과 수집을 분리해 40초 지연을 UX가 아니라 파이프라인으로 만든다.</p>
+
+  <h2><span class="no">04</span>핵심 기능 1개</h2>
+  <p>아마존 상품 URL을 드랍하면 카드가 즉시 「수집 중」으로 등록되고, 백그라운드 수집이 가격·제목을 채우면 카드가 저절로 갱신된다. 상태는 수집 중 / 성공(가격+시각) / 차단됨 / 실패 네 가지. 다시 긁기 = 같은 URL 재드랍.</p>
+
+  <h2><span class="no">05</span>안 만드는 것 3개</h2>
+  <ul class="nolist">
+    <li>정기 크론 수집·가격 히스토리 — S02에서 이미 증명했다(크론은 S09 카드). 등록 시점 1회 수집만</li>
+    <li>목표가 알림 — S02에서 했고 S12 카드다</li>
+    <li>아마존 외 사이트 파서 — ASIN 파서 1개. 경쟁사 제품도 아마존 페이지로만 긁는다</li>
+  </ul>
+
+  <h2><span class="no">06</span>성공 판정</h2>
+  <ul>
+    <li>URL 드랍 → 1초 안에 「수집 중」 카드가 뜬다 (등록 함수는 기다리지 않는다)</li>
+    <li>수십 초 안에 가격·제목이 저절로 채워진다 (새로고침 없이 폴링)</li>
+    <li>없는 상품·차단은 관측값(바이트 수·마커)과 함께 상태로 갈려 남는다 — 틀린 값을 저장하지 않는다</li>
+  </ul>
+
+  <h2><span class="no">07</span>내 옵션 + 이유</h2>
+  <p>수집기 자체는 S02에서 검증된 재료다(직접 fetch가 막히면 Bright Data 폴백, 4/5·건당 ~11초). 이번 주의 새 부분은 비동기 연결부 하나 — 등록 함수가 행만 쓰고 즉시 응답한 뒤 waitUntil()로 수집을 품는다. 저장을 Supabase로 한 것은 01 갤러리의 드랍 뼈대(URL upsert·merge-duplicates)를 코드째 재활용할 수 있고 S05 Postgres 통합주 예습을 겸해서다.</p>
+
+  <h2><span class="no">08</span>리스크 + 검증법</h2>
+  <div class="risk">
+    <b>걱정되는 것:</b> ① 아마존 차단 재발 — 오늘 열려 있어도 내일 막힐 수 있다(S02: 8/7 4/4 → 8/10 0/5) ② 응답 후 백그라운드 작업이 서버리스에서 실제로 도는가<br>
+    <b>화요일 스파이크로 확인:</b> ① 직접 fetch 3/3 성공(1.5초, 가격 추출) — 폴백 배관은 BRD 407로 미판정, 코드는 준비됨 ② fire-and-forget은 가짜 성공(인스턴스와 함께 동결), waitUntil은 완주 — 상세 04/SPIKE.md</div>
+</div>
+
+<footer>iBD 바이브 코딩 · 이 문서는 팀 템플릿이다 — 레이아웃·CSS·data-f를 바꾸지 말 것</footer>
+</html>
