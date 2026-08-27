@@ -21,7 +21,13 @@ function read(html) {
   const title = html.match(/id="productTitle"[^>]*>\s*([^<]+?)\s*</)?.[1] ?? null;
   // 이미지·별점·리뷰 수는 같은 응답에서 공짜로 나온다. 전부 고유 마커(hiRes JSON·id 속성)에
   // 앵커해서 뽑는다 — 느슨한 클래스 매칭은 연관상품 값이 섞인다 (S02 a-offscreen $31.99).
-  const image = html.match(/"hiRes":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+)"/)?.[1]
+  // 메인 이미지는 landingImage 요소의 이미지 ID에 앵커한다 — "첫 hiRes"만 믿으면
+  // 갤러리 순서가 다른 페이지에서 메인 아닌 그림을 집을 수 있다.
+  const imgId = html.match(/id="landingImage"[^>]*data-a-dynamic-image="\{&quot;https:\/\/m\.media-amazon\.com\/images\/I\/([\w+%-]+)\./)?.[1];
+  const image = (imgId
+    ? html.match(new RegExp(`"hiRes":"(https://m\\.media-amazon\\.com/images/I/${imgId}\\.[^"]+)"`))?.[1]
+    : null)
+    ?? html.match(/"hiRes":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+)"/)?.[1]
     ?? html.match(/"large":"(https:\/\/m\.media-amazon\.com\/images\/I\/[^"]+)"/)?.[1] ?? null;
   const rating = Number(html.match(/id="acrPopover"[^>]*title="([0-9.]+) out of 5 stars"/)?.[1]) || null;
   const reviews = Number((html.match(/id="acrCustomerReviewText"[^>]*aria-label="([\d,]+) Reviews?"/i)?.[1] ?? '').replace(/,/g, '')) || null;
