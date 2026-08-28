@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">경쟁사 가격 수집기</h1>
+  <div class="intro-line" data-f="intro">아마존 상품 URL을 드랍하면 등록은 즉시 끝나고, 백그라운드 수집이 가격을 채운다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">3</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">2분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.2초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S04</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">크롤링/스크래핑</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">직접 fetch → 실패 건만 Bright Data 폴백 + waitUntil 백그라운드 수집 · 저장은 Supabase</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">Bright Data 폴백 배관 — 형식이 완벽한 BRD_WS(wss·인증부·호스트 정상)가 인증 거부 407. 사흘간 재등록·재배포 3회에도 동일해 3번 규칙으로 멈췄다. 존 비활성 또는 크레딧 소진 추정. 직접 fetch가 이번 주 내내 열려 있어(3/3, 1.5초) 폴백은 "코드 준비·배관 미판정"으로 제출한다</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">기록 없음</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">직접 fetch 0원(~1MB/건) · Vercel Hobby·Supabase 무료 티어 여유 · BRD 폴백은 ~4센트/일 예상(S02 실측)이나 407로 미가동</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b04.vercel.app">initial-b04.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">등록 즉시 응답이 필요한 소량 수집 MVP라면 이 조합(직접 fetch + waitUntil 백그라운드)을 쓰겠다 — 행만 쓰고 0.5초에 응답, 수집은 응답 뒤에 돌아 2초~수십 초 지연이 UX가 아니라 파이프라인이 된다. 단 fire-and-forget fetch로는 안 쓰겠다 — 응답과 함께 인스턴스째 얼려져 다음 요청이 올 때까지 안 도는 가짜 성공이었다(단독 재판정 실행 0회, 04/SPIKE.md). waitUntil이 유일한 모양이다. 차단이 상시인 대상(DataDome류)이나 정기·대량 수집이라면 서버리스 단발 함수로는 안 쓰겠다 — 큐·크론 있는 구조로 가겠다.</div>
 
 </div>
 
