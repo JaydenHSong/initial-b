@@ -18,7 +18,11 @@ function read(html) {
   if (/page not found|sorry! we couldn't find/i.test(html.match(/<title>([^<]*)/)?.[1] ?? '')) {
     return { status: 'failed', note: '페이지 없음', gone: true };
   }
-  const title = html.match(/id="productTitle"[^>]*>\s*([^<]+?)\s*</)?.[1] ?? null;
+  // 원본 HTML의 엔티티(&amp; 등)를 풀어서 저장한다 — 안 풀면 카드에 &amp;가 그대로 보인다
+  const decode = (s) => s
+    ?.replace(/&amp;/g, '&').replace(/&#0?39;/g, "'").replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>') ?? null;
+  const title = decode(html.match(/id="productTitle"[^>]*>\s*([^<]+?)\s*</)?.[1]);
   // 이미지·별점·리뷰 수는 같은 응답에서 공짜로 나온다. 전부 고유 마커(hiRes JSON·id 속성)에
   // 앵커해서 뽑는다 — 느슨한 클래스 매칭은 연관상품 값이 섞인다 (S02 a-offscreen $31.99).
   // 메인 이미지는 landingImage 요소의 이미지 ID에 앵커한다 — "첫 hiRes"만 믿으면
