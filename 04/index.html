@@ -55,6 +55,8 @@
   .group-head:first-child { margin-top:4px; }
   .group-head h2 { color:#F2EFE7; font-size:17px; font-weight:800; letter-spacing:-.02em; }
   .group-head .stat { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--chalk-dim); }
+  .group-head .stat .us { color:var(--amber); font-weight:600; }
+  .card.ours { border-left:4px solid var(--amber); }
 
   .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
   .card { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; padding:14px 16px 15px;
@@ -111,8 +113,9 @@
   </form>
   <div id="msg" role="status"></div>
   <div class="views" role="group" aria-label="보기 방식">
-    <button id="v-all" aria-pressed="true">전체</button>
+    <button id="v-cmp" aria-pressed="true">비교</button>
     <button id="v-brand" aria-pressed="false">브랜드별</button>
+    <button id="v-all" aria-pressed="false">전체</button>
   </div>
   <div id="board"><div class="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div></div>
 </div>
@@ -180,16 +183,29 @@ function tally(rows) {
   $('tally').innerHTML = parts.join('');
 }
 
-// 브랜드는 아마존 제목의 첫 단어에서 유도한다 — 별도 입력·컬럼 없이 비교 뷰를 세우는 최소 수단.
+// 브랜드는 아마존 제목의 첫 단어에서, 카테고리는 제목 키워드에서 유도한다 —
+// 별도 입력·컬럼 없이 비교 뷰를 세우는 최소 수단. 판정 순서가 중요하다:
+// 보호필름의 "Case-friendly"가 케이스로 새지 않게 필름을 먼저 본다.
 const brandOf = (r) => (r.title ?? '').split(/[\s,:]+/)[0] || '기타';
-let view = 'all';
+function categoryOf(r) {
+  const t = r.title ?? '';
+  if (/protector|glas\.?tr|tempered/i.test(t)) return '보호필름';
+  if (/car mount|dashboard|windshield|air vent|cup holder/i.test(t)) return '거치대';
+  if (/charger|power bank|charging|\bgan\b|mah/i.test(t)) return '충전·전원';
+  if (/\bcase\b/i.test(t)) return '케이스';
+  if (/alexa|echo|security camera/i.test(t)) return '스마트홈';
+  return '기타';
+}
+let view = 'cmp';
 
 function grid(rows) {
   const g = document.createElement('div'); g.className = 'cards';
   g.append(...rows.map((row) => {
     const changed = row.asin in prev && prev[row.asin] !== row.status;
     prev[row.asin] = row.status;
-    return card(row, changed);
+    const el = card(row, changed);
+    if (brandOf(row) === 'Spigen') el.classList.add('ours');
+    return el;
   }));
   return g;
 }
@@ -221,6 +237,35 @@ function brandView(rows) {
   return frag;
 }
 
+// 비교 뷰: 카테고리로 묶고 가격순으로 눕힌다. 헤더가 "스피겐 vs 경쟁" 포지션을 말한다.
+function cmpView(rows) {
+  const groups = new Map();
+  rows.forEach((r) => {
+    const c = categoryOf(r);
+    if (!groups.has(c)) groups.set(c, []);
+    groups.get(c).push(r);
+  });
+  const frag = document.createDocumentFragment();
+  [...groups.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([c, items]) => {
+    items.sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity));
+    const head = document.createElement('div'); head.className = 'group-head';
+    const h = document.createElement('h2'); h.textContent = c;
+    const stat = document.createElement('span'); stat.className = 'stat';
+    const ours = items.filter((i) => brandOf(i) === 'Spigen' && i.price != null).map((i) => +i.price);
+    const rival = items.filter((i) => brandOf(i) !== 'Spigen' && i.price != null).map((i) => +i.price);
+    let html = `${items.length}개`;
+    if (ours.length) html += ` · <span class="us">스피겐 $${Math.min(...ours).toFixed(2)}</span>`;
+    if (rival.length) {
+      const lo = Math.min(...rival).toFixed(2), hi = Math.max(...rival).toFixed(2);
+      html += ` · 경쟁 ${lo === hi ? `$${lo}` : `$${lo}–${hi}`}`;
+    }
+    stat.innerHTML = html;
+    head.append(h, stat);
+    frag.append(head, grid(items));
+  });
+  return frag;
+}
+
 async function load() {
   const r = await fetch(`${SUPA}/rest/v1/s04_products?select=*&order=created_at.desc`, { headers: { apikey: ANON } });
   if (!r.ok) return;
@@ -231,12 +276,13 @@ async function load() {
     box.innerHTML = '<div class="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div>';
     return;
   }
-  box.replaceChildren(view === 'brand' ? brandView(rows) : grid(rows));
+  box.replaceChildren(view === 'brand' ? brandView(rows) : view === 'cmp' ? cmpView(rows) : grid(rows));
 }
 
-for (const [id, v] of [['v-all', 'all'], ['v-brand', 'brand']]) {
+for (const [id, v] of [['v-cmp', 'cmp'], ['v-all', 'all'], ['v-brand', 'brand']]) {
   $(id).onclick = () => {
     view = v;
+    $('v-cmp').setAttribute('aria-pressed', String(v === 'cmp'));
     $('v-all').setAttribute('aria-pressed', String(v === 'all'));
     $('v-brand').setAttribute('aria-pressed', String(v === 'brand'));
     load();
