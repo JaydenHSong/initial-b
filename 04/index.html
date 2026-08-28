@@ -3,102 +3,180 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>경쟁사 가격 수집기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --paper:#fafaf8; --card:#fff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  /* 시세판: 어두운 보드 위에 종이 가격표. UI는 Pretendard, 관측값은 전부 Plex Mono. */
+  :root {
+    --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168;
+    --tag:#FCFBF6; --tag-edge:#E9E5DA; --well:#F3F0E8;
+    --ink:#1C231F; --ink-dim:#75806F;
+    --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C; --gray:#8A948E;
+  }
   * { box-sizing:border-box; margin:0; }
-  body { background:var(--paper); color:var(--ink); line-height:1.6; padding:0 20px 60px;
-    font-family:-apple-system, "Pretendard Variable", sans-serif; }
-  .wrap { max-width:860px; margin:0 auto; }
-  header { padding:34px 0 6px; }
-  h1 { font-size:24px; letter-spacing:-.02em; }
-  .sub { color:var(--dim); font-size:14px; margin:4px 0 20px; }
-  form { display:flex; gap:8px; margin-bottom:8px; }
-  input { flex:1; font-size:15px; padding:11px 14px; border:1px solid var(--line); border-radius:10px;
-    background:var(--card); min-width:0; }
-  button { font-size:15px; padding:11px 20px; border:0; border-radius:10px; background:var(--ink);
-    color:#fff; cursor:pointer; white-space:nowrap; }
-  #msg { min-height:22px; font-size:13px; color:#c0392b; }
-  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(255px, 1fr)); gap:12px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
-  .thumb { width:100%; height:132px; object-fit:contain; margin-bottom:12px; }
-  .title { font-size:13.5px; line-height:1.45; margin-bottom:10px; word-break:break-word;
-    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:39px; }
-  .rating { font-size:12.5px; color:var(--dim); margin-top:3px; }
-  .rating b { color:#b26a00; font-weight:600; }
-  .price { font-size:26px; font-weight:700; letter-spacing:-.02em; }
-  .price .none { font-size:14px; font-weight:400; color:var(--dim); }
-  .meta { display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:var(--dim); flex-wrap:wrap; }
-  .badge { font-size:11.5px; padding:2px 9px; border-radius:99px; font-weight:600; }
-  .st-pending { background:#fff3e0; color:#b26a00; animation:pulse 1.2s infinite; }
-  .st-ok { background:#e5f6ef; color:#0e7a55; }
-  .st-blocked { background:#fdecea; color:#b03a2e; }
-  .st-failed { background:#eceff1; color:#546e7a; }
+  html { background:var(--board); }
+  body { background:var(--board); color:var(--chalk); padding:0 20px 72px;
+    font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .wrap { max-width:960px; margin:0 auto; }
+
+  header { padding:40px 0 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em;
+    color:var(--chalk-dim); margin-bottom:10px; }
+  .masthead { display:flex; align-items:baseline; gap:16px; flex-wrap:wrap; }
+  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
+  /* 실황 카운터 — 보드가 지금 무엇을 하고 있는지, 관측값 그대로 */
+  #tally { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px; color:var(--chalk);
+    display:flex; gap:14px; align-items:baseline; }
+  #tally b { font-weight:600; }
+  #tally .t-pend b { color:var(--amber); } #tally .t-ok b { color:#5BC08F; } #tally .t-bad b { color:#D97B6C; }
+  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 24px; max-width:640px; }
+  .sub b { color:#E9E5DA; }
+
+  form { display:flex; gap:10px; margin-bottom:10px; }
+  input { flex:1; min-width:0; font-size:15px; padding:13px 16px; border-radius:12px;
+    border:1px solid var(--board-edge); background:#0B130F; color:#EDEAE0;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  input::placeholder { color:var(--chalk-dim); }
+  input:focus-visible, button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+  button { font-size:15px; font-weight:700; padding:13px 24px; border:0; border-radius:12px;
+    background:var(--amber); color:#221602; cursor:pointer; white-space:nowrap; }
+  button:hover { filter:brightness(1.06); }
+  #msg { min-height:24px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
+  .card { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; padding:14px 16px 15px;
+    color:var(--ink); box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  /* 데이터 도착 플래시 — 상태가 바뀐 카드만 잠깐 빛난다 */
+  @keyframes arrive { 0% { box-shadow:0 0 0 3px var(--amber); } 100% { box-shadow:0 2px 10px rgba(0,0,0,.25); } }
+  .card.flash { animation:arrive 1.4s ease-out 1; }
+  .thumb-well { background:var(--well); border-radius:10px; height:136px; margin-bottom:12px;
+    display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .thumb { max-width:100%; max-height:100%; object-fit:contain; mix-blend-mode:multiply; }
+  .title { font-size:13px; line-height:1.45; margin-bottom:10px; word-break:break-word; min-height:38px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .pricerow { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .price { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:27px; font-weight:700;
+    letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+  .price .none { font-size:13px; font-weight:400; color:var(--ink-dim); letter-spacing:0; }
+  .badge { font-size:11.5px; padding:3px 10px; border-radius:99px; font-weight:700; white-space:nowrap; }
+  .st-pending { background:#FBEFD9; color:#8A5A10; animation:pulse 1.2s infinite; }
+  .st-ok { background:#E2F1E9; color:#1E6B48; }
+  .st-blocked { background:#F8E4E0; color:#93382C; }
+  .st-failed { background:#ECEDEA; color:#5C665F; }
   @keyframes pulse { 50% { opacity:.45; } }
-  .note { font-size:11.5px; color:var(--dim); margin-top:8px; word-break:break-word; }
-  .card a { color:var(--dim); font-size:12px; text-decoration:none; }
-  .card a:hover { color:var(--acc); }
-  .empty { color:var(--dim); font-size:14px; padding:30px 0; }
+  .rating { font-size:12px; color:var(--ink-dim); margin-top:6px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .rating b { color:#A96B00; font-weight:600; }
+  .meta { display:flex; align-items:center; gap:10px; margin-top:9px; flex-wrap:wrap;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-dim); }
+  .meta a { color:var(--ink-dim); text-decoration:none; border-bottom:1px solid var(--tag-edge); }
+  .meta a:hover { color:var(--green); border-color:var(--green); }
+  .note { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; line-height:1.55;
+    color:var(--ink-dim); margin-top:9px; padding-top:8px; border-top:1px dashed var(--tag-edge);
+    word-break:break-word; }
+  .empty { grid-column:1/-1; color:var(--chalk-dim); font-size:14px; padding:48px 0; text-align:center; }
+  footer { max-width:960px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px; color:var(--chalk-dim); display:flex; gap:18px; }
+  footer a { color:var(--chalk-dim); text-decoration:none; }
+  footer a:hover { color:var(--chalk); }
+  @media (max-width:560px) { h1 { font-size:24px; } header { padding-top:28px; } }
+  @media (prefers-reduced-motion: reduce) { .st-pending, .card.flash { animation:none; } }
 </style>
 
 <div class="wrap">
   <header>
-    <h1>경쟁사 가격 수집기</h1>
-    <p class="sub">아마존 상품 URL을 드랍하면 <b>등록은 즉시</b>, 가격은 백그라운드 수집이 채운다. 다시 긁기 = 같은 URL 재드랍.</p>
+    <div class="eyebrow">iBD S04 · 크롤링/스크래핑</div>
+    <div class="masthead">
+      <h1>경쟁사 가격 수집기</h1>
+      <div id="tally" aria-live="polite"></div>
+    </div>
+    <p class="sub">아마존 상품 URL을 드랍하면 <b>등록은 즉시</b> 끝나고, 가격은 백그라운드 수집이 채운다. 다시 긁기 = 같은 URL 재드랍.</p>
   </header>
   <form id="f">
-    <input id="u" placeholder="https://www.amazon.com/dp/…" required autocomplete="off">
+    <input id="u" placeholder="https://www.amazon.com/dp/…" required autocomplete="off" aria-label="아마존 상품 URL">
     <button>드랍</button>
   </form>
-  <div id="msg"></div>
-  <div class="cards" id="cards"><div class="empty">등록된 상품이 없다. URL을 드랍하면 첫 카드가 생긴다.</div></div>
+  <div id="msg" role="status"></div>
+  <div class="cards" id="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div>
 </div>
+<footer>
+  <a href="/docs/plan.html">기획서</a>
+  <a href="/docs/report.html">스택 리포트</a>
+  <span style="margin-left:auto">직접 fetch → 실패 건만 프록시 · Supabase</span>
+</footer>
 
 <script>
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
 const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 — 쓰기는 RLS가 막는다
 const LABEL = { pending:['수집 중','st-pending'], ok:['성공','st-ok'], blocked:['차단됨','st-blocked'], failed:['실패','st-failed'] };
 const $ = (id) => document.getElementById(id);
+const prev = {}; // asin → 마지막 상태. 상태가 바뀐 카드만 플래시한다.
 
-function card(r) {
+function card(r, changed) {
   const el = document.createElement('div');
-  el.className = 'card';
-  const [label, cls] = LABEL[r.status] ?? [r.status, 'st-failed'];
+  el.className = 'card' + (changed ? ' flash' : '');
+  const well = document.createElement('div'); well.className = 'thumb-well';
   if (r.image?.startsWith('https://m.media-amazon.com/')) {
     const img = document.createElement('img');
     img.className = 'thumb'; img.src = r.image; img.alt = ''; img.loading = 'lazy';
-    el.appendChild(img);
+    well.appendChild(img);
   }
+  el.appendChild(well);
   const t = document.createElement('div'); t.className = 'title'; t.textContent = r.title ?? r.asin;
+  const row = document.createElement('div'); row.className = 'pricerow';
   const p = document.createElement('div'); p.className = 'price';
   p.innerHTML = r.price != null ? '$' + Number(r.price).toFixed(2) : '<span class="none">가격 없음</span>';
-  const m = document.createElement('div'); m.className = 'meta';
-  m.innerHTML = `<span class="badge ${cls}">${label}</span>`;
-  if (r.checked_at) {
-    const at = new Date(r.checked_at);
-    m.innerHTML += `<span>${at.toLocaleDateString('ko', {month:'numeric',day:'numeric'})} ${at.toLocaleTimeString('ko', {hour:'2-digit',minute:'2-digit'})}${r.via === 'proxy' ? ' · 프록시' : ''}</span>`;
-  }
-  const link = document.createElement('a'); link.href = r.url; link.target = '_blank'; link.rel = 'noreferrer';
-  link.textContent = '아마존 ↗'; m.appendChild(link);
-  el.append(t, p);
+  const [label, cls] = LABEL[r.status] ?? [r.status, 'st-failed'];
+  const b = document.createElement('span'); b.className = `badge ${cls}`; b.textContent = label;
+  row.append(p, b);
+  el.append(t, row);
   if (r.rating) {
     const rt = document.createElement('div'); rt.className = 'rating';
-    rt.innerHTML = `<b>★ ${Number(r.rating).toFixed(1)}</b>` + (r.reviews ? ` · 리뷰 ${Number(r.reviews).toLocaleString()}` : '');
+    rt.innerHTML = `<b>★ ${Number(r.rating).toFixed(1)}</b>` + (r.reviews ? ` (${Number(r.reviews).toLocaleString()})` : '');
     el.appendChild(rt);
   }
-  el.append(m);
+  const m = document.createElement('div'); m.className = 'meta';
+  const bits = [];
+  if (r.checked_at) {
+    const at = new Date(r.checked_at);
+    bits.push(`${at.getMonth() + 1}/${at.getDate()} ${String(at.getHours()).padStart(2,'0')}:${String(at.getMinutes()).padStart(2,'0')}`);
+  }
+  if (r.via === 'proxy') bits.push('프록시');
+  const span = document.createElement('span'); span.textContent = bits.join(' · ');
+  const link = document.createElement('a'); link.href = r.url; link.target = '_blank'; link.rel = 'noreferrer';
+  link.textContent = r.asin;
+  m.append(span, link);
+  el.appendChild(m);
   if (r.note && r.status !== 'ok' && r.status !== 'pending') {
-    const n = document.createElement('div'); n.className = 'note'; n.textContent = r.note; el.appendChild(n);
+    const n = document.createElement('div'); n.className = 'note'; n.textContent = '관측 — ' + r.note; el.appendChild(n);
   }
   return el;
+}
+
+function tally(rows) {
+  const n = (s) => rows.filter((r) => r.status === s).length;
+  const parts = [];
+  if (n('pending')) parts.push(`<span class="t-pend"><b>${n('pending')}</b> 수집 중</span>`);
+  parts.push(`<span class="t-ok"><b>${n('ok')}</b> 성공</span>`);
+  const bad = n('blocked') + n('failed');
+  if (bad) parts.push(`<span class="t-bad"><b>${bad}</b> 차단·실패</span>`);
+  $('tally').innerHTML = parts.join('');
 }
 
 async function load() {
   const r = await fetch(`${SUPA}/rest/v1/s04_products?select=*&order=created_at.desc`, { headers: { apikey: ANON } });
   if (!r.ok) return;
   const rows = await r.json();
+  tally(rows);
   const box = $('cards');
-  box.replaceChildren(...rows.map(card));
-  if (!rows.length) box.innerHTML = '<div class="empty">등록된 상품이 없다. URL을 드랍하면 첫 카드가 생긴다.</div>';
+  box.replaceChildren(...rows.map((row) => {
+    const changed = row.asin in prev && prev[row.asin] !== row.status;
+    prev[row.asin] = row.status;
+    return card(row, changed);
+  }));
+  if (!rows.length) box.innerHTML = '<div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div>';
 }
 
 $('f').onsubmit = async (e) => {
@@ -113,8 +191,7 @@ $('f').onsubmit = async (e) => {
 };
 
 // 화면 반영은 폴링 — 실시간 구독은 폴링이 모자랄 때만 (이번 주엔 충분하다).
-// document.hidden 게이트를 걸었다가 뺐다: 임베디드 뷰가 hidden=true로 고정돼
-// 폴링이 통째로 죽는다. 행 몇 개 3초 폴링은 아낄 비용이 아니다.
+// document.hidden 게이트는 걸지 않는다: 임베디드 뷰가 hidden=true로 고정돼 폴링이 통째로 죽는다.
 setInterval(load, 3000);
 load();
 </script>
