@@ -45,6 +45,17 @@
   button:hover { filter:brightness(1.06); }
   #msg { min-height:24px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; }
 
+  .views { display:flex; gap:6px; margin:2px 0 14px; }
+  .views button { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; font-weight:600;
+    padding:6px 14px; border-radius:99px; background:transparent; color:var(--chalk-dim);
+    border:1px solid var(--board-edge); cursor:pointer; }
+  .views button[aria-pressed="true"] { background:var(--board-edge); color:#F2EFE7; }
+  .group-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:26px 0 12px;
+    padding-bottom:8px; border-bottom:1px solid var(--board-edge); }
+  .group-head:first-child { margin-top:4px; }
+  .group-head h2 { color:#F2EFE7; font-size:17px; font-weight:800; letter-spacing:-.02em; }
+  .group-head .stat { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--chalk-dim); }
+
   .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
   .card { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; padding:14px 16px 15px;
     color:var(--ink); box-shadow:0 2px 10px rgba(0,0,0,.25); }
@@ -99,7 +110,11 @@
     <button>드랍</button>
   </form>
   <div id="msg" role="status"></div>
-  <div class="cards" id="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div>
+  <div class="views" role="group" aria-label="보기 방식">
+    <button id="v-all" aria-pressed="true">전체</button>
+    <button id="v-brand" aria-pressed="false">브랜드별</button>
+  </div>
+  <div id="board"><div class="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div></div>
 </div>
 <footer>
   <a href="/docs/plan.html">기획서</a>
@@ -165,18 +180,67 @@ function tally(rows) {
   $('tally').innerHTML = parts.join('');
 }
 
+// 브랜드는 아마존 제목의 첫 단어에서 유도한다 — 별도 입력·컬럼 없이 비교 뷰를 세우는 최소 수단.
+const brandOf = (r) => (r.title ?? '').split(/[\s,:]+/)[0] || '기타';
+let view = 'all';
+
+function grid(rows) {
+  const g = document.createElement('div'); g.className = 'cards';
+  g.append(...rows.map((row) => {
+    const changed = row.asin in prev && prev[row.asin] !== row.status;
+    prev[row.asin] = row.status;
+    return card(row, changed);
+  }));
+  return g;
+}
+
+function brandView(rows) {
+  const groups = new Map();
+  rows.forEach((r) => {
+    const b = brandOf(r);
+    if (!groups.has(b)) groups.set(b, []);
+    groups.get(b).push(r);
+  });
+  const frag = document.createDocumentFragment();
+  [...groups.entries()].sort((a, b) => b[1].length - a[1].length).forEach(([b, items]) => {
+    const head = document.createElement('div'); head.className = 'group-head';
+    const h = document.createElement('h2'); h.textContent = b;
+    const stat = document.createElement('span'); stat.className = 'stat';
+    const prices = items.filter((i) => i.price != null).map((i) => Number(i.price));
+    const rated = items.filter((i) => i.rating);
+    const bits = [`${items.length}개`];
+    if (prices.length) {
+      const lo = Math.min(...prices).toFixed(2), hi = Math.max(...prices).toFixed(2);
+      bits.push(lo === hi ? `$${lo}` : `$${lo}–${hi}`);
+    }
+    if (rated.length) bits.push(`★${(rated.reduce((s, i) => s + Number(i.rating), 0) / rated.length).toFixed(1)}`);
+    stat.textContent = bits.join(' · ');
+    head.append(h, stat);
+    frag.append(head, grid(items));
+  });
+  return frag;
+}
+
 async function load() {
   const r = await fetch(`${SUPA}/rest/v1/s04_products?select=*&order=created_at.desc`, { headers: { apikey: ANON } });
   if (!r.ok) return;
   const rows = await r.json();
   tally(rows);
-  const box = $('cards');
-  box.replaceChildren(...rows.map((row) => {
-    const changed = row.asin in prev && prev[row.asin] !== row.status;
-    prev[row.asin] = row.status;
-    return card(row, changed);
-  }));
-  if (!rows.length) box.innerHTML = '<div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div>';
+  const box = $('board');
+  if (!rows.length) {
+    box.innerHTML = '<div class="cards"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 가격표가 붙는다.</div></div>';
+    return;
+  }
+  box.replaceChildren(view === 'brand' ? brandView(rows) : grid(rows));
+}
+
+for (const [id, v] of [['v-all', 'all'], ['v-brand', 'brand']]) {
+  $(id).onclick = () => {
+    view = v;
+    $('v-all').setAttribute('aria-pressed', String(v === 'all'));
+    $('v-brand').setAttribute('aria-pressed', String(v === 'brand'));
+    load();
+  };
 }
 
 $('f').onsubmit = async (e) => {
