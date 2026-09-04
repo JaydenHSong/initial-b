@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>내 가격 시세판</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* S04 시세판 언어 그대로 — 어두운 보드, 종이 장부, 관측값은 전부 Plex Mono. */
+  :root {
+    --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168;
+    --tag:#FCFBF6; --tag-edge:#E9E5DA; --well:#F3F0E8;
+    --ink:#1C231F; --ink-dim:#75806F;
+    --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html { background:var(--board); }
+  body { background:var(--board); color:var(--chalk); padding:0 20px 72px;
+    font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  .mono, .num { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .wrap { max-width:980px; margin:0 auto; }
+  header { padding:40px 0 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em;
+    color:var(--chalk-dim); margin-bottom:10px; display:flex; gap:14px; align-items:baseline; }
+  .eyebrow .who { margin-left:auto; letter-spacing:0; }
+  .eyebrow button { background:none; border:0; color:var(--chalk-dim); cursor:pointer; font:inherit;
+    text-decoration:underline; padding:0; }
+  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
+  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 24px; max-width:680px; }
+  .sub b { color:#E9E5DA; }
+
+  form { display:flex; gap:10px; margin-bottom:10px; }
+  input { flex:1; min-width:0; font-size:15px; padding:13px 16px; border-radius:12px;
+    border:1px solid var(--board-edge); background:#0B130F; color:#EDEAE0;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  input::placeholder { color:var(--chalk-dim); }
+  input:focus-visible, button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+  button.primary { font-size:15px; font-weight:700; padding:13px 24px; border:0; border-radius:12px;
+    background:var(--amber); color:#221602; cursor:pointer; white-space:nowrap; }
+  button.primary:hover { filter:brightness(1.06); }
+  #msg { min-height:24px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+
+  /* 로그인 게이트 */
+  #gate { max-width:420px; margin:14vh auto 0; background:var(--tag); color:var(--ink);
+    border-radius:16px; padding:38px 36px; text-align:center; box-shadow:0 2px 14px rgba(0,0,0,.3); }
+  #gate h1 { color:var(--ink); font-size:22px; margin-bottom:8px; }
+  #gate p { font-size:13.5px; color:var(--ink-dim); margin-bottom:22px; }
+  #gate .hintline { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-dim); margin-top:16px; }
+
+  /* 장부 시트 */
+  .sheet { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px;
+    overflow-x:auto; box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  table.cmp { width:100%; min-width:700px; border-collapse:collapse; color:var(--ink); }
+  .cmp th { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; font-weight:600;
+    letter-spacing:.08em; color:var(--ink-dim); text-align:left; padding:11px 14px 9px;
+    border-bottom:1px solid var(--tag-edge); white-space:nowrap; }
+  .cmp td { padding:9px 14px; border-top:1px dashed var(--tag-edge); font-size:13px; vertical-align:middle; }
+  .cmp tbody tr.prow { cursor:pointer; }
+  .cmp tbody tr.prow:hover td { background:#F6F4EC; }
+  .cmp .num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .cmp .p { font-weight:700; font-size:15px; }
+  .cmp .delta.down { color:var(--green); font-weight:600; }
+  .cmp .delta.up { color:var(--red); font-weight:600; }
+  .cmp .delta.flat, .cmp .delta.none { color:var(--ink-dim); }
+  .prod { display:flex; gap:10px; align-items:center; min-width:250px; }
+  .thumb-s { width:42px; height:42px; flex:none; object-fit:contain; background:var(--well);
+    border-radius:8px; mix-blend-mode:multiply; }
+  .prod .nm { font-size:12.5px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:2;
+    -webkit-box-orient:vertical; overflow:hidden; word-break:break-word; }
+  .badge { font-size:11.5px; padding:3px 10px; border-radius:99px; font-weight:700; white-space:nowrap; }
+  .st-pending { background:#FBEFD9; color:#8A5A10; animation:pulse 1.2s infinite; }
+  .st-ok { background:#E2F1E9; color:#1E6B48; }
+  .st-blocked { background:#F8E4E0; color:#93382C; }
+  .st-failed { background:#ECEDEA; color:#5C665F; }
+  @keyframes pulse { 50% { opacity:.45; } }
+  .cmp a { color:var(--ink-dim); text-decoration:none; border-bottom:1px solid var(--tag-edge); }
+  .cmp a:hover { color:var(--green); border-color:var(--green); }
+  /* 펼친 이력 */
+  tr.hist td { background:#F6F4EC; padding:6px 14px 12px; }
+  .hist ul { list-style:none; padding:0; }
+  .hist li { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-dim);
+    padding:3px 0; border-bottom:1px dotted var(--tag-edge); display:flex; gap:14px; }
+  .hist li b { color:var(--ink); font-weight:600; min-width:64px; }
+  .empty { color:var(--chalk-dim); font-size:14px; padding:48px 0; text-align:center; }
+  footer { max-width:980px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px; color:var(--chalk-dim); display:flex; gap:18px; }
+  footer a { color:var(--chalk-dim); text-decoration:none; }
+  @media (max-width:560px) { h1 { font-size:24px; } header { padding-top:28px; } }
+  @media (prefers-reduced-motion: reduce) { .st-pending { animation:none; } }
+  [hidden] { display:none !important; }
+</style>
+
+<!-- 로그인 게이트 -->
+<div id="gate" hidden>
+  <h1>내 가격 시세판</h1>
+  <p>아마존 상품을 드랍하면 백그라운드 수집이 가격을 채우고,<br>관측이 쌓여 등락(Δ)이 보인다. 보드는 계정마다 분리된다.</p>
+  <button class="primary" id="login">Google로 로그인</button>
+  <div class="hintline">@spigen.com 계정만 · 격리는 Postgres RLS가 강제한다</div>
+</div>
+
+<!-- 보드 -->
+<div class="wrap" id="app" hidden>
+  <header>
+    <div class="eyebrow">iBD S05 · POSTGRES<span class="who mono" id="who"></span><button id="logout">로그아웃</button></div>
+    <h1>내 가격 시세판</h1>
+    <p class="sub">드랍/재드랍할 때마다 관측이 <b>이력으로 쌓인다</b>. Δ는 전회 관측 대비, 행을 누르면 전체 이력.</p>
+  </header>
+  <form id="f">
+    <input id="u" placeholder="https://www.amazon.com/dp/…" required autocomplete="off" aria-label="아마존 상품 URL">
+    <button class="primary">드랍</button>
+  </form>
+  <div id="msg" role="status"></div>
+  <div class="sheet"><table class="cmp">
+    <thead><tr><th>제품</th><th>가격</th><th>Δ 전회</th><th>별점</th><th>상태</th><th>관측</th><th>ASIN</th></tr></thead>
+    <tbody id="tb"><tr><td colspan="7"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 관측이 쌓인다.</div></td></tr></tbody>
+  </table></div>
+</div>
+<footer>
+  <a href="/docs/plan.html">기획서</a>
+  <a href="/docs/report.html">스택 리포트</a>
+  <span style="margin-left:auto">테이블 3 · JOIN 1 · RLS — 쓰기는 service key만</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA';
+const sb = supabase.createClient(SUPA, ANON);
+const LABEL = { pending:['수집 중','st-pending'], ok:['성공','st-ok'], blocked:['차단됨','st-blocked'], failed:['실패','st-failed'] };
+const $ = (id) => document.getElementById(id);
+const open = new Set(); // 펼쳐둔 행 (asin)
+
+function fmt(ts) {
+  const d = new Date(ts);
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function rowPair(r) {
+  const checks = (r.s05_price_checks ?? []).slice()
+    .sort((a, b) => new Date(b.observed_at) - new Date(a.observed_at));
+  const priced = checks.filter((c) => c.price != null);
+
+  const tr = document.createElement('tr'); tr.className = 'prow';
+  const tdP = document.createElement('td');
+  const prod = document.createElement('div'); prod.className = 'prod';
+  if (r.image?.startsWith('https://m.media-amazon.com/')) {
+    const img = document.createElement('img'); img.className = 'thumb-s';
+    img.src = r.image; img.alt = ''; img.loading = 'lazy'; prod.appendChild(img);
+  }
+  const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = r.title ?? r.asin;
+  prod.appendChild(nm); tdP.appendChild(prod);
+
+  const tdPrice = document.createElement('td'); tdPrice.className = 'num p';
+  tdPrice.textContent = r.price != null ? '$' + Number(r.price).toFixed(2) : '—';
+
+  // Δ 전회: 가격이 있던 최근 두 관측의 차 — JOIN(임베드)이 물어온 이력에서 계산한다
+  const tdD = document.createElement('td'); tdD.className = 'num';
+  if (priced.length >= 2) {
+    const d = +priced[0].price - +priced[1].price;
+    tdD.innerHTML = d === 0 ? '<span class="delta flat">±0</span>'
+      : `<span class="delta ${d < 0 ? 'down' : 'up'}">${d < 0 ? '▼' : '▲'} $${Math.abs(d).toFixed(2)}</span>`;
+  } else tdD.innerHTML = '<span class="delta none">관측 1회</span>';
+
+  const tdR = document.createElement('td'); tdR.className = 'num';
+  tdR.textContent = r.rating ? `★${Number(r.rating).toFixed(1)}${r.reviews ? ` (${Number(r.reviews).toLocaleString()})` : ''}` : '—';
+
+  const tdSt = document.createElement('td');
+  const [label, cls] = LABEL[r.status] ?? [r.status, 'st-failed'];
+  tdSt.innerHTML = `<span class="badge ${cls}">${label}</span>`;
+
+  const tdN = document.createElement('td'); tdN.className = 'num';
+  tdN.textContent = `${checks.length}회${r.checked_at ? ' · ' + fmt(r.checked_at) : ''}`;
+
+  const tdA = document.createElement('td'); tdA.className = 'num';
+  const a = document.createElement('a'); a.href = r.url; a.target = '_blank'; a.rel = 'noreferrer';
+  a.textContent = r.asin; a.onclick = (e) => e.stopPropagation(); tdA.appendChild(a);
+
+  tr.append(tdP, tdPrice, tdD, tdR, tdSt, tdN, tdA);
+
+  const hist = document.createElement('tr'); hist.className = 'hist';
+  hist.hidden = !open.has(r.asin);
+  const td = document.createElement('td'); td.colSpan = 7;
+  const ul = document.createElement('ul');
+  checks.forEach((c) => {
+    const li = document.createElement('li');
+    const b = document.createElement('b'); b.textContent = c.price != null ? '$' + Number(c.price).toFixed(2) : '—';
+    const span = document.createElement('span');
+    span.textContent = `${fmt(c.observed_at)} · ${(LABEL[c.status] ?? [c.status])[0]}${c.via === 'proxy' ? ' · 프록시' : ''}${c.note && c.status !== 'ok' ? ' · ' + c.note : ''}`;
+    li.append(b, span); ul.appendChild(li);
+  });
+  if (!checks.length) { const li = document.createElement('li'); li.textContent = '관측 없음'; ul.appendChild(li); }
+  td.appendChild(ul); hist.appendChild(td);
+
+  tr.onclick = () => { open.has(r.asin) ? open.delete(r.asin) : open.add(r.asin); hist.hidden = !open.has(r.asin); };
+  return [tr, hist];
+}
+
+async function load() {
+  // JOIN 1회: products에 price_checks를 임베드 — RLS가 내 워크스페이스 것만 돌려준다
+  const { data, error } = await sb.from('s05_products')
+    .select('*, s05_price_checks(price,status,via,note,observed_at)')
+    .order('created_at', { ascending: false });
+  if (error || !data) return;
+  const tb = $('tb');
+  if (!data.length) {
+    tb.innerHTML = '<tr><td colspan="7"><div class="empty">보드가 비어 있다 — URL을 드랍하면 첫 관측이 쌓인다.</div></td></tr>';
+    return;
+  }
+  tb.replaceChildren(...data.flatMap(rowPair));
+}
+
+$('f').onsubmit = async (e) => {
+  e.preventDefault();
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return show(null);
+  const r = await fetch('/api/drop', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({ url: $('u').value.trim() }),
+  });
+  const j = await r.json().catch(() => ({}));
+  $('msg').textContent = r.ok ? '' : (j.error ?? `등록 실패 (${r.status})`);
+  if (r.ok) { $('u').value = ''; load(); }
+};
+
+$('login').onclick = () => sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin } });
+$('logout').onclick = () => sb.auth.signOut();
+
+function show(session) {
+  $('gate').hidden = !!session;
+  $('app').hidden = !session;
+  if (session) { $('who').textContent = session.user.email; load(); }
+}
+sb.auth.getSession().then(({ data: { session } }) => show(session));
+sb.auth.onAuthStateChange((_e, session) => show(session));
+setInterval(async () => { if (!$('app').hidden) load(); }, 4000);
+</script>
+</html>

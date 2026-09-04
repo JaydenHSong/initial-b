@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ══════════════════════════════════════════════════════════════
+     iBD 팀 템플릿 · 1페이지 기획서 (별도 업로드 없음 — 사이트와 함께 배포된다)
+     · 레이아웃과 CSS를 건드리지 마라 — 18주 내내 같은 모양이어야 비교된다
+     · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
+     · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
+     ══════════════════════════════════════════════════════════════ -->
+<title>S05 기획서 — 내 가격 시세판</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#fafaf8; --card:#ffffff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:"Pretendard Variable",-apple-system,sans-serif;
+    line-height:1.7; padding:0 20px 72px; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .topbar { max-width:760px; margin:0 auto; padding:18px 0; display:flex; gap:18px; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+  .topbar a { color:var(--dim); text-decoration:none; }
+  .topbar a:hover { color:var(--acc); }
+  .doc { max-width:760px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:44px 46px 40px; box-shadow:0 1px 3px rgba(20,24,32,.05); }
+  .kicker { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; color:var(--acc);
+    font-weight:600; }
+  h1 { font-size:27px; letter-spacing:-.02em; margin:6px 0 4px; }
+  .intro-line { color:var(--dim); font-size:14.5px; margin-bottom:26px; }
+  table.core { border-collapse:collapse; width:100%; margin:0 0 8px; }
+  table.core td { border:1px solid var(--line); padding:9px 14px; font-size:14px; }
+  table.core td:first-child { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim);
+    width:118px; background:var(--paper); white-space:nowrap; }
+  .hint { font-size:12px; color:var(--dim); margin-bottom:6px; }
+  h2 { font-size:15.5px; margin:34px 0 10px; display:flex; align-items:baseline; gap:10px; }
+  h2 .no { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--acc); font-weight:600; }
+  p, li { font-size:14.5px; color:#3a3e47; }
+  ul, ol { padding-left:22px; } li { margin:5px 0; }
+  ul.nolist li::marker { color:#c0392b; }
+  .risk { border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-top:8px;
+    font-size:14px; background:var(--paper); }
+  .risk b { color:var(--ink); }
+  footer { max-width:760px; margin:26px auto 0; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; color:var(--dim); }
+  @media (max-width:600px) { .doc { padding:30px 22px; } }
+  @media print { .topbar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
+</style>
+
+<div class="topbar">
+  <a href="../">← 사이트로</a>
+  <a href="https://initialb.vercel.app">갤러리</a>
+  <span style="margin-left:auto" class="mono">사이트와 함께 배포된다</span>
+</div>
+
+<div class="doc">
+  <div class="kicker">1-PAGE PLAN</div>
+  <!-- 제목: 프로젝트 이름으로 바꾼다 -->
+  <h1 data-f="title">내 가격 시세판</h1>
+  <div class="intro-line" data-f="intro">로그인하면 내 워크스페이스 보드가 열리고, 드랍마다 가격 관측이 이력으로 쌓여 등락(Δ)이 보인다.</div>
+
+  <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
+  <table class="core">
+    <tr><td>스프린트</td><td data-f="sprint">S05</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">Postgres (Supabase) — 통합 주</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Supabase Auth(Google) + auth.uid() RLS + append-only 관측 로그 · 수집기는 S04 이식</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/JaydenHSong/initial-b">github.com/JaydenHSong/initial-b</a></td></tr>
+  </table>
+
+  <h2><span class="no">01</span>누가 쓰나</h2>
+  <p>경쟁 제품 가격을 챙기는 스피겐 이커머스 담당자들 — 이번 주부터는 각자 계정으로. S04 보드는 전 세계 공용 1개라 실제로 모르는 상품이 남의 손에 드랍돼 섞였다.</p>
+
+  <h2><span class="no">02</span>지금은</h2>
+  <p>S04 수집기는 "지금 가격"만 안다. 지난주 가격은 스크린샷이나 기억에 의존하고, 보드는 공용이라 팀원끼리 데이터가 섞인다.</p>
+
+  <h2><span class="no">03</span>없앨 동작 하나</h2>
+  <p>가격이 변했는지 확인하려고 지난 기록을 사람이 뒤지는 것 — 관측이 DB에 이력으로 쌓이고 Δ가 계산돼 나온다.</p>
+
+  <h2><span class="no">04</span>핵심 기능 1개</h2>
+  <p>Google 로그인하면 내 워크스페이스 보드가 열리고, URL 드랍 → 즉시 등록 → 백그라운드 수집이 채우되 관측마다 이력이 쌓인다. 표에 전회 대비 Δ, 행을 누르면 관측 이력 전체. 남의 워크스페이스는 RLS가 차단한다.</p>
+
+  <h2><span class="no">05</span>안 만드는 것 3개</h2>
+  <ul class="nolist">
+    <li>크론 정기 수집 — S09 카드. 관측점은 드랍/재드랍 시점에만 쌓인다</li>
+    <li>목표가 알림 — S12 카드</li>
+    <li>워크스페이스 초대·멤버 관리 — 1인 1보드 자동 생성. 공유·권한 없음 (차트·스파크라인도 없음 — Δ+이력 목록)</li>
+  </ul>
+
+  <h2><span class="no">06</span>성공 판정</h2>
+  <ul>
+    <li>계정 2개로 각자 로그인 → 서로의 보드가 안 보인다 (RLS 실측 — 쿼리를 직접 날려도 빈 배열)</li>
+    <li>같은 상품 재드랍 → 관측이 쌓이고 Δ가 실데이터로 계산된다</li>
+    <li>통합 주 지정 기능 충족: 테이블 3개(workspaces·products·price_checks) + JOIN 1회(제품⟕관측 임베드) + RLS 정책(owner reads, 쓰기 정책 0 = 쓰기는 service key만)</li>
+  </ul>
+
+  <h2><span class="no">07</span>내 옵션 + 이유</h2>
+  <p>통합 주의 지정 기능(테이블 3·JOIN·RLS)을 검증된 S04 수집기 위에 세웠다. 격리를 앱 코드가 아니라 DB가 강제하는 게 핵심 — S03에서 문서형(Firestore 보안 규칙)으로 한 것과 정확히 짝이 되는 관계형 답이라 시즌 비교표 소재다. 가격 이력은 append-only 관측 로그로 — 스냅샷 갱신과 달리 시간축의 원본이 남고, S09 크론 주에 그대로 이어 쓴다.</p>
+
+  <h2><span class="no">08</span>리스크 + 검증법</h2>
+  <div class="risk">
+    <b>걱정되는 것:</b> ① Auth+RLS 조합이 정적 페이지+서버리스에서 실제로 성립하나 ② RLS가 켜지면 수집 함수(service key)와 폴링이 각각 어떻게 갈리나<br>
+    <b>스파이크로 확인 (수요일 밤):</b> 계정 2개를 시드해 진짜 JWT로 6종 판정 전부 통과 — 격리·JOIN 스코프·비로그인 빈손·로그인 유저 쓰기 403. 상세 05/SPIKE.md. 후퇴 경로(brands 정규화 + 공용 보드)는 쓸 일 없었다.</div>
+</div>
+
+<footer>iBD 바이브 코딩 · 이 문서는 팀 템플릿이다 — 레이아웃·CSS·data-f를 바꾸지 말 것</footer>
+</html>
