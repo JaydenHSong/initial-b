@@ -43,6 +43,14 @@ NOT NULL 문자열로 스캔하는데 수동 INSERT는 NULL로 들어간다. 빈
 **정리 필요:** 스파이크 계정 2개(spike-a/b@spigen.com)와 시드 행(B0TESTAAA1/BBB1)은
 목요일 제출 전에 지운다. 데모 데이터는 실제 로그인+드랍 흐름으로 넣는다.
 
-**남은 사용자 작업:** Supabase 대시보드 → Auth → Providers → **Google 켜기**
-(S03 때 GCP OAuth 클라이언트 재사용 + Supabase 콜백 URL 등록). RLS 판정과 무관한
-설정 작업이라 스파이크에서 제외했다.
+**Google 로그인 실측 (같은 밤, 구현 후)** — 프로바이더는 이미 켜져 있었다: 동료
+프로젝트가 9/2에 같은 Supabase에 Google 로그인을 붙여 팀원 계정이 여럿 가입돼 있었고,
+`@spigen.com` 트리거도 그쪽 것이다. 첫 로그인은 **인증 성공 후 `localhost:3000`으로
+착지** — Auth **Site URL**이 동료의 로컬 개발 값이었고 배포 도메인이 Redirect 허용목록에
+없어 기본값으로 떨어졌다(주소창에 `#access_token=`이 있었으니 인증 자체는 통과).
+Site URL을 `https://initial-b05.vercel.app`로, Redirect URLs에 `/**` 추가 후 재로그인
+→ 착지 성공(`jsong@spigen.com` last_sign_in 확인). **교훈: 공유 프로젝트에서 Auth 설정은
+공용 자원이다 — 내 코드에는 없는 함정.**
+
+**드랍 경로 실측** — 인증 드랍 0.6초 응답 · 비로그인 401 · 수집 완료 후 관측 1건 append ·
+재드랍으로 관측 2건(05:21:46 / 05:22:10) — 시간축 성립. 스파이크 계정·시드는 제출 전 삭제했다.

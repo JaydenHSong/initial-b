@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">내 가격 시세판</h1>
+  <div class="intro-line" data-f="intro">로그인하면 내 워크스페이스 보드가 열리고, 드랍마다 가격 관측이 이력으로 쌓여 등락(Δ)이 보인다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">25</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">3분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.2초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S05</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">Postgres (Supabase) — 통합 주</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Supabase Auth(Google) + auth.uid() RLS + append-only 관측 로그 · 수집기는 S04 이식</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">Google 로그인이 성공하고도 localhost:3000으로 착지했다 — 팀 공유 Supabase의 Auth Site URL이 동료의 로컬 개발 값으로 잡혀 있었고, 배포 도메인이 Redirect 허용목록에 없어 기본값으로 떨어졌다. 인증 자체는 첫 시도에 통과(토큰이 주소창에 있었다). 공유 프로젝트에서 Auth 설정은 공용 자원이라 내 코드만 봐서는 안 보이는 함정</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">상</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">Free — Auth MAU 5만 · DB 500MB · 팀 규모 무관. 수집 비용은 S04와 동일(직접 0원, BRD 폴백 ~4센트/일)</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b05.vercel.app">initial-b05.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">사용자마다 데이터가 갈려야 하는 도구라면 격리를 앱 코드가 아니라 Postgres RLS에 맡기겠다 — 정책 세 줄로 교차 조회·비로그인·JOIN 임베드가 전부 DB에서 막혔고(6종 실측), 쓰기 정책을 아예 두지 않아 브라우저는 읽기만, 쓰기는 service key 함수만 하는 경계가 스키마에 박힌다. S03의 Firestore 규칙과 비교하면: 문서형은 경로 설계로 1인 1표를 풀었고 관계형은 unique(owner) 한 줄 + RLS로 1인 1보드를 푼다 — 같은 문제를 스키마가 푸는 방향이 반대다. 다만 여러 주차가 Supabase 프로젝트 하나를 공유하는 구조라면 Auth 설정(Site URL·이메일 도메인 트리거)이 공용 자원이 돼 서로를 밟는다 — 그런 경우엔 주차별 프로젝트를 따로 쓰겠다.</div>
 
 </div>
 
