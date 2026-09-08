@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리뷰 분석기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* 시즌 언어 그대로: 어두운 보드, 종이 카드, 관측값(토큰·비용·시간)은 Plex Mono. */
+  :root {
+    --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168;
+    --tag:#FCFBF6; --tag-edge:#E9E5DA; --well:#F3F0E8; --ink:#1C231F; --ink-dim:#75806F;
+    --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html { background:var(--board); }
+  body { background:var(--board); color:var(--chalk); padding:0 20px 72px;
+    font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .wrap { max-width:860px; margin:0 auto; }
+  header { padding:40px 0 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em; color:var(--chalk-dim); margin-bottom:10px; }
+  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
+  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 24px; max-width:640px; }
+  .sub b { color:#E9E5DA; }
+
+  textarea { width:100%; min-height:220px; font-size:14px; line-height:1.55; padding:14px 16px; border-radius:12px;
+    border:1px solid var(--board-edge); background:#0B130F; color:#EDEAE0; resize:vertical;
+    font-family:"Pretendard Variable",-apple-system,sans-serif; }
+  textarea::placeholder { color:var(--chalk-dim); }
+  textarea:focus-visible, button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+  .row { display:flex; align-items:center; gap:14px; margin:10px 0 8px; }
+  .row .count { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px; color:var(--chalk-dim); }
+  button.primary { margin-left:auto; font-size:15px; font-weight:700; padding:12px 24px; border:0; border-radius:12px;
+    background:var(--amber); color:#221602; cursor:pointer; white-space:nowrap; }
+  button.primary:disabled { opacity:.55; cursor:progress; }
+  #msg { min-height:22px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+
+  .card { background:var(--tag); color:var(--ink); border:1px solid var(--tag-edge); border-radius:14px;
+    padding:22px 24px; box-shadow:0 2px 10px rgba(0,0,0,.25); margin-top:14px; }
+  .lines { list-style:none; padding:0; }
+  .lines li { display:flex; gap:12px; padding:9px 0; border-top:1px dashed var(--tag-edge); font-size:14.5px; line-height:1.5; }
+  .lines li:first-child { border-top:0; }
+  .lines .k { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:700; letter-spacing:.08em;
+    padding:3px 8px; border-radius:99px; height:fit-content; white-space:nowrap; margin-top:2px; }
+  .k.pos { background:#E2F1E9; color:#1E6B48; } .k.pain { background:#F8E4E0; color:#93382C; } .k.sum { background:#FBEFD9; color:#8A5A10; }
+  .meta { margin-top:16px; padding-top:12px; border-top:1px solid var(--tag-edge); display:flex; flex-wrap:wrap; gap:8px 18px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink-dim); }
+  .meta b { color:var(--ink); font-weight:600; }
+  .meta .big { color:var(--amber); font-weight:700; }
+  #ledger { margin-top:18px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--chalk-dim); }
+  #ledger b { color:var(--chalk); font-weight:600; }
+  footer { max-width:860px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--chalk-dim); display:flex; gap:18px; }
+  footer a { color:var(--chalk-dim); text-decoration:none; }
+  @media (max-width:560px) { h1 { font-size:24px; } header { padding-top:28px; } .card { padding:18px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">iBD S06 · CLAUDE 호출 경로 — ANTHROPIC SDK · 서버리스 뒤</div>
+    <h1>리뷰 분석기</h1>
+    <p class="sub">리뷰 10개를 붙여넣으면 Claude가 <b>긍정 요인·페인포인트·총평 5줄</b>로 요약한다. 결과는 JSON 스키마를 거쳐 오고, 호출마다 토큰·비용이 찍힌다.</p>
+  </header>
+  <textarea id="t" placeholder="아마존 리뷰를 붙여넣어라 — 리뷰 사이는 빈 줄로 구분" aria-label="리뷰 텍스트"></textarea>
+  <div class="row"><span class="count" id="count">리뷰 0개</span><button class="primary" id="go">분석</button></div>
+  <div id="msg" role="status"></div>
+  <div class="card" id="out" hidden>
+    <ul class="lines" id="lines"></ul>
+    <div class="meta" id="meta"></div>
+  </div>
+  <div id="ledger"></div>
+</div>
+<footer>
+  <a href="/docs/plan.html">기획서</a>
+  <a href="/docs/report.html">스택 리포트</a>
+  <span style="margin-left:auto">모델 claude-sonnet-5 · 키는 서버에만</span>
+</footer>
+
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 읽기 전용 공개 키 — 원장 읽기만
+const $ = (id) => document.getElementById(id);
+
+// 서버와 같은 규칙으로 개수만 미리 센다 (판단은 서버가 한다)
+function countReviews(text) {
+  let parts = text.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
+  if (parts.length < 2) parts = text.split(/\n/).map((s) => s.trim()).filter(Boolean);
+  return parts.filter((s) => s.replace(/^\s*\d+[.)]\s*/, '').length > 5).length;
+}
+$('t').oninput = () => { $('count').textContent = `리뷰 ${countReviews($('t').value)}개`; };
+
+function line(kind, label, text) {
+  const li = document.createElement('li');
+  const k = document.createElement('span'); k.className = `k ${kind}`; k.textContent = label;
+  const s = document.createElement('span'); s.textContent = text;
+  li.append(k, s); return li;
+}
+
+function render(r) {
+  const ul = $('lines'); ul.replaceChildren();
+  r.result.positives.forEach((p) => ul.appendChild(line('pos', '긍정', p)));
+  r.result.pain_points.forEach((p) => ul.appendChild(line('pain', '페인', p)));
+  ul.appendChild(line('sum', '총평', r.result.verdict));
+  $('meta').innerHTML =
+    `<span>리뷰 <b>${r.reviews}</b>개</span>` +
+    `<span>입력 <b>${r.usage.input.toLocaleString()}</b> · 출력 <b>${r.usage.output.toLocaleString()}</b> 토큰</span>` +
+    `<span><b>${(r.ms / 1000).toFixed(1)}</b>초</span>` +
+    `<span>이번 호출 <b>$${r.cost_usd.toFixed(4)}</b></span>` +
+    `<span class="big">1천 건이면 $${r.per_1000[r.model].toFixed(2)}</span>` +
+    `<span>(Opus 5 $${r.per_1000['claude-opus-5']} · Haiku 4.5 $${r.per_1000['claude-haiku-4-5']})</span>`;
+  $('out').hidden = false;
+}
+
+// 누적 원장 — "1천 건이면"의 실측 근거. 추정이 아니라 지금까지 호출의 평균이다.
+async function ledger() {
+  const r = await fetch(`${SUPA}/rest/v1/s06_analyses?select=cost_usd,model&order=created_at.desc&limit=500`, { headers: { apikey: ANON } });
+  if (!r.ok) return;
+  const rows = await r.json();
+  if (!rows.length) { $('ledger').textContent = '원장 비어 있음 — 첫 분석이 첫 실측이다.'; return; }
+  const total = rows.reduce((s, x) => s + Number(x.cost_usd), 0);
+  const avg = total / rows.length;
+  $('ledger').innerHTML = `누적 실측 <b>${rows.length}</b>건 · 총 <b>$${total.toFixed(4)}</b> · 평균 건당 <b>$${avg.toFixed(4)}</b> → 1천 건 <b>$${(avg * 1000).toFixed(2)}</b>`;
+}
+
+$('go').onclick = async () => {
+  const text = $('t').value.trim();
+  if (!text) { $('msg').textContent = '리뷰를 붙여넣어라'; return; }
+  $('go').disabled = true; $('go').textContent = '분석 중… 약 6초'; $('msg').textContent = '';
+  try {
+    const r = await fetch('/api/analyze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { $('msg').textContent = j.error ?? `실패 (${r.status})`; return; }
+    render(j); ledger();
+  } finally { $('go').disabled = false; $('go').textContent = '분석'; }
+};
+ledger();
+</script>
+</html>
