@@ -1,0 +1,9 @@
+{
+  "name": "initial-b06",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
+    "zod": "^4.5.4"
+  }
+}
