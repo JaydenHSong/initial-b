@@ -44,7 +44,7 @@ export default async function handler(req, res) {
   const reviews = (Array.isArray(req.body?.reviews) && req.body.reviews.length ? req.body.reviews : rv.bodies).slice(0, 10);
   const t1 = Date.now();
   const msg = await client.messages.parse({
-    model: 'claude-opus-5',
+    model: 'claude-sonnet-5',
     max_tokens: 2000,
     system: '너는 이커머스 운영팀의 리뷰 분석가다. 주어진 아마존 리뷰들에서 반복되는 긍정 요인과 페인포인트를 뽑아 짧게 요약한다. 리뷰에 없는 내용을 지어내지 않는다.',
     messages: [{ role: 'user', content: `다음 리뷰 ${reviews.length}개를 분석해라.\n\n` + reviews.map((r, i) => `[${i + 1}] ${r}`).join('\n\n') }],
