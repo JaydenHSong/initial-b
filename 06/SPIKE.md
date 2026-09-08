@@ -1,5 +1,36 @@
 # S06 스파이크 기록
 
+## 1. Anthropic SDK 직접 + 구조화 출력 — **됐다** (2026-09-08)
+
+**판정 질문:** Vercel 함수에서 Anthropic SDK로 Claude를 부르면 JSON 스키마대로 5줄이
+오나? `usage`로 건당 비용이 나오나? 키는 브라우저에 안 가나?
+
+**방법:** `client.messages.parse({ output_config: { format: zodOutputFormat(스키마) } })` —
+스키마 = `positives ≤2 · pain_points ≤2 · verdict 1` (합쳐서 5줄). 케이스 리뷰 10개를
+POST로 넣었다. 모델 `claude-opus-5`, 키는 `ANTHROPIC_API_KEY`(Vercel env)만 — 브라우저는
+`/api/...`만 부른다.
+
+| 관측 | 값 |
+|---|---|
+| `parsed_output` | 스키마 그대로 5줄 · 한국어 · 리뷰에 근거(뻑뻑한 버튼·황변·먼지·탈착 / MagSafe·카메라 링) |
+| `stop_reason` | `end_turn` (thinking_tokens 0) |
+| `usage` | 입력 1,237 · 출력 355 토큰 |
+| 건당 비용 | Opus 5 **$0.0151** · Sonnet 5 $0.0060 · Haiku 4.5 $0.0030 |
+| **1천 건이면** | **Opus 5 $15.06** · Sonnet 5 $6.02 · Haiku 4.5 $3.01 |
+| 응답 시간 | 11.3초 (Opus 5, 기본 effort) |
+
+**셋업 시간:** 약 10분 (SDK 설치 → 함수 작성 → 배포 → 첫 JSON). 실제로는 키 등록 대기가
+더 길었다 — 로컬에 `ant` CLI도 `ANTHROPIC_API_KEY`도 없어 서버리스에서만 판정 가능.
+
+**막힌 지점 1개:** 없음 — 첫 호출에 통과. 다만 **11초**는 UX 관측값으로 남긴다: 수요일에
+`output_config.effort: "low"`로 시간·비용을 재본다(요약 작업이라 낮은 effort가 맞을 가능성).
+
+**문서 품질:** 상 — `parse` + `zodOutputFormat` 예제 그대로 됐고, zod 4와도 문제 없음.
+
+**무료 한도:** 해당 없음(종량제). 데모 멘트의 근거는 위 표 — 추정이 아니라 `usage` 실측.
+
+**정리 필요:** `api/spike.js`는 수요일 구현이 대체하면 제거한다.
+
 ## 2. `/dp/` 원본 HTML에 리뷰가 있나 — **안 됐다** (2026-09-08)
 
 **판정 질문:** 우리가 이미 받는 아마존 상품 페이지(`/dp/ASIN`) 원본 HTML에 리뷰 본문이

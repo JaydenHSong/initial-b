@@ -26,7 +26,7 @@ const PRICE = { 'claude-opus-5': [5, 25], 'claude-sonnet-5': [2, 10], 'claude-ha
 export default async function handler(req, res) {
   const { mode = 'reviews', asin = 'B09B8V1LZ3' } = req.query;
   const t0 = Date.now();
-  const rv = await reviewsFromDp(asin);
+  const rv = mode === 'analyze' && req.body?.reviews ? { bodies: [] } : await reviewsFromDp(asin);
   if (mode === 'find') {
     const r = await fetch(`https://www.amazon.com/dp/${asin}`, { headers: { 'user-agent': UA, 'accept-language': 'en-US,en;q=0.9' } });
     const html = await r.text();
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
   }
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY 미설정' });
   const client = new Anthropic();
-  const reviews = rv.bodies.slice(0, 10);
+  const reviews = (Array.isArray(req.body?.reviews) && req.body.reviews.length ? req.body.reviews : rv.bodies).slice(0, 10);
   const t1 = Date.now();
   const msg = await client.messages.parse({
     model: 'claude-opus-5',
