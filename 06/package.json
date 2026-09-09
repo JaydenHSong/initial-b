@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",
+    "puppeteer-core": "^25.10.0",
     "zod": "^4.5.4"
   }
 }
