@@ -99,7 +99,7 @@
   <h2><span class="no">08</span>리스크 + 검증법</h2>
   <div class="risk">
     <b>걱정되는 것:</b> ① 구조화 출력이 스키마를 정말 강제하나(5줄 넘치거나 깨진 JSON) ② /dp/ 원본에 리뷰가 있어서 보드 연결이 되나 ③ 키가 브라우저로 새는 경로<br>
-    <b>화요일 스파이크로 확인:</b> ① parse + zod로 첫 호출에 정확히 5줄·end_turn, Opus/Sonnet 둘 다 (1천 건 $15 vs $5) ② 1MB 진짜 페이지에 리뷰 마커 0개 — 하이드레이션 이후에만 존재, 붙여넣기로 확정 ③ 키는 Vercel env에만, 브라우저는 /api/analyze만 호출 — 네트워크 탭 실측. 상세 06/SPIKE.md
+    <b>화요일 스파이크로 확인:</b> ① parse + zod로 첫 호출에 정확히 5줄·end_turn, Opus/Sonnet 둘 다 (1천 건 $15 vs $5) ② 1MB 진짜 페이지에 리뷰 마커 0개, Bright Data 렌더+스크롤에서도 본문 0개(컨테이너·별점만) — 아마존이 리뷰 본문을 우리 세션에 주지 않아 붙여넣기로 확정(3회 후 중단, 06/SPIKE.md) ③ 키는 Vercel env에만, 브라우저는 /api/analyze만 호출 — 네트워크 탭 실측. 상세 06/SPIKE.md
   </div>
 </div>
 

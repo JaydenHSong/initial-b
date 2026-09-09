@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">리뷰 분석기</h1>
+  <div class="intro-line" data-f="intro">아마존 리뷰 10개를 붙여넣으면 Claude가 긍정 요인·페인포인트·총평 5줄로 요약하고, 호출마다 토큰·비용을 찍는다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">10</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">2분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.2초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S06</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">Claude 호출 경로</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Anthropic SDK 직접 · Vercel 함수 뒤 · 구조화 출력(zod 스키마) · claude-sonnet-5</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">"URL만 넣으면 리뷰를 시스템이 가져오게" — 원본 HTML(리뷰 마커 0개) → Bright Data 렌더(0개) → 렌더+스크롤(컨테이너·별점은 뜨는데 본문 0개, 52초)까지 3회 후 중단. 아마존이 리뷰 본문을 데이터센터/프록시 세션에 주지 않는다. 호출 경로가 아니라 데이터 접근권 문제라 붙여넣기(가이드의 골)로 확정. 덤: 시크릿 값에 다음 변수명이 딸려 들어가 스파이크 에러 응답으로 노출 — 에러는 이름만 내보내도록 고침</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">상</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">종량제 — Sonnet 5 건당 $0.0046~0.0054(입력 ~1.3K·출력 ~250토큰), 1천 건 ≈ $5 실측. Opus 5면 $15, Haiku 4.5면 $3. Vercel Hobby·Supabase Free는 무관</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b06.vercel.app">initial-b06.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">서버리스 앱에서 형태가 정해진 LLM 출력(요약·분류·추출)이 필요하면 Anthropic SDK 직접 + 구조화 출력을 쓰겠다 — parse()에 zod 스키마 하나 넘기면 5줄이 강제되고 usage로 건당 비용이 바로 나와 "1천 건이면 $5"를 추정이 아니라 실측으로 말할 수 있다. 키는 함수 뒤에만 두면 되고 브라우저는 /api 하나만 부른다(네트워크 탭 실측). 스트리밍 채팅이면 Vercel AI SDK를, AWS 청구 체계 안에서 돌려야 하면 Bedrock을 보겠다. 모델은 같은 입력으로 실측한 뒤 고른다 — Sonnet 5가 Opus 5와 결과 동등·시간 절반·비용 1/3이었다. 다만 "URL → 리뷰 자동"처럼 데이터 접근권이 막힌 문제는 호출 경로로 풀리지 않는다 — 그건 데이터 API를 사는 문제다.</div>
 
 </div>
 
