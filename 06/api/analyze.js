@@ -18,8 +18,28 @@ const Summary = z.object({
   verdict: z.string().describe('총평 한 문장, 한국어'),
 });
 
-// 빈 줄로 나눈다. 빈 줄이 없으면 줄 단위. 번호("1.", "1)")는 뗀다.
+// 입력은 세 모양 중 하나다: ① 북마클릿이 넘긴 리뷰 목록(빈 줄 구분) ② 아마존 리뷰 페이지를
+// 통째로 복사한 텍스트 ③ 손으로 고른 리뷰 몇 개. ②는 "Reviewed in … on <날짜>" 줄이
+// 리뷰마다 붙는 것을 경계로 삼고, 앞의 메타(Verified Purchase·옵션)와 뒤의
+// "N people found this helpful / Helpful / Report"를 잘라낸다.
 function splitReviews(text) {
+  const chunks = text.split(/\n(?=[ \t]*Reviewed in [^\n]+? on [A-Z][a-z]+ \d{1,2}, \d{4})/);
+  if (chunks.length >= 2) {
+    const out = [];
+    for (let i = 1; i < chunks.length; i++) {
+      let lines = chunks[i].split('\n').map((l) => l.trim());
+      lines.shift(); // "Reviewed in … on …"
+      while (lines.length && /Verified Purchase|^(Color|Colour|Size|Style|Pattern Name|Material|Model)\s*:|^Vine Customer|^Early Reviewer|^Amazon Vine/i.test(lines[0])) lines.shift();
+      const end = lines.findIndex((l) => /found this helpful|^Helpful$|^Report$|^Report abuse$|^Translate review/i.test(l));
+      if (end >= 0) lines = lines.slice(0, end);
+      const body = lines.filter((l) => l && !/^Read more$/i.test(l)).join('\n').trim();
+      const prevLines = chunks[i - 1].trim().split('\n').map((l) => l.trim()).filter(Boolean);
+      const starLine = [...prevLines].reverse().find((l) => /out of 5 stars/i.test(l)) || '';
+      const title = starLine.replace(/^.*?out of 5 stars\s*/i, '').trim() || (prevLines.length && !/out of 5 stars/i.test(prevLines[prevLines.length - 1]) ? prevLines[prevLines.length - 1] : '');
+      if (body.length > 5) out.push(title && title.length < 120 ? `${title} — ${body}` : body);
+    }
+    if (out.length) return out.slice(0, 20);
+  }
   let parts = text.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
   if (parts.length < 2) parts = text.split(/\n/).map((s) => s.trim()).filter(Boolean);
   return parts.map((s) => s.replace(/^\s*\d+[.)]\s*/, '')).filter((s) => s.length > 5).slice(0, 20);

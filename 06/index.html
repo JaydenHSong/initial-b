@@ -35,6 +35,10 @@
   button.primary { margin-left:auto; font-size:15px; font-weight:700; padding:12px 24px; border:0; border-radius:12px;
     background:var(--amber); color:#221602; cursor:pointer; white-space:nowrap; }
   button.primary:disabled { opacity:.55; cursor:progress; }
+  .bm { font-size:12.5px; color:var(--chalk-dim); margin:2px 0 8px; line-height:1.7; }
+  .bm b { color:var(--chalk); font-weight:600; }
+  .pill { display:inline-block; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; font-weight:600; padding:4px 12px;
+    border-radius:99px; border:1px solid var(--amber); color:var(--amber); text-decoration:none; cursor:grab; margin:0 4px; }
   #msg { min-height:22px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; }
 
   .card { background:var(--tag); color:var(--ink); border:1px solid var(--tag-edge); border-radius:14px;
@@ -63,8 +67,9 @@
     <h1>리뷰 분석기</h1>
     <p class="sub">리뷰 10개를 붙여넣으면 Claude가 <b>긍정 요인·페인포인트·총평 5줄</b>로 요약한다. 결과는 JSON 스키마를 거쳐 오고, 호출마다 토큰·비용이 찍힌다.</p>
   </header>
-  <textarea id="t" placeholder="아마존 리뷰를 붙여넣어라 — 리뷰 사이는 빈 줄로 구분" aria-label="리뷰 텍스트"></textarea>
+  <textarea id="t" placeholder="아마존 리뷰 페이지를 통째로 복사해(Ctrl+A, Ctrl+C) 붙여넣어라 — 리뷰만 골라내 분석한다" aria-label="리뷰 텍스트"></textarea>
   <div class="row"><span class="count" id="count">리뷰 0개</span><button class="primary" id="go">분석</button></div>
+  <div class="bm">아마존에서 한 번에 — <a class="pill" id="bm" href="javascript:(function(){var r=[].slice.call(document.querySelectorAll('[data-hook=\"review-body\"]')).map(function(e){return e.innerText.trim().replace(/\n{2,}/g,'\n')}).filter(Boolean);if(!r.length){alert('이 페이지에서 리뷰를 못 찾았다. 아마존 상품 페이지 리뷰 섹션이나 See all reviews 페이지에서 눌러라');return;}var t=[].slice.call(document.querySelectorAll('[data-hook=\"review-title\"]')).map(function(e){return e.innerText.trim().split('\n').pop()});var o=r.slice(0,20).map(function(b,i){return t[i]?t[i]+' — '+b:b});window.open('https://initial-b06.vercel.app/#r='+encodeURIComponent(JSON.stringify(o)),'_blank');})();" onclick="return false" title="이 버튼을 북마크바로 끌어다 놓아라">리뷰 가져오기</a> ← 이 버튼을 <b>북마크바로 끌어다 놓고</b>, 아마존 상품/리뷰 페이지에서 누르면 리뷰가 여기로 넘어와 바로 분석된다.</div>
   <div id="msg" role="status"></div>
   <div class="card" id="out" hidden>
     <ul class="lines" id="lines"></ul>
@@ -85,6 +90,8 @@ const $ = (id) => document.getElementById(id);
 
 // 서버와 같은 규칙으로 개수만 미리 센다 (판단은 서버가 한다)
 function countReviews(text) {
+  const pc = (text.match(/\n[ \t]*Reviewed in [^\n]+? on [A-Z][a-z]+ \d{1,2}, \d{4}/g) || []).length;
+  if (pc) return pc;
   let parts = text.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean);
   if (parts.length < 2) parts = text.split(/\n/).map((s) => s.trim()).filter(Boolean);
   return parts.filter((s) => s.replace(/^\s*\d+[.)]\s*/, '').length > 5).length;
@@ -124,7 +131,7 @@ async function ledger() {
   $('ledger').innerHTML = `누적 실측 <b>${rows.length}</b>건 · 총 <b>$${total.toFixed(4)}</b> · 평균 건당 <b>$${avg.toFixed(4)}</b> → 1천 건 <b>$${(avg * 1000).toFixed(2)}</b>`;
 }
 
-$('go').onclick = async () => {
+async function analyze() {
   const text = $('t').value.trim();
   if (!text) { $('msg').textContent = '리뷰를 붙여넣어라'; return; }
   $('go').disabled = true; $('go').textContent = '분석 중… 약 6초'; $('msg').textContent = '';
@@ -134,7 +141,22 @@ $('go').onclick = async () => {
     if (!r.ok) { $('msg').textContent = j.error ?? `실패 (${r.status})`; return; }
     render(j); ledger();
   } finally { $('go').disabled = false; $('go').textContent = '분석'; }
-};
+}
+$('go').onclick = analyze;
+
+// 북마클릿이 #r=<JSON 배열>로 리뷰를 넘기면 채우고 바로 분석한다. 해시는 지워 새로고침 재실행을 막는다.
+(function fromHash() {
+  if (!location.hash.startsWith('#r=')) return;
+  try {
+    const arr = JSON.parse(decodeURIComponent(location.hash.slice(3)));
+    if (Array.isArray(arr) && arr.length) {
+      $('t').value = arr.map((s) => String(s).replace(/\n{2,}/g, '\n')).join('\n\n');
+      $('t').dispatchEvent(new Event('input'));
+      history.replaceState(null, '', location.pathname);
+      analyze();
+    }
+  } catch { $('msg').textContent = '북마클릿 데이터를 읽지 못했다 — 직접 붙여넣어라'; }
+})();
 ledger();
 </script>
 </html>
