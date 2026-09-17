@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영수증 정리기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168;
+    --tag:#FCFBF6; --tag-edge:#E9E5DA; --well:#F3F0E8; --ink:#1C231F; --ink-dim:#75806F;
+    --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C; }
+  * { box-sizing:border-box; margin:0; }
+  html { background:var(--board); }
+  body { background:var(--board); color:var(--chalk); padding:0 20px 72px; font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .wrap { max-width:960px; margin:0 auto; }
+  header { padding:40px 0 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em; color:var(--chalk-dim); margin-bottom:10px; }
+  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
+  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 22px; max-width:680px; }
+  .sub b { color:#E9E5DA; }
+  .drop { border:1px dashed var(--chalk-dim); border-radius:14px; padding:22px; text-align:center; color:var(--chalk); background:#0B130F; }
+  .drop input { display:none; }
+  .drop label { display:inline-block; font-weight:700; padding:12px 24px; border-radius:12px; background:var(--amber); color:#221602; cursor:pointer; }
+  .drop .hint { font-size:12.5px; color:var(--chalk-dim); margin-top:10px; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  #msg { min-height:22px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; margin:8px 0; }
+  .sheet { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; overflow-x:auto; box-shadow:0 2px 10px rgba(0,0,0,.25); margin-top:14px; }
+  table { width:100%; min-width:640px; border-collapse:collapse; color:var(--ink); }
+  th { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; font-weight:600; letter-spacing:.08em; color:var(--ink-dim); text-align:left; padding:11px 14px 9px; border-bottom:1px solid var(--tag-edge); white-space:nowrap; }
+  td { padding:9px 14px; border-top:1px dashed var(--tag-edge); font-size:13.5px; vertical-align:middle; }
+  .thumb { width:44px; height:58px; object-fit:cover; border-radius:6px; background:var(--well); }
+  .num { font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .badge { font-size:11.5px; padding:3px 10px; border-radius:99px; font-weight:700; white-space:nowrap; }
+  .st-pending { background:#FBEFD9; color:#8A5A10; animation:pulse 1.2s infinite; }
+  .st-ok { background:#E2F1E9; color:#1E6B48; } .st-failed { background:#ECEDEA; color:#5C665F; }
+  @keyframes pulse { 50% { opacity:.45; } }
+  pre.ocr { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; white-space:pre-wrap; color:var(--ink-dim); max-height:160px; overflow:auto; margin:0; }
+  .empty { color:var(--chalk-dim); font-size:14px; padding:40px 0; text-align:center; }
+  footer { max-width:960px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--chalk-dim); display:flex; gap:12px 18px; flex-wrap:wrap; }
+  footer a, footer span { white-space:nowrap; color:var(--chalk-dim); text-decoration:none; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">iBD S07 · 스토리지 + OCR — SUPABASE STORAGE · GOOGLE VISION</div>
+    <h1>영수증 정리기</h1>
+    <p class="sub">영수증 사진을 올리면 <b>Storage에 파일이, DB엔 URL만</b> 들어가고, Vision이 읽은 글자에서 날짜·총액·가게명이 표에 채워진다. <span class="mono">(스파이크 v0: 업로드 → OCR 텍스트까지)</span></p>
+  </header>
+  <div class="drop">
+    <input type="file" id="f" accept="image/*" multiple>
+    <label for="f">영수증 사진 올리기</label>
+    <div class="hint">최대 3장 · JPG/PNG/HEIC · 10MB</div>
+  </div>
+  <div id="msg" role="status"></div>
+  <div class="sheet"><table>
+    <thead><tr><th>사진</th><th>파일</th><th>상태</th><th>OCR 텍스트</th></tr></thead>
+    <tbody id="tb"><tr><td colspan="4"><div class="empty">아직 올린 영수증이 없다.</div></td></tr></tbody>
+  </table></div>
+</div>
+<footer><a href="/docs/plan.html">기획서</a><a href="/docs/report.html">스택 리포트</a><span style="margin-left:auto">키는 서버에만 · 파일은 Storage · DB엔 URL만</span></footer>
+
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 공개 키 — 이 버킷에 올리기만 허용된다(정책)
+const BUCKET = 's07-receipts';
+const $ = (id) => document.getElementById(id);
+
+// 브라우저 → Storage 직접 업로드 (스파이크 ①에서 판정한 경로 그대로)
+async function upload(file) {
+  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${(file.name.split('.').pop() || 'jpg').toLowerCase()}`;
+  const r = await fetch(`${SUPA}/storage/v1/object/${BUCKET}/${name}`, {
+    method: 'POST', headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, 'Content-Type': file.type || 'image/jpeg' }, body: file,
+  });
+  if (!r.ok) throw new Error(`업로드 실패 ${r.status}`);
+  return `${SUPA}/storage/v1/object/public/${BUCKET}/${name}`;
+}
+
+function row(file, url) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><img class="thumb" alt=""></td><td class="num"></td><td><span class="badge st-pending">읽는 중</span></td><td><pre class="ocr"></pre></td>`;
+  tr.querySelector('img').src = url; tr.querySelector('.num').textContent = file.name;
+  return tr;
+}
+
+$('f').onchange = async () => {
+  const files = [...$('f').files].slice(0, 3);
+  if (!files.length) return;
+  if ($('tb').querySelector('.empty')) $('tb').innerHTML = '';
+  $('msg').textContent = '';
+  for (const file of files) {
+    let url;
+    try { url = await upload(file); } catch (e) { $('msg').textContent = e.message; continue; }
+    const tr = row(file, url); $('tb').prepend(tr);
+    const r = await fetch('/api/spike-vision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image_url: url }) });
+    const j = await r.json().catch(() => ({}));
+    const b = tr.querySelector('.badge');
+    if (!r.ok) { b.className = 'badge st-failed'; b.textContent = '실패'; tr.querySelector('.ocr').textContent = j.error ?? r.status; continue; }
+    b.className = 'badge st-ok'; b.textContent = `${j.chars}자 · ${j.ms.vision}ms`;
+    tr.querySelector('.ocr').textContent = `dates: ${JSON.stringify(j.dates)}\ntotals: ${JSON.stringify(j.totals)}\n---\n${j.head.join('\n')}`;
+  }
+  $('f').value = '';
+};
+</script>
+</html>
