@@ -5,101 +5,202 @@
 <title>영수증 정리기</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168;
-    --tag:#FCFBF6; --tag-edge:#E9E5DA; --well:#F3F0E8; --ink:#1C231F; --ink-dim:#75806F;
-    --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C; }
+  /* 긴 영수증 한 장: 회계 책상(회색) 위에 열전사 종이(흰색). 데이터는 전부 영수증 활자(Plex Mono),
+     한국어 안내만 Pretendard. 색은 하나 — 형광펜 노랑, 손으로 고친 칸에만. */
+  :root { --desk:#DDE0D8; --desk-deep:#C9CDC3; --paper:#FCFCF7; --ink:#1E2422; --faded:#7C8580; --rule:#D7D8CF;
+    --hl:#F2E14C; --hl-ink:#5C5200; --ok:#2F7D5B; --stamp:#C8452F; }
   * { box-sizing:border-box; margin:0; }
-  html { background:var(--board); }
-  body { background:var(--board); color:var(--chalk); padding:0 20px 72px; font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  html { background:var(--desk); }
+  body { background:var(--desk); color:var(--ink); padding:32px 16px 80px; font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.55; }
   .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
-  .wrap { max-width:960px; margin:0 auto; }
-  header { padding:40px 0 8px; }
-  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em; color:var(--chalk-dim); margin-bottom:10px; }
-  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
-  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 22px; max-width:680px; }
-  .sub b { color:#E9E5DA; }
-  .drop { border:1px dashed var(--chalk-dim); border-radius:14px; padding:22px; text-align:center; color:var(--chalk); background:#0B130F; }
+
+  .strip { position:relative; max-width:780px; margin:24px auto 0; background:var(--paper); padding:34px 34px 28px;
+    box-shadow:0 14px 30px -12px rgba(20,30,25,.35), 0 1px 0 rgba(255,255,255,.7) inset; }
+  .strip::before, .strip::after { content:""; position:absolute; left:0; right:0; height:10px;
+    background: linear-gradient(45deg, transparent 33.33%, var(--paper) 33.33%, var(--paper) 66.67%, transparent 66.67%),
+                linear-gradient(-45deg, transparent 33.33%, var(--paper) 33.33%, var(--paper) 66.67%, transparent 66.67%);
+    background-size:20px 20px; }
+  .strip::before { top:-10px; background-position:0 10px; transform:scaleY(-1); }
+  .strip::after { bottom:-10px; background-position:0 0; }
+
+  /* 영수증 머리 */
+  .head { text-align:center; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .head h1 { font-size:22px; font-weight:700; letter-spacing:.32em; text-transform:uppercase; margin-bottom:6px; }
+  .head h1 small { display:block; font-size:11px; letter-spacing:.24em; color:var(--faded); font-weight:500; margin-bottom:8px; }
+  .head p { font-family:"Pretendard Variable",sans-serif; font-size:14px; color:#3B4440; max-width:520px; margin:0 auto; }
+  .rule { border:0; border-top:1px dashed var(--rule); margin:22px 0; }
+
+  /* 빈 영수증 칸 = 드롭존 */
+  .drop { border:2px dashed #B9BEB4; border-radius:6px; padding:26px 20px; text-align:center; cursor:pointer;
+    transition:background .15s, border-color .15s; background:#F5F5EF; }
+  .drop.over { background:#FFFBD6; border-color:var(--hl-ink); }
   .drop input { display:none; }
-  .drop label { display:inline-block; font-weight:700; padding:12px 24px; border-radius:12px; background:var(--amber); color:#221602; cursor:pointer; }
-  .drop .hint { font-size:12.5px; color:var(--chalk-dim); margin-top:10px; font-family:"IBM Plex Mono",ui-monospace,monospace; }
-  #msg { min-height:22px; font-size:13px; color:#D97B6C; font-family:"IBM Plex Mono",ui-monospace,monospace; margin:8px 0; }
-  .sheet { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; overflow-x:auto; box-shadow:0 2px 10px rgba(0,0,0,.25); margin-top:14px; }
-  table { width:100%; min-width:640px; border-collapse:collapse; color:var(--ink); }
-  th { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; font-weight:600; letter-spacing:.08em; color:var(--ink-dim); text-align:left; padding:11px 14px 9px; border-bottom:1px solid var(--tag-edge); white-space:nowrap; }
-  td { padding:9px 14px; border-top:1px dashed var(--tag-edge); font-size:13.5px; vertical-align:middle; }
-  .thumb { width:44px; height:58px; object-fit:cover; border-radius:6px; background:var(--well); }
-  .num { font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .badge { font-size:11.5px; padding:3px 10px; border-radius:99px; font-weight:700; white-space:nowrap; }
-  .st-pending { background:#FBEFD9; color:#8A5A10; animation:pulse 1.2s infinite; }
-  .st-ok { background:#E2F1E9; color:#1E6B48; } .st-failed { background:#ECEDEA; color:#5C665F; }
-  @keyframes pulse { 50% { opacity:.45; } }
-  pre.ocr { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; white-space:pre-wrap; color:var(--ink-dim); max-height:160px; overflow:auto; margin:0; }
-  .empty { color:var(--chalk-dim); font-size:14px; padding:40px 0; text-align:center; }
-  footer { max-width:960px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--chalk-dim); display:flex; gap:12px 18px; flex-wrap:wrap; }
-  footer a, footer span { white-space:nowrap; color:var(--chalk-dim); text-decoration:none; }
+  .drop .big { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:15px; font-weight:600; letter-spacing:.06em; }
+  .drop .small { font-size:12.5px; color:var(--faded); margin-top:6px; }
+  .drop .small b { color:var(--ink); font-weight:600; }
+  #msg { min-height:20px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--stamp); margin-top:8px; }
+
+  /* 장부(표) — 영수증 활자로 */
+  .ledger { overflow-x:auto; }
+  table { width:100%; min-width:620px; border-collapse:collapse; font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  th { font-size:11px; font-weight:600; letter-spacing:.14em; color:var(--faded); text-align:left; padding:8px 10px 10px; border-bottom:1px dashed var(--rule); white-space:nowrap; }
+  th.r, td.r { text-align:right; }
+  td { padding:10px 10px; border-bottom:1px dashed var(--rule); font-size:14px; font-variant-numeric:tabular-nums; vertical-align:middle; }
+  tr.prow { animation:print .28s ease-out; }
+  @keyframes print { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+  .thumb { width:34px; height:46px; object-fit:cover; border-radius:3px; background:#EEE; border:1px solid var(--rule); display:block; }
+  td.total { font-weight:700; font-size:15px; }
+  td.editable { cursor:text; }
+  td.editable:hover { outline:1px dashed #B9BEB4; outline-offset:-4px; }
+  td.editable.fixed { background:var(--hl); color:var(--hl-ink); }
+  td.editable.fixed::after { content:" ✎"; font-size:11px; }
+  td input { width:100%; font:inherit; padding:2px 6px; border:1px solid var(--hl-ink); border-radius:3px; background:#FFFBD6; }
+  td.r input { text-align:right; }
+  .st { font-size:11px; letter-spacing:.08em; font-weight:600; white-space:nowrap; }
+  .st.pending { color:var(--faded); animation:pulse 1.2s infinite; }
+  .st.ok { color:var(--ok); } .st.failed { color:var(--stamp); }
+  @keyframes pulse { 50% { opacity:.4; } }
+  .empty { color:var(--faded); font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; text-align:center; padding:26px 0; }
+  .note { font-size:11px; color:var(--faded); }
+
+  /* 영수증 꼬리 = 정확도 집계 */
+  .tally { margin-top:18px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; display:flex; flex-wrap:wrap; gap:6px 22px; }
+  .tally b { font-weight:700; }
+  .tally .acc { font-size:16px; }
+  .tally .hint { width:100%; font-family:"Pretendard Variable",sans-serif; font-size:12px; color:var(--faded); }
+  footer { max-width:780px; margin:30px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:#5B635F; display:flex; gap:12px 18px; flex-wrap:wrap; }
+  footer a, footer span { color:inherit; text-decoration:none; white-space:nowrap; }
+  :focus-visible { outline:2px solid var(--hl-ink); outline-offset:2px; }
+  @media (max-width:560px) { .strip { padding:26px 16px 22px; } .head h1 { font-size:18px; letter-spacing:.22em; } }
+  @media (prefers-reduced-motion:reduce) { tr.prow, .st.pending { animation:none; } }
 </style>
 
-<div class="wrap">
-  <header>
-    <div class="eyebrow">iBD S07 · 스토리지 + OCR — SUPABASE STORAGE · GOOGLE VISION</div>
-    <h1>영수증 정리기</h1>
-    <p class="sub">영수증 사진을 올리면 <b>Storage에 파일이, DB엔 URL만</b> 들어가고, Vision이 읽은 글자에서 날짜·총액·가게명이 표에 채워진다. <span class="mono">(스파이크 v0: 업로드 → OCR 텍스트까지)</span></p>
-  </header>
-  <div class="drop">
+<div class="strip">
+  <div class="head">
+    <h1><small>iBD S07 · Supabase Storage + Google Vision</small>영수증 정리기</h1>
+    <p>영수증 사진을 올리면 <b>파일은 Storage에, DB엔 URL만</b> 들어가고, Vision이 읽은 글자에서 날짜·총액·가게명이 한 줄로 찍힌다. 틀린 칸은 눌러서 고친다 — 고친 칸은 형광펜으로 남는다.</p>
+  </div>
+  <hr class="rule">
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="영수증 사진 올리기">
     <input type="file" id="f" accept="image/*" multiple>
-    <label for="f">영수증 사진 올리기</label>
-    <div class="hint">최대 3장 · JPG/PNG/HEIC · 10MB</div>
+    <div class="big">영수증 사진을 여기에 떨어뜨려라</div>
+    <div class="small">또는 눌러서 고르기 · 한 번에 <b>최대 3장</b> · JPG/PNG/HEIC · 10MB</div>
   </div>
   <div id="msg" role="status"></div>
-  <div class="sheet"><table>
-    <thead><tr><th>사진</th><th>파일</th><th>상태</th><th>OCR 텍스트</th></tr></thead>
-    <tbody id="tb"><tr><td colspan="4"><div class="empty">아직 올린 영수증이 없다.</div></td></tr></tbody>
+  <hr class="rule">
+  <div class="ledger"><table>
+    <thead><tr><th></th><th>날짜</th><th>가게명</th><th class="r">총액</th><th>상태</th></tr></thead>
+    <tbody id="tb"><tr><td colspan="5"><div class="empty">아직 찍힌 줄이 없다 — 첫 영수증이 첫 줄이다.</div></td></tr></tbody>
   </table></div>
+  <div class="tally" id="tally"></div>
 </div>
 <footer><a href="/docs/plan.html">기획서</a><a href="/docs/report.html">스택 리포트</a><span style="margin-left:auto">키는 서버에만 · 파일은 Storage · DB엔 URL만</span></footer>
 
 <script>
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
-const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 공개 키 — 이 버킷에 올리기만 허용된다(정책)
+const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 공개 키: 이 버킷에 올리기 + 표 읽기만
 const BUCKET = 's07-receipts';
 const $ = (id) => document.getElementById(id);
+const fmtTotal = (v) => (v == null ? '' : '$' + Number(v).toFixed(2));
 
-// 브라우저 → Storage 직접 업로드 (스파이크 ①에서 판정한 경로 그대로)
+// 브라우저 → Storage 직접 (스파이크 ①)
 async function upload(file) {
-  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${(file.name.split('.').pop() || 'jpg').toLowerCase()}`;
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const r = await fetch(`${SUPA}/storage/v1/object/${BUCKET}/${name}`, {
     method: 'POST', headers: { apikey: ANON, Authorization: `Bearer ${ANON}`, 'Content-Type': file.type || 'image/jpeg' }, body: file,
   });
-  if (!r.ok) throw new Error(`업로드 실패 ${r.status}`);
+  if (!r.ok) throw new Error(`업로드 실패 (${r.status}) — 10MB 이하 이미지만`);
   return `${SUPA}/storage/v1/object/public/${BUCKET}/${name}`;
 }
 
-function row(file, url) {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td><img class="thumb" alt=""></td><td class="num"></td><td><span class="badge st-pending">읽는 중</span></td><td><pre class="ocr"></pre></td>`;
-  tr.querySelector('img').src = url; tr.querySelector('.num').textContent = file.name;
-  return tr;
+function cell(row, field, cls) {
+  const td = document.createElement('td'); td.className = `editable ${cls || ''}` + (row.corrected?.[field] ? ' fixed' : '');
+  td.textContent = field === 'total' ? fmtTotal(row.total) : (row[field] ?? '');
+  td.title = '눌러서 고치기';
+  td.onclick = () => edit(td, row, field);
+  return td;
+}
+function edit(td, row, field) {
+  if (td.querySelector('input')) return;
+  const input = document.createElement('input');
+  input.value = field === 'total' ? (row.total ?? '') : (row[field] ?? '');
+  input.placeholder = field === 'receipt_date' ? 'YYYY-MM-DD' : field === 'total' ? '16.49' : '가게명';
+  td.textContent = ''; td.appendChild(input); input.focus(); input.select();
+  let done = false;
+  const finish = async (save) => {
+    if (done) return; done = true;
+    if (!save) return render(row, td.parentElement);
+    const r = await fetch('/api/fix', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: row.id, field, value: input.value }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { $('msg').textContent = j.error ?? `저장 실패 (${r.status})`; return render(row, td.parentElement); }
+    $('msg').textContent = ''; Object.assign(row, j.row); render(row, td.parentElement); tally();
+  };
+  input.onkeydown = (e) => { if (e.key === 'Enter') finish(true); if (e.key === 'Escape') finish(false); };
+  input.onblur = () => finish(true);
 }
 
-$('f').onchange = async () => {
-  const files = [...$('f').files].slice(0, 3);
-  if (!files.length) return;
-  if ($('tb').querySelector('.empty')) $('tb').innerHTML = '';
+const ROWS = new Map(); // id → row (집계용)
+function render(row, tr) {
+  tr = tr || document.createElement('tr'); tr.className = 'prow'; tr.replaceChildren();
+  const t = document.createElement('td'); const img = document.createElement('img'); img.className = 'thumb'; img.src = row.image_url; img.alt = ''; img.loading = 'lazy'; t.appendChild(img);
+  const st = document.createElement('td');
+  if (row.status === 'pending') { st.innerHTML = '<span class="st pending">읽는 중</span>'; tr.append(t, blank(), blank(), blank('r'), st); return tr; }
+  if (row.status === 'failed') { st.innerHTML = `<span class="st failed">실패</span><div class="note"></div>`; st.querySelector('.note').textContent = row.note || ''; }
+  else st.innerHTML = `<span class="st ok">${Object.keys(row.corrected || {}).length ? '고침' : 'OCR'}</span>`;
+  tr.append(t, cell(row, 'receipt_date'), cell(row, 'merchant'), cell(row, 'total', 'r total'), st);
+  if (row.id) ROWS.set(row.id, row);
+  return tr;
+}
+const blank = (c) => { const td = document.createElement('td'); td.className = c || ''; td.textContent = '—'; return td; };
+
+function tally() {
+  const rows = [...ROWS.values()];
+  if (!rows.length) { $('tally').innerHTML = ''; return; }
+  const ok = rows.filter((r) => r.status === 'ok');
+  const fixed = ok.filter((r) => Object.keys(r.corrected || {}).length);
+  const exact = ok.length - fixed.length;
+  $('tally').innerHTML = `<span>ITEMS <b>${rows.length}</b></span><span>OCR 성공 <b>${ok.length}</b></span><span>손으로 고침 <b>${fixed.length}</b></span>` +
+    `<span class="acc">정확 <b>${exact}/${rows.length}</b></span>` +
+    `<span class="hint">정확 = 고치지 않고 그대로 쓴 줄. 실패·고친 줄은 OCR이 틀린 것으로 센다.</span>`;
+}
+
+async function load() {
+  const r = await fetch(`${SUPA}/rest/v1/s07_receipts?select=*&order=created_at.desc`, { headers: { apikey: ANON } });
+  if (!r.ok) return;
+  const rows = await r.json();
+  if (!rows.length) return;
+  $('tb').replaceChildren(...rows.map((row) => render(row)));
+  tally();
+}
+
+async function handle(files) {
+  files = [...files].filter((f) => f.type.startsWith('image/') || /\.heic$/i.test(f.name)).slice(0, 3);
+  if (!files.length) { $('msg').textContent = '이미지 파일만 올릴 수 있다'; return; }
   $('msg').textContent = '';
+  if ($('tb').querySelector('.empty')) $('tb').innerHTML = '';
   for (const file of files) {
     let url;
     try { url = await upload(file); } catch (e) { $('msg').textContent = e.message; continue; }
-    const tr = row(file, url); $('tb').prepend(tr);
-    const r = await fetch('/api/spike-vision', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image_url: url }) });
+    const pending = { image_url: url, status: 'pending' };
+    const tr = render(pending); $('tb').prepend(tr);
+    const r = await fetch('/api/analyze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image_url: url }) });
     const j = await r.json().catch(() => ({}));
-    const b = tr.querySelector('.badge');
-    if (!r.ok) { b.className = 'badge st-failed'; b.textContent = '실패'; tr.querySelector('.ocr').textContent = j.error ?? r.status; continue; }
-    b.className = 'badge st-ok'; b.textContent = `${j.chars}자 · ${j.ms.vision}ms`;
-    tr.querySelector('.ocr').textContent = `dates: ${JSON.stringify(j.dates)}\ntotals: ${JSON.stringify(j.totals)}\n---\n${j.head.join('\n')}`;
+    if (!r.ok || !j.row) { render({ ...pending, status: 'failed', note: j.error ?? `분석 실패 (${r.status})` }, tr); continue; }
+    render(j.row, tr); tally();
   }
-  $('f').value = '';
-};
+}
+
+// 드롭존: 끌어다 놓기 + 눌러서 고르기
+const drop = $('drop');
+drop.onclick = () => $('f').click();
+drop.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('f').click(); } };
+$('f').onchange = () => { handle($('f').files); $('f').value = ''; };
+['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (e) => handle(e.dataTransfer.files));
+load();
 </script>
 </html>
