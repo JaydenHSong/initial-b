@@ -137,9 +137,11 @@ function edit(td, row, field) {
   }
   td.textContent = ''; td.appendChild(input); input.focus(); input.select();
   let done = false;
+  const before = field === 'total' ? String(row.total ?? '') : String(row[field] ?? '');
   const finish = async (save) => {
     if (done) return; done = true;
-    if (!save) return render(row, td.parentElement);
+    // 값이 그대로면 저장하지 않는다 — 열었다 닫은 것이 "고침"으로 집계되면 정확도가 오염된다
+    if (!save || input.value === before) return render(row, td.parentElement);
     const r = await fetch('/api/fix', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: row.id, field, value: input.value }) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) { $('msg').textContent = j.error ?? `저장 실패 (${r.status})`; return render(row, td.parentElement); }
