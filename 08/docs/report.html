@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">실시간 재고 보드</h1>
+  <div class="intro-line" data-f="intro">같은 재고 보드를 연 다른 탭에서 수량을 바꾸면 수백 ms 안에 여기가 바뀌고, 그 지연 시간이 화면에 찍힌다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">10</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">1분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.3초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S08</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">실시간</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Supabase Realtime(postgres_changes) + 쓰기는 DB 함수 RPC 직접 · 서버 함수 0개</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">"지연을 무엇으로 재나"가 설계 문제였다 — DB의 updated_at은 서버 시계라 브라우저 시계와 어긋나 ms 단위 측정이 안 된다. 보낸 탭의 클릭 시각을 함수 인자로 실어 행에 남기고(sent_at) 받는 탭이 도착 시각과 빼는 것으로 정리, 같은 기기 두 탭이라 시계가 같다. 함수 시그니처를 바꾸느라 이전 오버로드를 drop해야 PostgREST 모호성 에러가 안 났다. 덤: 이 주는 목요일 하루 압축 스프린트(기획→제출)였다</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">상</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">Realtime Free — 동시 연결 200 · 메시지 200만/월 · DB 함수 호출은 일반 REST와 같다. 팀 규모엔 무관. 서버 함수 0개라 Vercel 비용도 정적 호스팅뿐</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b08.vercel.app">initial-b08.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">여러 사람이 같은 화면을 보며 값을 바꾸는 경우라면 Supabase Realtime을 쓰겠다 — 이미 쓰는 테이블에 발행 한 줄, 브라우저에서 구독 한 줄, 서버 함수 0개로 두 탭이 291~606ms(중앙값 ~550) 안에 맞춰졌고, 그 지연의 절반은 쓰기 왕복이라 발행→도착 자체는 ~250ms다. 반대로 S04·S05처럼 한 사람이 자기 보드만 보는 경우엔 3초 폴링으로 충분했고 실제로 그렇게 썼다 — "폴링으로도 됐을까"의 답은 "혼자 보면 됐고, 같이 보면 안 된다"다. 쓰기는 RPC 하나로 좁히면 anon 키만으로 안전하고, 증감을 DB 안에서 원자적으로 하면 브리프의 "충돌"은 코드 없이 사라진다.</div>
 
 </div>
 

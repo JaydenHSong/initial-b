@@ -8,7 +8,7 @@
      · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
      · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
      ══════════════════════════════════════════════════════════════ -->
-<title>S00 기획서 — 제목</title>
+<title>S08 기획서 — 실시간 재고 보드</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -55,49 +55,51 @@
 <div class="doc">
   <div class="kicker">1-PAGE PLAN</div>
   <!-- 제목: 프로젝트 이름으로 바꾼다 -->
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — 갤러리 카드에 그대로 실린다. 동사로 끝나게.</div>
+  <h1 data-f="title">실시간 재고 보드</h1>
+  <div class="intro-line" data-f="intro">같은 재고 보드를 연 다른 탭에서 수량을 바꾸면 수백 ms 안에 여기가 바뀌고, 그 지연 시간이 화면에 찍힌다.</div>
 
   <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/">저장소 주소 (선택 — 적으면 카드에 소스 링크가 붙는다)</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S08</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">실시간</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Supabase Realtime(postgres_changes) + 쓰기는 DB 함수 RPC 직접 · 서버 함수 0개</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/JaydenHSong/initial-b">github.com/JaydenHSong/initial-b</a></td></tr>
   </table>
 
   <h2><span class="no">01</span>누가 쓰나</h2>
-  <p>구체적인 한 사람. 직군·연차·하루에 몇 번 겪는 일인지. (예: 3년차 PD 김OO. 하루에 경쟁 ASIN 20개를 탭으로 열어놓고 본다)</p>
+  <p>같은 재고 보드를 동시에 보는 스피겐 창고·CS 담당자들. 한 사람이 출고를 찍는 동안 다른 사람은 그 수량을 보고 고객에게 답한다.</p>
 
   <h2><span class="no">02</span>지금은</h2>
-  <p>이 도구 없이 지금 어떻게 하고 있나. 걸리는 시간을 숫자로. (예: 엑셀에 수동 복붙. 주 2회, 회당 40분)</p>
+  <p>공유 시트를 열어두고 새로고침. 몇 초 전 값을 보고 답하거나, 두 사람이 같은 칸을 동시에 고쳐 한쪽이 덮어쓴다.</p>
 
   <h2><span class="no">03</span>없앨 동작 하나</h2>
-  <p>이번 주에 없애는 단 하나의 동작. (예: 탭을 닫으면 다 날아가는 것)</p>
+  <p>"바뀌었나?" 하고 새로고침하는 것 — 서버가 먼저 알려준다.</p>
 
   <h2><span class="no">04</span>핵심 기능 1개</h2>
-  <p>동사로 한 문장. 입력 → 처리 → 결과가 끊김 없이 도는 것이 유일한 성공 조건. (예: URL을 붙여넣으면 목록에 카드로 저장되고, 태그를 달 수 있다)</p>
+  <p>재고 보드에서 SKU 수량을 −/+로 바꾸면 같은 보드를 연 다른 탭이 수백 ms 안에 바뀐다. 각 탭은 마지막으로 받은 변경의 지연 시간(ms)을 찍는다 — 보낸 탭의 클릭 시각과 도착 시각의 차. 증감은 DB 함수 안에서 원자적이라 동시 클릭이 충돌하지 않는다.</p>
 
   <h2><span class="no">05</span>안 만드는 것 3개</h2>
   <ul class="nolist">
-    <li>기록 없음</li>
-    <li>기록 없음</li>
-    <li>기록 없음</li>
+    <li>품목 추가·삭제·이름 편집 — SKU 5개를 SQL로 시드. 보드는 수량만 바꾼다</li>
+    <li>재고 이력·감사 로그 — 행에 updated_at·updated_by 두 칸까지. 누가 언제 얼마나 바꿨는지 목록은 없다</li>
+    <li>로그인·사용자별 보드 — 공용 보드 1개. 탭 식별은 랜덤 별명(같은 기기 두 탭 구분용). 폴링 토글·재연결 UI·낙관적 UI도 없음</li>
   </ul>
 
   <h2><span class="no">06</span>성공 판정</h2>
   <ul>
-    <li>기록 없음 (금요일 데모에서 직접 보여줄 수 있는 판정 기준으로. 예: 제품 3개 저장 + 태그 2개씩 + 태그로 필터)</li>
+    <li>탭 두 개 나란히 → 한쪽 + → 다른 쪽 수량이 바뀌고 지연 ms가 찍힌다 (실측 291~606ms)</li>
+    <li>두 탭이 동시에 +를 눌러도 수량이 정확히 합산된다 (병렬 5회 → +5)</li>
+    <li>브라우저에 시크릿 없음 — anon 키 + DB 함수 하나. 직접 UPDATE는 RLS가 막는다</li>
   </ul>
 
   <h2><span class="no">07</span>내 옵션 + 이유</h2>
-  <p>왜 이 선택지를 골랐나. 한 문단. (예: 제품마다 필드가 제각각일 것 같아서 스키마 없는 쪽이 빠를 것 같다)</p>
+  <p>넷 중 폴링은 S04·S05에서 이미 써봤고(3~4초 주기), 이번 주는 "서버가 먼저 알려주는" 쪽을 만져야 카드가 새 것이다. Supabase Realtime은 지금 쓰는 DB 테이블의 변경을 WebSocket으로 밀어주니 발행 한 줄로 켜지고 서버 함수가 0개다 — Firestore 리스너는 더 성숙하지만 데이터가 Supabase 궤도 밖으로 나간다. 쓰기는 DB 함수(RPC) 하나로만 열어 홉을 최소로 하고(지연 측정값이 좋아진다) 증감을 원자적으로 만들었다 — 브리프의 "충돌"에 대한 답.</p>
 
   <h2><span class="no">08</span>리스크 + 검증법</h2>
   <div class="risk">
-    <b>걱정되는 것:</b> 기록 없음 (예: 태그 필터링. 문서형은 다대다가 약하다던데)<br>
-    <b>화요일 스파이크로 확인:</b> 기록 없음 (예: "태그 2개 걸린 제품만 꺼내기"부터 해본다)
+    <b>걱정되는 것:</b> ① postgres_changes가 정적 페이지에서 붙고 두 탭에 오나 ② 지연을 무엇으로 재나(서버 시계 vs 브라우저 시계) ③ anon 키로 쓰기를 어디까지 열어야 하나<br>
+    <b>스파이크로 확인 (목 오전):</b> ① 두 탭 양방향 5표본 291~606ms, 중앙값 ~550 ② 보낸 탭의 클릭 시각을 행(sent_at)에 실어 같은 기기에서 뺀다 ③ 직접 UPDATE는 RLS가 조용히 거르고 RPC만 통과, 병렬 +1×5가 정확히 +5. 상세 08/SPIKE.md. 후퇴 경로(3초 폴링)는 쓸 일 없었다.
   </div>
 </div>
 
