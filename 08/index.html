@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>실시간 재고 보드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168; --tag:#FCFBF6; --tag-edge:#E9E5DA;
+    --ink:#1C231F; --ink-dim:#75806F; --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C; }
+  * { box-sizing:border-box; margin:0; }
+  html { background:var(--board); }
+  body { background:var(--board); color:var(--chalk); padding:0 20px 72px; font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
+  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
+  .wrap { max-width:820px; margin:0 auto; }
+  header { padding:40px 0 8px; }
+  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em; color:var(--chalk-dim); margin-bottom:10px; display:flex; gap:14px; flex-wrap:wrap; }
+  .eyebrow .conn { margin-left:auto; letter-spacing:0; }
+  .conn b { color:var(--amber); } .conn.on b { color:#5BC08F; }
+  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
+  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 22px; max-width:680px; }
+  .sub b { color:#E9E5DA; }
+  .sheet { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.25); }
+  .row { display:grid; grid-template-columns:1fr auto auto; gap:14px; align-items:center; padding:14px 18px; border-top:1px dashed var(--tag-edge); color:var(--ink); }
+  .row:first-child { border-top:0; }
+  .row .nm { font-size:14px; } .row .sku { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-dim); }
+  .row .who { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-dim); margin-top:2px; }
+  .qty { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:30px; font-weight:700; min-width:64px; text-align:right; font-variant-numeric:tabular-nums; }
+  .qty.flash { animation:flash .9s ease-out; }
+  @keyframes flash { 0% { color:var(--amber); } 100% { color:var(--ink); } }
+  .btns { display:flex; gap:6px; }
+  .btns button { width:40px; height:40px; border-radius:10px; border:1px solid var(--tag-edge); background:#fff; color:var(--ink); font-size:20px; font-weight:700; cursor:pointer; }
+  .btns button:hover { background:#F3F0E8; } .btns button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+  .lat { margin-top:16px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px; color:var(--chalk); }
+  .lat .big { font-size:22px; font-weight:700; color:#F2EFE7; }
+  .lat .big.fast { color:#5BC08F; }
+  .log { list-style:none; padding:0; margin-top:8px; font-size:11.5px; color:var(--chalk-dim); }
+  .log li { padding:2px 0; }
+  footer { max-width:820px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--chalk-dim); display:flex; gap:12px 18px; flex-wrap:wrap; }
+  footer a, footer span { color:inherit; text-decoration:none; white-space:nowrap; }
+  @media (max-width:560px) { h1 { font-size:24px; } .row { grid-template-columns:1fr auto; } .btns { grid-column:1 / -1; justify-content:flex-end; } }
+  @media (prefers-reduced-motion:reduce) { .qty.flash { animation:none; } }
+</style>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span>iBD S08 · 실시간 — SUPABASE REALTIME</span><span class="conn" id="conn">연결 <b>…</b> · 이 탭 <b id="me"></b></span></div>
+    <h1>실시간 재고 보드</h1>
+    <p class="sub">같은 보드를 연 <b>다른 탭</b>에서 수량을 바꾸면 여기가 바로 바뀐다. 아래에 마지막으로 받은 변경의 <b>지연 시간</b>이 찍힌다 — 보낸 탭의 시각과 도착 시각의 차이.</p>
+  </header>
+  <div class="sheet" id="rows"></div>
+  <div class="lat" id="lat">마지막 수신 지연 <span class="big" id="ms">—</span><ul class="log" id="log"></ul></div>
+</div>
+<footer><a href="/docs/plan.html">기획서</a><a href="/docs/report.html">스택 리포트</a><span style="margin-left:auto">쓰기는 DB 함수 하나 · 시크릿 없음</span></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
+const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA';
+const sb = supabase.createClient(SUPA, ANON);
+const $ = (id) => document.getElementById(id);
+const ANIMALS = ['수달', '펭귄', '여우', '고래', '토끼', '판다', '올빼미', '거북'];
+const ME = ANIMALS[Math.floor(Math.random() * ANIMALS.length)] + '-' + Math.random().toString(36).slice(2, 5);
+$('me').textContent = ME;
+const ROWS = new Map();
+
+function rowEl(r) {
+  const el = document.createElement('div'); el.className = 'row'; el.dataset.sku = r.sku;
+  el.innerHTML = `<div><div class="nm"></div><div class="sku"></div><div class="who"></div></div><div class="qty"></div>
+    <div class="btns"><button data-d="-1" aria-label="1 빼기">−</button><button data-d="1" aria-label="1 더하기">+</button></div>`;
+  el.querySelector('.nm').textContent = r.name; el.querySelector('.sku').textContent = r.sku;
+  el.querySelectorAll('button').forEach((b) => b.onclick = () => adjust(r.sku, Number(b.dataset.d)));
+  return el;
+}
+function paint(r, changed) {
+  const el = $('rows').querySelector(`[data-sku="${CSS.escape(r.sku)}"]`); if (!el) return;
+  const q = el.querySelector('.qty'); q.textContent = r.qty;
+  if (changed) { q.classList.remove('flash'); void q.offsetWidth; q.classList.add('flash'); }
+  el.querySelector('.who').textContent = r.updated_by ? `${r.updated_by === ME ? '나' : r.updated_by} · ${new Date(r.updated_at).toLocaleTimeString('ko', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : '';
+}
+async function load() {
+  const { data, error } = await sb.from('s08_stock').select('*').order('sku');
+  if (error) return;
+  $('rows').replaceChildren(...data.map((r) => { ROWS.set(r.sku, r); return rowEl(r); }));
+  data.forEach((r) => paint(r, false));
+}
+async function adjust(sku, delta) {
+  const { error } = await sb.rpc('adjust_stock', { p_sku: sku, p_delta: delta, p_by: ME, p_sent_at: Date.now() });
+  if (error) $('log').prepend(Object.assign(document.createElement('li'), { textContent: '쓰기 실패: ' + error.message }));
+}
+// 실시간: 이 테이블의 UPDATE를 WebSocket으로 받는다. 폴링 없음.
+sb.channel('s08-stock')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 's08_stock' }, (payload) => {
+    const r = payload.new; const arrived = Date.now();
+    ROWS.set(r.sku, r); paint(r, true);
+    const ms = r.sent_at ? arrived - Number(r.sent_at) : null;
+    const mine = r.updated_by === ME;
+    if (ms != null) { $('ms').textContent = `${ms} ms`; $('ms').classList.toggle('fast', ms < 500); }
+    const li = document.createElement('li');
+    li.textContent = `${new Date(arrived).toLocaleTimeString('ko')} · ${r.sku} → ${r.qty} · ${mine ? '내 탭' : (r.updated_by || '?')} · ${ms != null ? ms + 'ms' : '—'}`;
+    $('log').prepend(li); while ($('log').children.length > 6) $('log').lastChild.remove();
+  })
+  .subscribe((status) => { $('conn').classList.toggle('on', status === 'SUBSCRIBED'); $('conn').querySelector('b').textContent = status; });
+load();
+</script>
+</html>
