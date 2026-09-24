@@ -15,6 +15,7 @@ const Receipt = z.object({
   merchant: z.string().describe('가게 이름 — 영수증 상단의 상호만. 주소·전화번호·슬로건 제외. 원문 표기 그대로 (예: Ralphs, Costco Wholesale)'),
   date: z.string().describe('거래 날짜를 YYYY-MM-DD로. 두 자리 연도(09/09/26)는 20xx로. 영수증에 없으면 빈 문자열'),
   total: z.number().nullable().describe('최종 결제 총액(달러 숫자). 팁을 손으로 더한 TOTAL이 있으면 그 값. Subtotal·Tax·Savings·Change·Balance 이전 값이 아니다. 못 찾으면 null'),
+  category: z.enum(['식비', '식료품', '교통', '숙박', '사무용품', '장비', '접대', '기타']).describe('경비 분류 — 식비(식당·카페), 식료품(마트·슈퍼), 교통(주유·주차·라이드), 숙박, 사무용품(문구·소모품), 장비(전자기기·공구), 접대(고객 동반 식사·선물), 기타. 가게명과 항목으로 판단'),
 });
 
 async function insert(row) {
@@ -68,7 +69,7 @@ export default async function handler(req, res) {
   // ③ 기록 — 날짜가 YYYY-MM-DD 꼴이 아니면 비워둔다 (틀린 값보다 빈 값)
   const date = /^\d{4}-\d{2}-\d{2}$/.test(parsed.date) ? parsed.date : null;
   const row = await insert({
-    image_url: url, merchant: parsed.merchant || null, receipt_date: date, total: parsed.total,
+    image_url: url, merchant: parsed.merchant || null, receipt_date: date, total: parsed.total, category: parsed.category || null,
     ocr_text: text, ocr_chars: text.length, status: 'ok',
     note: `vision ${visionMs}ms · claude ${Date.now() - t1}ms`,
   });

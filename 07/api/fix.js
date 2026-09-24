@@ -3,7 +3,9 @@
 const SUPA = 'https://mathlgugjqnnhsexvqjy.supabase.co';
 const KEY = process.env.SUPABASE_SERVICE_KEY;
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json' };
-const FIELDS = { merchant: (v) => String(v).trim().slice(0, 120) || null,
+const CATS = ['식비', '식료품', '교통', '숙박', '사무용품', '장비', '접대', '기타'];
+const FIELDS = { category: (v) => (CATS.includes(v) ? v : null),
+  merchant: (v) => String(v).trim().slice(0, 120) || null,
   receipt_date: (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null),
   total: (v) => { const n = Number(String(v).replace(/[$,\s]/g, '')); return Number.isFinite(n) ? n : null; } };
 
@@ -13,7 +15,7 @@ export default async function handler(req, res) {
   const { id, field, value } = req.body || {};
   if (!Number.isInteger(id) || !(field in FIELDS)) return res.status(400).json({ error: 'id·field가 이상하다' });
   const clean = FIELDS[field](value ?? '');
-  if (clean === null && field !== 'merchant') return res.status(400).json({ error: field === 'total' ? '숫자로 넣어라 (예: 16.49)' : 'YYYY-MM-DD로 넣어라' });
+  if (clean === null && field !== 'merchant') return res.status(400).json({ error: field === 'total' ? '숫자로 넣어라 (예: 16.49)' : field === 'category' ? '목록에서 골라라' : 'YYYY-MM-DD로 넣어라' });
   const cur = await fetch(`${SUPA}/rest/v1/s07_receipts?id=eq.${id}&select=corrected`, { headers: H });
   const corrected = { ...((await cur.json())[0]?.corrected || {}), [field]: true };
   const r = await fetch(`${SUPA}/rest/v1/s07_receipts?id=eq.${id}`, {

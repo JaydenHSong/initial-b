@@ -58,6 +58,7 @@
   td.editable.fixed::after { content:" ✎"; font-size:11px; }
   td input { width:100%; font:inherit; padding:2px 6px; border:1px solid var(--hl-ink); border-radius:3px; background:#FFFBD6; }
   td.r input { text-align:right; }
+  td select { font:inherit; padding:2px 6px; border:1px solid var(--hl-ink); border-radius:3px; background:#FFFBD6; }
   .st { font-size:11px; letter-spacing:.08em; font-weight:600; white-space:nowrap; }
   .st.pending { color:var(--faded); animation:pulse 1.2s infinite; }
   .st.ok { color:var(--ok); } .st.failed { color:var(--stamp); }
@@ -80,7 +81,7 @@
 <div class="strip">
   <div class="head">
     <h1><small>iBD S07 · Supabase Storage + Google Vision</small>영수증 정리기</h1>
-    <p>영수증 사진을 올리면 <b>파일은 Storage에, DB엔 URL만</b> 들어가고, Vision이 읽은 글자에서 날짜·총액·가게명이 한 줄로 찍힌다. 틀린 칸은 눌러서 고친다 — 고친 칸은 형광펜으로 남는다.</p>
+    <p>영수증 사진을 올리면 <b>파일은 Storage에, DB엔 URL만</b> 들어가고, Vision이 읽은 글자에서 날짜·가게명·분류·총액이 한 줄로 찍힌다. 틀린 칸은 눌러서 고친다 — 고친 칸은 형광펜으로 남는다.</p>
   </div>
   <hr class="rule">
   <div class="drop" id="drop" tabindex="0" role="button" aria-label="영수증 사진 올리기">
@@ -91,8 +92,8 @@
   <div id="msg" role="status"></div>
   <hr class="rule">
   <div class="ledger"><table>
-    <thead><tr><th></th><th>날짜</th><th>가게명</th><th class="r">총액</th><th>상태</th></tr></thead>
-    <tbody id="tb"><tr><td colspan="5"><div class="empty">아직 찍힌 줄이 없다 — 첫 영수증이 첫 줄이다.</div></td></tr></tbody>
+    <thead><tr><th></th><th>날짜</th><th>가게명</th><th>분류</th><th class="r">총액</th><th>상태</th></tr></thead>
+    <tbody id="tb"><tr><td colspan="6"><div class="empty">아직 찍힌 줄이 없다 — 첫 영수증이 첫 줄이다.</div></td></tr></tbody>
   </table></div>
   <div class="tally" id="tally"></div>
 </div>
@@ -104,6 +105,7 @@ const ANON = 'sb_publishable_ZYCrRbAghMXoB_dUKG1X1g_TkhCDJYA'; // 공개 키: �
 const BUCKET = 's07-receipts';
 const $ = (id) => document.getElementById(id);
 const fmtTotal = (v) => (v == null ? '' : '$' + Number(v).toFixed(2));
+const CATS = ['식비', '식료품', '교통', '숙박', '사무용품', '장비', '접대', '기타'];
 
 // 브라우저 → Storage 직접 (스파이크 ①)
 async function upload(file) {
@@ -125,9 +127,14 @@ function cell(row, field, cls) {
 }
 function edit(td, row, field) {
   if (td.querySelector('input')) return;
-  const input = document.createElement('input');
-  input.value = field === 'total' ? (row.total ?? '') : (row[field] ?? '');
-  input.placeholder = field === 'receipt_date' ? 'YYYY-MM-DD' : field === 'total' ? '16.49' : '가게명';
+  const input = document.createElement(field === 'category' ? 'select' : 'input');
+  if (field === 'category') {
+    CATS.forEach((c) => { const o = document.createElement('option'); o.value = c; o.textContent = c; o.selected = c === row.category; input.appendChild(o); });
+    input.onchange = () => finish(true);
+  } else {
+    input.value = field === 'total' ? (row.total ?? '') : (row[field] ?? '');
+    input.placeholder = field === 'receipt_date' ? 'YYYY-MM-DD' : field === 'total' ? '16.49' : '가게명';
+  }
   td.textContent = ''; td.appendChild(input); input.focus(); input.select();
   let done = false;
   const finish = async (save) => {
@@ -147,10 +154,10 @@ function render(row, tr) {
   tr = tr || document.createElement('tr'); tr.className = 'prow'; tr.replaceChildren();
   const t = document.createElement('td'); const img = document.createElement('img'); img.className = 'thumb'; img.src = row.image_url; img.alt = ''; img.loading = 'lazy'; t.appendChild(img);
   const st = document.createElement('td');
-  if (row.status === 'pending') { st.innerHTML = '<span class="st pending">읽는 중</span>'; tr.append(t, blank(), blank(), blank('r'), st); return tr; }
+  if (row.status === 'pending') { st.innerHTML = '<span class="st pending">읽는 중</span>'; tr.append(t, blank(), blank(), blank(), blank('r'), st); return tr; }
   if (row.status === 'failed') { st.innerHTML = `<span class="st failed">실패</span><div class="note"></div>`; st.querySelector('.note').textContent = row.note || ''; }
   else st.innerHTML = `<span class="st ok">${Object.keys(row.corrected || {}).length ? '고침' : 'OCR'}</span>`;
-  tr.append(t, cell(row, 'receipt_date'), cell(row, 'merchant'), cell(row, 'total', 'r total'), st);
+  tr.append(t, cell(row, 'receipt_date'), cell(row, 'merchant'), cell(row, 'category'), cell(row, 'total', 'r total'), st);
   if (row.id) ROWS.set(row.id, row);
   return tr;
 }
