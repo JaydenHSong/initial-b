@@ -58,30 +58,30 @@
 
 <div class="doc">
   <div class="kicker">STACK REPORT</div>
-  <h1 data-f="title">프로젝트 제목</h1>
-  <div class="intro-line" data-f="intro">한 줄 소개 — plan.html과 같게.</div>
+  <h1 data-f="title">영수증 정리기</h1>
+  <div class="intro-line" data-f="intro">영수증 사진을 올리면 Storage에 파일이, DB엔 URL만 남고, Vision이 읽은 글자에서 날짜·총액·가게명이 표에 찍힌다. 틀린 칸은 눌러서 고친다.</div>
 
   <div class="bignums">
-    <div class="bn"><div class="v"><span data-f="minutes">0</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
-    <div class="bn"><div class="v"><span data-f="deploy-min">기록 없음</span></div><div class="l">배포에 걸린 시간</div></div>
-    <div class="bn"><div class="v"><span data-f="load-sec">기록 없음</span></div><div class="l">첫 로딩</div></div>
+    <div class="bn"><div class="v"><span data-f="minutes">20</span><small>분</small></div><div class="l">셋업 → 첫 저장</div></div>
+    <div class="bn"><div class="v"><span data-f="deploy-min">2분</span></div><div class="l">배포에 걸린 시간</div></div>
+    <div class="bn"><div class="v"><span data-f="load-sec">0.2초</span></div><div class="l">첫 로딩</div></div>
   </div>
 
   <table class="core">
-    <tr><td>스프린트</td><td data-f="sprint">S00</td></tr>
-    <tr><td>만든 사람</td><td data-f="author">이름</td></tr>
-    <tr><td>스택 카드</td><td data-f="card">이번 주 스택 카드</td></tr>
-    <tr><td>내 옵션</td><td data-f="option">내가 고른 선택지</td></tr>
-    <tr><td>막힌 지점 1개</td><td data-f="blocker">가장 시간을 뺏은 지점 하나만. 여러 개 쓰지 마라</td></tr>
-    <tr><td>문서 품질</td><td class="grade" data-f="docs">상·중·하 중 하나</td></tr>
-    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상·중·하 중 하나</td></tr>
-    <tr><td>무료 한도</td><td data-f="limit">기록 없음</td></tr>
-    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음·보통·안 맞음 중 하나</td></tr>
-    <tr><td>URL</td><td><a data-f="url" href="https://">배포된 사이트 주소로 href까지 바꿀 것</a></td></tr>
+    <tr><td>스프린트</td><td data-f="sprint">S07</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">스토리지 + OCR</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Supabase Storage(브라우저 직접 업로드) + Google Cloud Vision(서버 함수) · OCR 텍스트→3열은 Claude 구조화 출력</td></tr>
+    <tr><td>막힌 지점 1개</td><td data-f="blocker">판정용 이미지를 서버로 옮길 길이 없었다 — 대화에 첨부된 사진은 파일로 못 꺼내고 로컬엔 Vision 키도 없어, 스파이크 전에 "파일 선택→Storage 업로드→Vision" 화면부터 만들어야 했다(그게 그대로 제품 입력부가 됐다). 덤: GCP 자격증명 마법사가 서비스 계정을 유도해 API 키 경로로 되돌렸고, Vision 텍스트에서 "총액"은 Subtotal·Savings·Total Tax가 섞여 정규식으론 안 갈려 Claude 구조화로 확정</td></tr>
+    <tr><td>문서 품질</td><td class="grade" data-f="docs">상</td></tr>
+    <tr><td>AI가 잘 아나</td><td class="grade" data-f="ai">상</td></tr>
+    <tr><td>무료 한도</td><td data-f="limit">Vision 월 1,000건 무료(결제 연결 필수), 이후 1,000건당 $1.50 · Supabase Storage 1GB/전송 2GB · Claude 추출 건당 ~$0.002 — 팀 영수증 규모엔 사실상 0</td></tr>
+    <tr><td>주제에 맞았나</td><td class="grade" data-f="fit">잘 맞음</td></tr>
+    <tr><td>URL</td><td><a data-f="url" href="https://initial-b07.vercel.app">initial-b07.vercel.app</a></td></tr>
   </table>
 
   <h2>한 줄 결론</h2>
-  <div class="conclusion" data-f="conclusion">"____ 같은 경우에는 이걸 쓰겠다 / 안 쓰겠다" 형태로.</div>
+  <div class="conclusion" data-f="conclusion">사진에서 몇 개 필드만 뽑아 표로 만드는 도구라면 이 조합을 쓰겠다 — 파일은 브라우저가 Storage에 직접 올리고(정책 두 줄로 남의 버킷·삭제는 막힌다) 서버는 URL만 받아 Vision을 부르니 함수 본문 한도와 무관하고, Vision은 폰 사진 영수증 3장 전부 700~930자를 1.7~4초에 읽었다. 단 OCR 텍스트에서 "어느 줄이 총액인가"는 OCR의 일이 아니다 — 정규식은 Subtotal·Savings·Total Tax에 걸려 깨졌고, 그 자리엔 S06의 Claude 구조화 출력이 정확히 맞았다(스키마에 "손글씨 팁이 더해진 TOTAL이면 그 값"까지 지시). 흐린 사진·손글씨가 많은 현장이면 Vision이 아니라 그 다음 단계(구조화)와 "손으로 고치는 클릭"에 예산을 두겠다. 정확도는 실물 3장 기준 3장 모두 세 칸이 채워졌고 Ralphs·Costco는 사진과 대조해 일치.</div>
 
 </div>
 
