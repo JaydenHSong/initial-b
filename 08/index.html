@@ -7,51 +7,78 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --board:#101B16; --board-edge:#1A2A23; --chalk:#9FB3A8; --chalk-dim:#5E7168; --tag:#FCFBF6; --tag-edge:#E9E5DA;
-    --ink:#1C231F; --ink-dim:#75806F; --amber:#E8A13D; --green:#2E8F63; --red:#C24B3C; }
+  :root { --bg:#F3F0E8; --card:#FFFFFF; --edge:#E4DFD3; --ink:#1B1F1C; --dim:#7B8079; --amber:#E8A13D; --amber-deep:#B9731C; --green:#2E8F63; --spruce:#101B16; }
   * { box-sizing:border-box; margin:0; }
-  html { background:var(--board); }
-  body { background:var(--board); color:var(--chalk); padding:0 20px 72px; font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.6; }
-  .mono { font-family:"IBM Plex Mono",ui-monospace,monospace; }
-  .wrap { max-width:820px; margin:0 auto; }
-  header { padding:40px 0 8px; }
-  .eyebrow { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; letter-spacing:.18em; color:var(--chalk-dim); margin-bottom:10px; display:flex; gap:14px; flex-wrap:wrap; }
-  .eyebrow .conn { margin-left:auto; letter-spacing:0; }
-  .conn b { color:var(--amber); } .conn.on b { color:#5BC08F; }
-  h1 { color:#F2EFE7; font-size:30px; font-weight:800; letter-spacing:-.03em; }
-  .sub { color:var(--chalk); font-size:14.5px; margin:6px 0 22px; max-width:680px; }
-  .sub b { color:#E9E5DA; }
-  .sheet { background:var(--tag); border:1px solid var(--tag-edge); border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.25); }
-  .row { display:grid; grid-template-columns:1fr auto auto; gap:14px; align-items:center; padding:14px 18px; border-top:1px dashed var(--tag-edge); color:var(--ink); }
-  .row:first-child { border-top:0; }
-  .row .nm { font-size:14px; } .row .sku { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-dim); }
-  .row .who { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-dim); margin-top:2px; }
-  .qty { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:30px; font-weight:700; min-width:64px; text-align:right; font-variant-numeric:tabular-nums; }
-  .qty.flash { animation:flash .9s ease-out; }
-  @keyframes flash { 0% { color:var(--amber); } 100% { color:var(--ink); } }
-  .btns { display:flex; gap:6px; }
-  .btns button { width:40px; height:40px; border-radius:10px; border:1px solid var(--tag-edge); background:#fff; color:var(--ink); font-size:20px; font-weight:700; cursor:pointer; }
-  .btns button:hover { background:#F3F0E8; } .btns button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
-  .lat { margin-top:16px; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px; color:var(--chalk); }
-  .lat .big { font-size:22px; font-weight:700; color:#F2EFE7; }
-  .lat .big.fast { color:#5BC08F; }
-  .log { list-style:none; padding:0; margin-top:8px; font-size:11.5px; color:var(--chalk-dim); }
-  .log li { padding:2px 0; }
-  footer { max-width:820px; margin:34px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--chalk-dim); display:flex; gap:12px 18px; flex-wrap:wrap; }
+  html { background:var(--bg); }
+  body { min-height:100vh; color:var(--ink); font-family:"Pretendard Variable",-apple-system,sans-serif; line-height:1.55; padding:0 20px 60px;
+    background:radial-gradient(900px 480px at 8% -10%, #FFF0D2 0%, rgba(255,240,210,0) 60%), radial-gradient(800px 420px at 100% 0%, #E1EDE6 0%, rgba(225,237,230,0) 55%), var(--bg); }
+  .wrap { max-width:900px; margin:0 auto; }
+  .top { display:flex; align-items:center; gap:12px; padding:22px 0 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--dim); letter-spacing:.06em; flex-wrap:wrap; }
+  .top .brand { font-weight:700; color:var(--ink); letter-spacing:.14em; }
+  .top .brand i { font-style:normal; color:var(--amber-deep); }
+  .pill { margin-left:auto; display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:var(--card); border:1px solid var(--edge); letter-spacing:0; color:var(--ink); }
+  .pill .dot { width:8px; height:8px; border-radius:50%; background:var(--amber); animation:ping 1.4s infinite; }
+  .pill.on .dot { background:var(--green); animation:none; box-shadow:0 0 0 3px rgba(46,143,99,.18); }
+  @keyframes ping { 0% { box-shadow:0 0 0 0 rgba(232,161,61,.5); } 100% { box-shadow:0 0 0 8px rgba(232,161,61,0); } }
+  .me { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; background:var(--spruce); color:#F2EFE7; letter-spacing:0; }
+  .me small { color:#9FB3A8; }
+  header { padding:42px 0 26px; }
+  h1 { font-size:42px; line-height:1.15; font-weight:800; letter-spacing:-.035em; max-width:720px; }
+  h1 em { font-style:normal; color:var(--amber-deep); }
+  .sub { margin-top:14px; font-size:15.5px; color:#4A5049; max-width:640px; }
+  .sub b { color:var(--ink); }
+  .stats { display:grid; grid-template-columns:1.3fr 1fr 1fr; background:var(--card); border:1px solid var(--edge); border-radius:16px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(20,24,20,.04), 0 14px 32px -20px rgba(20,24,20,.3); }
+  .stat { padding:18px 22px 16px; border-left:1px solid var(--edge); }
+  .stat:first-child { border-left:0; }
+  .stat .l { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; letter-spacing:.12em; color:var(--dim); }
+  .stat .v { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:34px; font-weight:700; letter-spacing:-.02em; margin-top:4px; line-height:1.2; font-variant-numeric:tabular-nums; }
+  .stat .v small { font-size:14px; color:var(--dim); font-weight:400; margin-left:4px; }
+  .stat .v.fast { color:var(--green); }
+  .stat .h { font-size:12px; color:var(--dim); margin-top:2px; }
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:16px; }
+  .card { background:var(--card); border:1px solid var(--edge); border-radius:16px; padding:18px 20px 16px; display:flex; flex-direction:column; gap:10px; box-shadow:0 1px 2px rgba(20,24,20,.04); }
+  .card.hit { animation:hit 1s ease-out; }
+  @keyframes hit { 0% { box-shadow:0 0 0 3px var(--amber), 0 12px 30px -10px rgba(232,161,61,.6); border-color:var(--amber); } 100% { box-shadow:0 1px 2px rgba(20,24,20,.04); border-color:var(--edge); } }
+  .card .nm { font-size:15px; font-weight:600; }
+  .card .sku { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--dim); margin-top:1px; }
+  .card .body { display:flex; align-items:center; justify-content:space-between; gap:14px; }
+  .card .qty { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:44px; font-weight:700; line-height:1; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+  .card.hit .qty { animation:num 1s ease-out; }
+  @keyframes num { 0% { color:var(--amber-deep); } 100% { color:var(--ink); } }
+  .card .who { font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--dim); min-height:16px; margin-top:6px; }
+  .btns { display:flex; gap:8px; }
+  .btns button { width:46px; height:46px; border-radius:50%; border:1px solid var(--edge); background:#FAF8F3; color:var(--ink); font-size:22px; font-weight:600; cursor:pointer; line-height:1; transition:background .12s, transform .08s; }
+  .btns button:hover { background:#F0EBDF; } .btns button:active { transform:scale(.92); }
+  .btns button:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+  .log { list-style:none; padding:0; margin:18px 2px 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--dim); }
+  .log li { padding:4px 0; border-top:1px dashed var(--edge); }
+  .log li:first-child { color:var(--ink); border-top:0; }
+  footer { max-width:900px; margin:36px auto 0; font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--dim); display:flex; gap:12px 18px; flex-wrap:wrap; }
   footer a, footer span { color:inherit; text-decoration:none; white-space:nowrap; }
-  @media (max-width:560px) { h1 { font-size:24px; } .row { grid-template-columns:1fr auto; } .btns { grid-column:1 / -1; justify-content:flex-end; } }
-  @media (prefers-reduced-motion:reduce) { .qty.flash { animation:none; } }
+  footer a:hover { color:var(--amber-deep); }
+  @media (max-width:640px) { h1 { font-size:28px; } header { padding:30px 0 20px; } .stats { grid-template-columns:1fr; } .stat { border-left:0; border-top:1px solid var(--edge); } .stat:first-child { border-top:0; } .grid { grid-template-columns:1fr; } .pill { margin-left:0; } }
+  @media (prefers-reduced-motion:reduce) { .card.hit, .card.hit .qty, .pill .dot { animation:none; } }
 </style>
 <div class="wrap">
+  <div class="top">
+    <span class="brand">STOCK<i>·</i>BOARD</span><span>iBD S08 · 실시간</span>
+    <span class="pill" id="conn"><span class="dot"></span><b>연결 중…</b></span>
+    <span class="me"><small>이 탭</small><b id="me"></b></span>
+  </div>
   <header>
-    <div class="eyebrow"><span>iBD S08 · 실시간 — SUPABASE REALTIME</span><span class="conn" id="conn">연결 <b>…</b> · 이 탭 <b id="me"></b></span></div>
-    <h1>실시간 재고 보드</h1>
-    <p class="sub">같은 보드를 연 <b>다른 탭</b>에서 수량을 바꾸면 여기가 바로 바뀐다. 아래에 마지막으로 받은 변경의 <b>지연 시간</b>이 찍힌다 — 보낸 탭의 시각과 도착 시각의 차이.</p>
+    <h1>한쪽에서 바꾸면<br>다른 쪽이 <em>바로</em> 따라온다</h1>
+    <p class="sub">같은 보드를 연 <b>다른 탭</b>에서 수량을 누르면 여기가 즉시 바뀐다. 폴링 없이 DB가 바뀌는 순간을 WebSocket으로 받고, <b>보낸 탭에서 받은 탭까지의 지연</b>을 ms로 찍는다.</p>
   </header>
-  <div class="sheet" id="rows"></div>
-  <div class="lat" id="lat">마지막 수신 지연 <span class="big" id="ms">—</span><ul class="log" id="log"></ul></div>
+  <div class="stats">
+    <div class="stat"><div class="l">마지막 지연</div><div class="v" id="ms">—<small>ms</small></div><div class="h">보낸 탭의 시각 → 이 탭 도착</div></div>
+    <div class="stat"><div class="l">평균 지연</div><div class="v" id="avg">—<small>ms</small></div><div class="h">이 탭이 받은 변경 기준</div></div>
+    <div class="stat"><div class="l">받은 변경</div><div class="v" id="cnt">0<small>건</small></div><div class="h">폴링(3초)이었다면 최대 3초 늦었을</div></div>
+  </div>
+  <div class="grid" id="rows"></div>
+  <ul class="log" id="log"></ul>
 </div>
-<footer><a href="/docs/plan.html">기획서</a><a href="/docs/report.html">스택 리포트</a><span style="margin-left:auto">쓰기는 DB 함수 하나 · 시크릿 없음</span></footer>
+<footer><a href="/docs/plan.html">기획서</a><a href="/docs/report.html">스택 리포트</a><span style="margin-left:auto">Supabase Realtime · 쓰기는 DB 함수 하나 · 시크릿 없음</span></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -63,19 +90,22 @@ const ANIMALS = ['수달', '펭귄', '여우', '고래', '토끼', '판다', '�
 const ME = ANIMALS[Math.floor(Math.random() * ANIMALS.length)] + '-' + Math.random().toString(36).slice(2, 5);
 $('me').textContent = ME;
 const ROWS = new Map();
+const LAT = [];
+const num = (id, v, unit) => $(id).replaceChildren(document.createTextNode(String(v)), Object.assign(document.createElement('small'), { textContent: unit }));
 
 function rowEl(r) {
-  const el = document.createElement('div'); el.className = 'row'; el.dataset.sku = r.sku;
-  el.innerHTML = `<div><div class="nm"></div><div class="sku"></div><div class="who"></div></div><div class="qty"></div>
-    <div class="btns"><button data-d="-1" aria-label="1 빼기">−</button><button data-d="1" aria-label="1 더하기">+</button></div>`;
+  const el = document.createElement('div'); el.className = 'card'; el.dataset.sku = r.sku;
+  el.innerHTML = `<div><div class="nm"></div><div class="sku"></div></div>
+    <div class="body"><div><div class="qty"></div><div class="who"></div></div>
+    <div class="btns"><button data-d="-1" aria-label="1 빼기">−</button><button data-d="1" aria-label="1 더하기">+</button></div></div>`;
   el.querySelector('.nm').textContent = r.name; el.querySelector('.sku').textContent = r.sku;
   el.querySelectorAll('button').forEach((b) => b.onclick = () => adjust(r.sku, Number(b.dataset.d)));
   return el;
 }
 function paint(r, changed) {
   const el = $('rows').querySelector(`[data-sku="${CSS.escape(r.sku)}"]`); if (!el) return;
-  const q = el.querySelector('.qty'); q.textContent = r.qty;
-  if (changed) { q.classList.remove('flash'); void q.offsetWidth; q.classList.add('flash'); }
+  el.querySelector('.qty').textContent = r.qty;
+  if (changed) { el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); }
   el.querySelector('.who').textContent = r.updated_by ? `${r.updated_by === ME ? '나' : r.updated_by} · ${new Date(r.updated_at).toLocaleTimeString('ko', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : '';
 }
 async function load() {
@@ -95,12 +125,16 @@ sb.channel('s08-stock')
     ROWS.set(r.sku, r); paint(r, true);
     const ms = r.sent_at ? arrived - Number(r.sent_at) : null;
     const mine = r.updated_by === ME;
-    if (ms != null) { $('ms').textContent = `${ms} ms`; $('ms').classList.toggle('fast', ms < 500); }
+    if (ms != null) {
+      LAT.push(ms); num('ms', ms, 'ms'); num('avg', Math.round(LAT.reduce((a, b) => a + b, 0) / LAT.length), 'ms');
+      $('ms').classList.toggle('fast', ms < 500);
+    }
+    num('cnt', LAT.length, '건');
     const li = document.createElement('li');
     li.textContent = `${new Date(arrived).toLocaleTimeString('ko')} · ${r.sku} → ${r.qty} · ${mine ? '내 탭' : (r.updated_by || '?')} · ${ms != null ? ms + 'ms' : '—'}`;
     $('log').prepend(li); while ($('log').children.length > 6) $('log').lastChild.remove();
   })
-  .subscribe((status) => { $('conn').classList.toggle('on', status === 'SUBSCRIBED'); $('conn').querySelector('b').textContent = status; });
+  .subscribe((status) => { const on = status === 'SUBSCRIBED'; $('conn').classList.toggle('on', on); $('conn').querySelector('b').textContent = on ? '실시간 연결됨' : status; });
 load();
 </script>
 </html>
