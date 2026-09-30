@@ -308,7 +308,7 @@ function render() {
   const started = ROAD.filter(r => new Date(r[1]) <= new Date());
   const cur = started[started.length - 1];                    // 이미 시작한 스프린트 중 가장 최근
   const nxt = ROAD.find(r => new Date(r[1]) > new Date());     // 다음 스프린트 (시즌 끝나면 없음)
-  const up = cur && !bySprint.has(cur[0]) ? cur : nxt;
+  const up = cur && !bySprint.has(cur[0]) ? cur : nxt && !bySprint.has(nxt[0]) ? nxt : null;
   const upWhen = up === cur ? '이번 주' : '다음 주';
   $('main').innerHTML = keys.map(k => {
     const ri = roadOf(k);

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ══════════════════════════════════════════════════════════════
+     iBD 팀 템플릿 · 1페이지 기획서 (별도 업로드 없음 — 사이트와 함께 배포된다)
+     · 레이아웃과 CSS를 건드리지 마라 — 18주 내내 같은 모양이어야 비교된다
+     · data-f 속성을 지우지 마라 — 갤러리와 report.html 복사 버튼이 읽는다
+     · 채울 것은 data-f 요소의 "안쪽 텍스트"뿐. 모르면 "기록 없음"
+     ══════════════════════════════════════════════════════════════ -->
+<title>S09 기획서 — 모음</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#fafaf8; --card:#ffffff; --ink:#1b1e24; --dim:#70747e; --line:#e3e2dc; --acc:#159a6c; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:var(--paper); color:var(--ink); font-family:"Pretendard Variable",-apple-system,sans-serif;
+    line-height:1.7; padding:0 20px 72px; }
+  .mono { font-family:"IBM Plex Mono",monospace; }
+  .topbar { max-width:760px; margin:0 auto; padding:18px 0; display:flex; gap:18px; align-items:center;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; }
+  .topbar a { color:var(--dim); text-decoration:none; }
+  .topbar a:hover { color:var(--acc); }
+  .doc { max-width:760px; margin:0 auto; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:44px 46px 40px; box-shadow:0 1px 3px rgba(20,24,32,.05); }
+  .kicker { font-family:"IBM Plex Mono",monospace; font-size:12px; letter-spacing:.2em; color:var(--acc);
+    font-weight:600; }
+  h1 { font-size:27px; letter-spacing:-.02em; margin:6px 0 4px; }
+  .intro-line { color:var(--dim); font-size:14.5px; margin-bottom:26px; }
+  table.core { border-collapse:collapse; width:100%; margin:0 0 8px; }
+  table.core td { border:1px solid var(--line); padding:9px 14px; font-size:14px; }
+  table.core td:first-child { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--dim);
+    width:118px; background:var(--paper); white-space:nowrap; }
+  .hint { font-size:12px; color:var(--dim); margin-bottom:6px; }
+  h2 { font-size:15.5px; margin:34px 0 10px; display:flex; align-items:baseline; gap:10px; }
+  h2 .no { font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--acc); font-weight:600; }
+  p, li { font-size:14.5px; color:#3a3e47; }
+  ul, ol { padding-left:22px; } li { margin:5px 0; }
+  ul.nolist li::marker { color:#c0392b; }
+  .risk { border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-top:8px;
+    font-size:14px; background:var(--paper); }
+  .risk b { color:var(--ink); }
+  footer { max-width:760px; margin:26px auto 0; text-align:center; font-family:"IBM Plex Mono",monospace;
+    font-size:11.5px; color:var(--dim); }
+  @media (max-width:600px) { .doc { padding:30px 22px; } }
+  @media print { .topbar, footer { display:none; } .doc { border:0; box-shadow:none; padding:0; } }
+</style>
+
+<div class="topbar">
+  <a href="../">← 사이트로</a>
+  <a href="https://initialb.vercel.app">갤러리</a>
+  <span style="margin-left:auto" class="mono">사이트와 함께 배포된다</span>
+</div>
+
+<div class="doc">
+  <div class="kicker">1-PAGE PLAN</div>
+  <!-- 제목: 프로젝트 이름으로 바꾼다 -->
+  <h1 data-f="title">모음 — 컬러 트렌드 무드보드</h1>
+  <div class="intro-line" data-f="intro">이미지에서 대표색 다섯 개를 뽑아 보드에 모으고 HEX 코드를 복사한다.</div>
+
+  <div class="hint">↓ 이 표를 갤러리와 복사 버튼이 읽는다. 안쪽 텍스트만 바꿀 것.</div>
+  <table class="core">
+    <tr><td>스프린트</td><td data-f="sprint">S09</td></tr>
+    <tr><td>만든 사람</td><td data-f="author">Jayden</td></tr>
+    <tr><td>스택 카드</td><td data-f="card">이미지 색 추출</td></tr>
+    <tr><td>내 옵션</td><td data-f="option">Color Thief + IndexedDB</td></tr>
+    <tr><td>소스</td><td><a data-f="repo" href="https://github.com/">저장소 주소 (선택 — 적으면 카드에 소스 링크가 붙는다)</a></td></tr>
+  </table>
+
+  <h2><span class="no">01</span>누가 쓰나</h2>
+  <p>사진에서 색 조합을 찾고 싶은 디자이너나 제작자. 참고 이미지를 모을 때마다 각 사진의 대표색을 확인한다.</p>
+
+  <h2><span class="no">02</span>지금은</h2>
+  <p>참고 사진을 열고 색을 눈으로 고르거나 별도 편집기에서 찍는다. 다음 사진으로 넘어갈 때 이전 색 조합은 따로 적어둬야 한다.</p>
+
+  <h2><span class="no">03</span>없앨 동작 하나</h2>
+  <p>사진별 대표색의 HEX 코드를 하나씩 찍어 메모장에 옮기는 동작.</p>
+
+  <h2><span class="no">04</span>핵심 기능 1개</h2>
+  <p>이미지 파일이나 직접 이미지 URL을 넣으면 대표색 5개를 추출해 팔레트 카드로 보드에 저장하고, 색을 누르면 HEX 코드를 복사한다. 브라우저 IndexedDB에 저장해 같은 브라우저에서 다시 연다.</p>
+
+  <h2><span class="no">05</span>안 만드는 것 3개</h2>
+  <ul class="nolist">
+    <li>로그인과 기기 간 동기화</li>
+    <li>공유 보드와 협업</li>
+    <li>색상 수동 편집과 이름 변경</li>
+  </ul>
+
+  <h2><span class="no">06</span>성공 판정</h2>
+  <ul>
+    <li>JPG·PNG·WEBP 파일을 올리면 대표색 5개와 이미지 카드가 추가된다.</li>
+    <li>공개 이미지 URL을 붙여넣어도 같은 결과가 나온다.</li>
+    <li>HEX 행을 누르면 코드가 복사되고 완료 표시가 나온다.</li>
+    <li>새로고침 뒤 같은 브라우저에서 저장된 카드가 다시 열린다.</li>
+  </ul>
+
+  <h2><span class="no">07</span>내 옵션 + 이유</h2>
+  <p>대표색 추출은 Color Thief가 맡고, 사용자가 모은 사진과 다섯 색은 브라우저 IndexedDB에 저장한다. 서버 DB와 로그인 없이 핵심 흐름을 시연할 수 있다. React + Vite는 한 화면 UI를 구성하는 데 썼다.</p>
+
+  <h2><span class="no">08</span>리스크 + 검증법</h2>
+  <div class="risk">
+    <b>걱정되는 것:</b> 이미지 URL을 제공하는 사이트가 브라우저의 외부 읽기를 막을 수 있다.<br>
+    <b>검증:</b> 실제 공개 이미지 URL로 5색 추출과 저장을 확인했다. 일반 웹페이지 URL에는 이미지 주소 복사 안내를 보여주고, 접근이 막히면 파일 업로드를 안내한다.
+  </div>
+</div>
+
+<footer>iBD 바이브 코딩 · 이 문서는 팀 템플릿이다 — 레이아웃·CSS·data-f를 바꾸지 말 것</footer>
+</html>
