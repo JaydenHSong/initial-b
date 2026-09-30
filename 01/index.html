@@ -129,6 +129,111 @@
     .entry { width:calc(100% - 74px); margin-left:74px !important; }
     .entry::after { left:-46px !important; right:auto; }
   }
+  /* 시즌 아카이브 */
+  header, header.compact {
+    display:grid; grid-template-columns:minmax(150px,1fr) minmax(340px,560px);
+    align-items:center; gap:0 24px; padding:16px max(24px,calc((100vw - 1440px)/2));
+    text-align:left;
+  }
+  header .eyebrow, header .sub { display:none; }
+  header h1, header.compact h1 { font-size:26px; margin:0; }
+  header form, header.compact form { width:100%; max-width:none; margin:0; padding:0; }
+  header input, header.compact input { padding:10px 13px; }
+  header button, header.compact button { padding:10px 20px; }
+  #msg { grid-column:1/-1; min-height:0; margin:0; }
+  #msg:empty { display:none; }
+  main, main.gallery { max-width:1440px; margin:0 auto 90px; padding:0; }
+  main::before { display:none; }
+  .archive-shell { display:grid; grid-template-columns:220px minmax(0,1fr); min-height:75vh; }
+  .milestones { border-right:1px solid var(--line); padding:28px 18px 40px 24px; }
+  .milestones h2 { color:var(--dim); font:600 12px "IBM Plex Mono",monospace; letter-spacing:.08em; margin:0 0 18px; }
+  .milestone-list { display:grid; gap:3px; }
+  .milestone {
+    display:flex; align-items:center; gap:11px; width:100%; padding:8px 10px;
+    border:1px solid transparent; border-radius:9px; background:transparent;
+    color:var(--dim); font:600 13px "IBM Plex Mono",monospace; text-align:left;
+  }
+  .milestone::before { content:""; width:9px; height:9px; flex:none; border:1px solid #52606b; border-radius:50%; }
+  .milestone:hover, .milestone:focus-visible { color:var(--text); border-color:var(--line); outline:none; }
+  .milestone.active { background:rgba(95,212,162,.12); color:var(--green); }
+  .milestone.active::before { background:var(--green); border-color:var(--green); }
+  .milestone .count { margin-left:auto; font-size:11px; color:var(--dim); }
+  .archive-content { min-width:0; padding:28px clamp(24px,3vw,44px) 72px; scroll-margin-top:74px; }
+  .mission { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:24px;
+    padding:24px 30px; border:1px solid rgba(95,212,162,.7); border-radius:14px;
+    background:rgba(18,59,49,.45); }
+  .kicker { color:var(--green); font:600 12px "IBM Plex Mono",monospace; letter-spacing:.08em; }
+  .mission h2 { font-size:clamp(25px,3vw,38px); line-height:1.18; margin:8px 0; }
+  .mission .detail { font-size:15px; color:var(--text); }
+  .mission .goal { color:var(--dim); font-size:14px; margin-top:8px; line-height:1.45; }
+  .mission a, .empty a { display:inline-flex; align-items:center; justify-content:center; padding:11px 18px;
+    border-radius:10px; background:var(--green); color:#0c1310; font-weight:800; text-decoration:none; white-space:nowrap; }
+  .mission a:hover, .mission a:focus-visible, .empty a:hover { background:#8be7bf; outline:none; }
+  .mission .linkhint { color:var(--dim); font-size:11px; text-align:center; margin-top:7px; }
+  .week-head { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:30px 0 18px; }
+  .week-head h2 { font-size:25px; letter-spacing:-.02em; }
+  .week-head p { color:var(--dim); font-size:14px; margin-top:5px; }
+  .week-head a { color:var(--dim); font-size:13px; text-decoration:none; white-space:nowrap; }
+  .week-head a:hover { color:var(--green); }
+  .gallery-filters { display:flex; gap:10px; margin:0 0 20px; }
+  .gallery-filters .filter-field { width:min(240px,50%); }
+  .gallery-filters select { width:100%; height:36px; padding:7px 12px; border:1px solid var(--line); border-radius:8px;
+    background:var(--panel); color:var(--text); font:12px "IBM Plex Mono",monospace; }
+  .gallery-filters select:focus-visible { outline:2px solid var(--green); }
+  .project-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+  .project-grid.count-1 { grid-template-columns:minmax(0,1fr); }
+  .project-grid.count-3, .project-grid.count-many { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .project-grid .entry, .previous-grid .entry { width:100%; margin:0 !important; background:var(--panel); }
+  .project-grid .entry::after, .previous-grid .entry::after { display:none; }
+  .project-grid.count-1 .entry { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(260px,1fr); }
+  .project-grid.count-1 .shot { height:100%; min-height:300px; aspect-ratio:auto; border-bottom:0; border-right:1px solid var(--line); }
+  .project-grid .entry .body { padding:16px 18px; }
+  .project-grid:not(.count-1) .shot { aspect-ratio:2.4; }
+  .project-grid:not(.count-1) .entry .body { padding:13px 16px; }
+  .project-grid:not(.count-1) .who { margin:2px 0 5px; }
+  .project-grid:not(.count-1) .opt { margin-bottom:4px; }
+  .project-grid:not(.count-1) .entry p { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  .project-grid:not(.count-1) .docs { margin-top:6px; }
+  .project-grid.count-1 .entry .body { padding:28px; align-self:center; }
+  .project-grid .entry h2 { font-size:17px; }
+  .project-grid.count-1 .entry h2 { font-size:24px; }
+  .project-grid .entry p { min-height:0; }
+  .project-grid .shot, .previous-grid .shot { background:#1e252e; }
+  .previous-week { margin-top:38px; padding-top:24px; border-top:1px solid var(--line); }
+  .previous-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .previous-grid .entry .body { padding:12px 14px; }
+  .previous-grid .entry h2 { font-size:15px; }
+  .previous-grid .entry p, .previous-grid .docs, .previous-grid .opt { display:none; }
+  .previous-grid .who { margin-bottom:0; }
+  .empty { padding:36px; border:1px dashed var(--line); border-radius:12px; color:var(--dim); }
+  .empty a { margin-top:16px; }
+  @media (max-width:1000px) {
+    .archive-shell { grid-template-columns:150px minmax(0,1fr); }
+    .milestones { padding-left:12px; padding-right:10px; }
+    .archive-content { padding:24px; }
+    .project-grid.count-3, .project-grid.count-many { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .project-grid.count-1 .entry { grid-template-columns:1fr; }
+    .project-grid.count-1 .shot { aspect-ratio:16/9; min-height:0; border-right:0; border-bottom:1px solid var(--line); }
+  }
+  @media (max-width:700px) {
+    header, header.compact { grid-template-columns:1fr; gap:10px; padding:14px 16px; }
+    header h1, header.compact h1 { font-size:23px; }
+    .archive-shell { display:block; }
+    .milestones { padding:12px 16px; border-right:0; border-bottom:1px solid var(--line); scroll-margin-top:106px; }
+    .milestones h2 { margin-bottom:8px; }
+    .milestone-list { display:flex; gap:5px; overflow-x:auto; scrollbar-width:none; }
+    .milestone-list::-webkit-scrollbar { display:none; }
+    .milestone { width:auto; flex:none; padding:8px 11px; }
+    .milestone .count { margin-left:2px; }
+    .archive-content { padding:20px 16px 50px; }
+    .mission { display:block; padding:20px; }
+    .mission h2 { font-size:27px; }
+    .mission .action { margin-top:18px; }
+    .week-head { display:block; }
+    .week-head a { display:inline-block; margin-top:8px; }
+    .project-grid, .project-grid.count-3, .project-grid.count-many, .previous-grid { grid-template-columns:1fr; }
+    .project-grid.count-1 .entry .body { padding:18px; }
+  }
 </style>
 <header>
   <div class="eyebrow">iBD VIBE CODING · SEASON 1</div>
@@ -139,7 +244,6 @@
     <button id="go">드랍</button>
   </form>
   <div id="msg"></div>
-  <nav id="nav" hidden></nav>
 </header>
 <main id="main"><div class="state">불러오는 중…</div></main>
 <footer>
@@ -160,6 +264,7 @@ const esc = s => (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 let ALL = [];          // 전체 레코드
 let FILTER = null;     // 선택된 스택 옵션
 let WHO = null;        // 선택된 만든 사람
+let SELECTED_WEEK = null;
 
 // 시즌 로드맵 — guide.html 달력과 같은 데이터. [id, 시작일(월), 날짜 라벨, 주제, 스택 카드]
 const ROAD = [
@@ -171,7 +276,7 @@ const ROAD = [
   ['S06','2026-09-08','SEP 8—11','리뷰 분석기','Claude 호출 경로'],
   ['S07','2026-09-14','SEP 14—18','영수증 정리기','스토리지 + OCR'],
   ['S08','2026-09-21','SEP 21—25','실시간 재고 보드','실시간'],
-  ['S09','2026-10-05','OCT 5—9','매일 아침 가격 알림','서버리스 + 크론'],
+  ['S09','2026-10-05','OCT 5—9','컬러 트렌드 무드보드','이미지 색 추출'],
   ['S10','2026-10-12','OCT 12—16','사내 지식 검색','검색'],
   ['S11','2026-10-19','OCT 19—23','CS 문의 트리아지','큐/웹훅'],
   ['S12','2026-10-26','OCT 26—30','알림 허브','알림 채널'],
@@ -183,6 +288,8 @@ const ROAD = [
   ['S18','2026-12-14','DEC 14—18','리메이크','시즌 파이널'],
 ];
 const roadOf = k => ROAD.find(r => r[0] === k);
+const missionUrl = k => `/guide.html#${k.toLowerCase()}`;
+const localDateKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 // 좁은 화면에서는 안내 문구가 잘리므로 짧은 쪽으로 바꾼다
 const narrow = matchMedia('(max-width:480px)');
@@ -226,7 +333,7 @@ function dday() {
   return Math.ceil((d - now) / 86400000);
 }
 
-function entry(r, side) {
+function entry(r) {
   const title = r.title || new URL(r.url).hostname;
   const badge = r.stack_option
     ? `<span class="opt">${esc(r.stack_option)}</span>`
@@ -236,7 +343,7 @@ function entry(r, side) {
     ? `<div class="shot" role="img" aria-label="${esc(title)} 스크린샷" style="background-image:url('${esc(r.shot_url)}')"></div>`
     : `<div class="shot"></div>`;
   // div 카드라 Tab이 안 닿는다 — role/tabindex를 주고 Enter·Space로도 열리게 한다
-  return `<div class="entry ${side}" data-url="${esc(r.url)}"
+  return `<div class="entry" data-url="${esc(r.url)}"
       role="link" tabindex="0" aria-label="${esc(title)} 사이트 열기">
     ${shot}
     <div class="body">
@@ -254,79 +361,60 @@ function entry(r, side) {
 }
 
 function render() {
-  const rows = ALL.filter(r =>
-    (!FILTER || r.stack_option === FILTER) && (!WHO || r.author === WHO));
   $('tagline').innerHTML =
     `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 목 18:00 마감 <b>D-${dday()}</b>`;
-
-  // 주차는 화면에 실제로 그려진 마디(rows)만 — 필터로 사라진 마디는 눌러도 갈 곳이 없다.
-  // 정렬은 타임라인과 같은 오름차순(미분류는 맨 뒤).
-  const sprints = [...new Set(rows.map(r => r.sprint || '미분류'))]
-    .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
-  // 사람·스택 메뉴는 언제나 전체 기준 — 하나를 고른 뒤에도 다른 값으로 갈아탈 수 있다.
+  const today = localDateKey(new Date());
+  const next = ROAD.find(r => r[1] > today);
+  const selected = roadOf(SELECTED_WEEK) || ROAD[0];
+  const selectedIndex = ROAD.indexOf(selected);
+  const rows = ALL.filter(r => r.sprint === selected[0] &&
+    (!FILTER || r.stack_option === FILTER) && (!WHO || r.author === WHO));
+  const totalForWeek = ALL.filter(r => r.sprint === selected[0]).length;
   const opts = [...new Set(ALL.map(r => r.stack_option).filter(Boolean))];
   const whos = [...new Set(ALL.map(r => r.author).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ko'));
-  // 주차 바로가기는 드랍다운으로 — 주차마다 무슨 주였는지 한 줄 설명이 같이 보인다
-  const jump = sprints.length
-    ? `<label class="filter-field week-field"><span>주차</span><select id="jump" aria-label="주차로 이동">
-        <option value="">주차로 이동…</option>` +
-      sprints.map(s => {
-        const ri = roadOf(s);
-        return `<option value="sp-${esc(s)}">${esc(ri ? `${s} · ${ri[3]} · ${ri[4]}` : s)}</option>`;
-      }).join('') + `</select></label>`
-    : '';
-  $('nav').hidden = !ALL.length;
-  $('nav').innerHTML =
-    jump +
-    `<label class="filter-field who-field"><span>사람</span><select id="who-filter" aria-label="사람 필터">
+  const filters = `<div class="gallery-filters">
+    <label class="filter-field"><span>사람</span><select id="who-filter" aria-label="사람 필터">
       <option value="">전체</option>${whos.map(w => `<option value="${esc(w)}"${WHO === w ? ' selected' : ''}>${esc(w)}</option>`).join('')}
     </select></label>` +
-    `<label class="filter-field stack-field"><span>스택</span><select id="stack-filter" aria-label="스택 필터">
+    `<label class="filter-field"><span>스택</span><select id="stack-filter" aria-label="스택 필터">
       <option value="">전체</option>${opts.map(o => `<option value="${esc(o)}"${FILTER === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}
-    </select></label>`;
-
-  if (!rows.length) {
-    $('main').innerHTML = `<div class="state">${ALL.length ? '이 조건에 맞는 시작이 없다.' : '아직 제출이 없다. 첫 URL을 드랍해보자.'}</div>`;
-    return;
+    </select></label></div>`;
+  const mission = next ? `<section class="mission" aria-label="다음 주 미션">
+      <div><span class="kicker">다음 주 미션</span><h2>${next[0]} · ${esc(next[3])}</h2>
+        <p class="detail">${next[0] === 'S09' ? '10월 5–9일' : esc(next[2])} · ${esc(next[4])}</p>
+        ${next[0] === 'S09' ? '<p class="goal">이미지에서 대표색 5개를 뽑아 팔레트로 저장하고 HEX 코드를 복사한다.</p>' : ''}
+      </div><div class="action"><a href="${missionUrl(next[0])}">${next[0]} 미션 보기 ↗</a>
+        <p class="linkhint">시즌 가이드 · ${next[0]}</p></div>
+    </section>` : '';
+  const sidebar = `<aside class="milestones" aria-label="18주 마일스톤"><h2>18주 아카이브</h2>
+    <div class="milestone-list">${ROAD.map(r => {
+      const count = ALL.filter(x => x.sprint === r[0]).length;
+      return `<button type="button" class="milestone${selected[0] === r[0] ? ' active' : ''}" data-week="${r[0]}"
+        aria-pressed="${selected[0] === r[0]}" aria-label="${r[0]} ${esc(r[3])} 제출작 ${count}개" title="${esc(r[3])}">${r[0]}<span class="count">${next?.[0] === r[0] ? '다음 주' : count || ''}</span></button>`;
+    }).join('')}</div></aside>`;
+  const gridClass = rows.length === 1 ? 'count-1' : rows.length === 3 ? 'count-3' : rows.length > 4 ? 'count-many' : '';
+  const projects = rows.length
+    ? `<div class="project-grid ${gridClass}">${rows.map(entry).join('')}</div>`
+    : `<div class="empty">${totalForWeek ? '이 조건에 맞는 제출작이 없습니다.' : '아직 이 주차에 올라온 사이트가 없습니다.'}<br>
+        <a href="${missionUrl(selected[0])}">${selected[0]} 미션 보기 ↗</a></div>`;
+  const previous = selectedIndex > 0 ? ROAD[selectedIndex - 1] : null;
+  const previousRows = previous ? ALL.filter(r => r.sprint === previous[0]) : [];
+  const previousSection = previousRows.length ? `<section class="previous-week">
+    <div class="week-head"><div><span class="kicker">지난 주 둘러보기</span><h2>${previous[0]} · ${esc(previous[3])}</h2></div>
+      <a href="#sp-${previous[0]}" data-week="${previous[0]}">${previous[0]} 전체 보기 ↗</a></div>
+    <div class="previous-grid">${previousRows.slice(0,3).map(entry).join('')}</div></section>` : '';
+  $('main').className = 'gallery';
+  $('main').innerHTML = `<div class="archive-shell">${sidebar}<div class="archive-content">${mission}
+    <section aria-labelledby="selected-title"><div class="week-head"><div><span class="kicker">${esc(selected[2])} · ${esc(selected[4])}</span>
+      <h2 id="selected-title">${selected[0]} · ${esc(selected[3])} <span class="mono">${totalForWeek}개</span></h2>
+      <p>같은 미션을 서로 다른 시선으로 만든 사이트입니다.</p></div>
+      <a href="${missionUrl(selected[0])}">${selected[0]} 미션 보기 ↗</a></div>
+      ${filters}${projects}</section>${previousSection}</div></div>`;
+  const rail = document.querySelector('.milestone-list');
+  const active = rail?.querySelector('.milestone.active');
+  if (rail && active && matchMedia('(max-width:700px)').matches) {
+    rail.scrollLeft = active.offsetLeft - rail.offsetLeft - (rail.clientWidth - active.clientWidth) / 2;
   }
-  // 스프린트별 마디, 시간순(오래된 게 위). 마디 안은 드랍 순서, 좌우 교차.
-  const bySprint = new Map();
-  rows.forEach(r => {
-    const k = r.sprint || '미분류';
-    (bySprint.get(k) || bySprint.set(k, []).get(k)).push(r);
-  });
-  // 미분류는 맨 아래로 (스프린트를 못 읽은 카드라 시간축에 놓을 자리가 없다)
-  const keys = [...bySprint.keys()].sort((a, b) =>
-    a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
-  // 하단 노드 — 이번 주가 아직 비었으면 이번 주를, 아니면 다음 주를 가리킨다.
-  // 다음 주만 가리키면 월요일에 주가 시작된 뒤 첫 제출이 올 때까지 이번 주가 어디에도 안 보인다.
-  const started = ROAD.filter(r => new Date(r[1]) <= new Date());
-  const cur = started[started.length - 1];                    // 이미 시작한 스프린트 중 가장 최근
-  const nxt = ROAD.find(r => new Date(r[1]) > new Date());     // 다음 스프린트 (시즌 끝나면 없음)
-  const up = WHO || FILTER ? null : cur && !bySprint.has(cur[0]) ? cur : nxt && !bySprint.has(nxt[0]) ? nxt : null;
-  const upWhen = up === cur ? '이번 주' : '다음 주';
-  $('main').innerHTML = keys.map(k => {
-    const ri = roadOf(k);
-    const label = ri ? `${ri[2]} · ${ri[3]} · ${ri[4]}` : '';
-    return `<div class="node" id="sp-${esc(k)}"><div class="dot">${esc(k)}</div>
-      ${label ? `<a class="label" href="/guide.html#${k.toLowerCase()}">${esc(label)}</a>` : ''}</div>` +
-      bySprint.get(k).map((r, i) => entry(r, i % 2 ? 'r' : 'l')).join('');
-  }).join('') + (up ? `<div class="next"><div class="dot">${up[0]}</div>
-    <a class="label" href="/guide.html#${up[0].toLowerCase()}">${upWhen} · ${esc(`${up[2]} · ${up[3]} · ${up[4]}`)}</a></div>` : '');
-}
-
-// 첫 로딩에 이번 주 마디로 내려둔다 — 지난 주는 스크롤 업으로 본다.
-// 필터 클릭에는 다시 뛰지 않고(jumped), #sp-S01 같은 해시로 들어오면 그쪽이 우선.
-// 마디가 하나뿐이면 위에 볼 게 없으니 드랍 폼이 있는 맨 위에 그대로 둔다.
-let jumped = false;
-function jumpToCurrent() {
-  if (jumped || location.hash) return;
-  jumped = true;
-  // 맨 아래 미분류 마디는 이번 주가 아니므로 건너뛴다
-  const nodes = [...document.querySelectorAll('#main .node')]
-    .filter(n => n.querySelector('.dot').textContent.trim() !== '미분류');
-  if (nodes.length < 2) return;
-  nodes[nodes.length - 1].scrollIntoView({ behavior: 'instant', block: 'start' });
 }
 
 async function load() {
@@ -336,8 +424,11 @@ async function load() {
     });
     if (!r.ok) throw new Error(r.status);
     ALL = await r.json();
+    if (!SELECTED_WEEK) {
+      const hashWeek = location.hash.match(/^#sp-(S\d\d)$/)?.[1];
+      SELECTED_WEEK = roadOf(hashWeek) ? hashWeek : [...ALL].reverse().find(x => roadOf(x.sprint))?.sprint || ROAD[0][0];
+    }
     animatedRender();
-    jumpToCurrent();
   } catch {
     $('main').innerHTML = '<div class="state">레지스트리를 못 읽었다. 잠시 뒤 새로고침하거나 관리자에게.</div>';
   }
@@ -364,6 +455,8 @@ $('dropform').addEventListener('submit', async e => {
     if (!r.ok) throw new Error(data.error || r.status);
     msg.textContent = data.updated ? '이미 있던 URL — 카드를 새로 읽었다.' : '등록됐다.';
     $('url').value = '';
+    SELECTED_WEEK = null;
+    history.replaceState(null, '', location.pathname + location.search);
     load();
   } catch (err) {
     msg.className = 'err'; msg.textContent = '실패: ' + err.message;
@@ -371,11 +464,20 @@ $('dropform').addEventListener('submit', async e => {
 });
 
 document.addEventListener('click', e => {
+  const week = e.target.closest('[data-week]');
+  if (week) {
+    e.preventDefault();
+    SELECTED_WEEK = week.dataset.week;
+    history.replaceState(null, '', `#sp-${SELECTED_WEEK}`);
+    animatedRender();
+    document.querySelector(matchMedia('(max-width:700px)').matches ? '.milestones' : '.archive-content')?.scrollIntoView({ block:'start' });
+    return;
+  }
   const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
 });
 
-// 필터는 드랍다운에서 교체하거나 '전체'로 해제한다.
+// 필터는 선택된 주차의 제출작에만 적용한다.
 document.addEventListener('change', e => {
   const id = e.target.id;
   if (id === 'who-filter' || id === 'stack-filter') {
@@ -383,9 +485,6 @@ document.addEventListener('change', e => {
     else FILTER = e.target.value || null;
     animatedRender();
     $(id)?.focus();
-  } else if (id === 'jump' && e.target.value) {
-    document.getElementById(e.target.value)?.scrollIntoView({ block: 'start' });
-    e.target.value = '';
   }
 });
 

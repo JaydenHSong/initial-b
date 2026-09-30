@@ -490,7 +490,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
 
     <div class="pull">
       <span class="k">통합 주 4회</span>
-      S05 Postgres 관계 모델링 · S09 서버리스와 크론 · S13 pgvector RAG · S17 같은 앱을 Postgres와 Firebase 양쪽으로.<br><br>
+      S05 Postgres 관계 모델링 · S09 이미지 색 추출 · S13 pgvector RAG · S17 같은 앱을 Postgres와 Firebase 양쪽으로.<br><br>
       분담 방식만 18주 하면 아는 건 넓은데 깊게 판 게 하나도 없는 상태가 된다. 4주에 한 번은 전원이 같은 스택을 붙잡고 끝까지 간다.
     </div>
 
@@ -947,7 +947,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
         <div class="wc rest"><div class="wtop"><span class="ws">—</span><span class="wd">28–10/2</span></div><div class="wt">미드시즌 브레이크</div><div class="wk2">회고 · 갤러리 v2</div></div>
       </div></div>
       <div class="mo"><div class="mh"><span class="me">OCT</span><span class="mk">10월</span></div><div class="mw">
-        <div class="wc mg"><div class="wtop"><span class="ws">S09</span><span class="wd">5–9</span></div><div class="wt">매일 아침 가격 알림</div><div class="wk2">서버리스 + 크론</div></div>
+        <div class="wc mg"><div class="wtop"><span class="ws">S09</span><span class="wd">5–9</span></div><div class="wt">컬러 트렌드 무드보드</div><div class="wk2">이미지 색 추출</div></div>
         <div class="wc "><div class="wtop"><span class="ws">S10</span><span class="wd">12–16</span></div><div class="wt">사내 지식 검색</div><div class="wk2">검색</div></div>
         <div class="wc "><div class="wtop"><span class="ws">S11</span><span class="wd">19–23</span></div><div class="wt">CS 문의 트리아지</div><div class="wk2">큐 / 웹훅</div></div>
         <div class="wc "><div class="wtop"><span class="ws">S12</span><span class="wd">26–30</span></div><div class="wt">알림 허브</div><div class="wk2">알림 채널</div></div>
@@ -1144,13 +1144,13 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="phase">Phase 3 · 자동화와 연결</div>
     <div class="acc">
       <details class="sp">
-        <summary id="s09"><span class="sid">S09</span><span class="snm">매일 아침 가격 알림<span class="tagm">통합</span></span><span class="scd">서버리스 + 크론</span><span class="sgl">이틀 연속 자동 실행 로그</span><span class="arw">›</span></summary>
+        <summary id="s09"><span class="sid">S09</span><span class="snm">컬러 트렌드 무드보드<span class="tagm">통합</span></span><span class="scd">이미지 색 추출</span><span class="sgl">이미지 1장 → 팔레트 5색 + HEX 복사</span><span class="arw">›</span></summary>
         <div class="sbody"><div class="rows">
-          <div><div class="k">미션</div><div class="v">정해진 시각에 자동 실행. 사람이 안 눌러도 도는 시스템</div></div>
-          <div><div class="k">골</div><div class="v">내가 아무것도 안 눌러도 <b>이틀 연속 자동 실행된 로그</b>가 남아 있다.<br><span class="small">데모에서 말할 것 — "로컬에선 됐는데 서버에서 깨진 것 하나"</span></div></div>
-          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Supabase Edge + pg_cron</span><span class="chip on">Vercel Cron</span></span> 둘 중 하나를 팀 합의로 확정</div></div>
-          <div><div class="k">구분</div><div class="v"><b>서버리스 함수</b>는 평소엔 꺼져 있다가 호출될 때만 켜지는 코드 조각. <b>크론</b>은 정해진 시각에 그걸 자동으로 호출해주는 알람시계. 둘을 합치면 <b>사람이 안 눌러도 매일 도는 시스템</b>이 된다. 로컬에선 되던 게 서버에선 안 되는 이유(환경변수·타임존·실행 시간 제한)를 여기서 처음 만난다.</div></div>
-          <div><div class="k">제약</div><div class="v">자동 실행 로그 2회 이상</div></div>
+          <div><div class="k">미션</div><div class="v">이미지에서 대표색을 뽑아 팔레트로 모은다. 결과가 바로 보여 데모하기 쉽고, 색 추출은 라이브러리가 맡는다.</div></div>
+          <div><div class="k">골</div><div class="v">이미지를 올리면 <b>대표색 5개가 팔레트 카드로 보드에 쌓인다.</b> 색을 클릭하면 HEX 코드가 복사된다.</div></div>
+          <div><div class="k">스택</div><div class="v"><span class="chips" style="margin:0"><span class="chip on">Color Thief</span><span class="chip on">IndexedDB</span></span> 색 추출과 브라우저 저장을 나눠 맡긴다.</div></div>
+          <div><div class="k">구분</div><div class="v">파일 업로드는 브라우저에서 바로 읽는다. 공개 이미지 URL은 제공 사이트의 CORS 설정에 따라 읽지 못할 수 있으므로, 그때는 파일 업로드를 안내한다.</div></div>
+          <div><div class="k">제약</div><div class="v">이미지 1장으로 대표색 5개 추출 · 팔레트 저장 · HEX 복사가 시연돼야 함</div></div>
         </div></div>
       </details>
 
@@ -1266,7 +1266,7 @@ footer{padding:70px 22px 90px;text-align:center;font-size:13px;color:var(--ink3)
     <div class="chips pick">
       <button class="chip" data-d="이력과 작업물을 한 화면에 담는 개인 페이지. 기능이 작아서 기획 → 배포의 가장 짧은 사이클을 끝까지 도는 연습에 맞다." data-g="링크 하나로 열리는 페이지에 작업물 3개와 연락 수단이 있고, 모바일에서 안 깨진다. 만드는 데 걸린 총 시간을 기록하는 것까지.">나를 파는 원페이지</button><button class="chip" data-d="후보를 넣으면 오늘 점심을 골라준다. 아주 작은 상태 관리와 결과 공유 링크가 전부인 최소 과제 — 작게 유지하는 훈련 자체가 목적이다." data-g="후보 등록 → 결정(랜덤이든 투표든 하나만)이 돌고, 결과를 링크로 공유해 다른 사람 브라우저에서도 보이는 것까지.">점심 결정기</button><button class="chip" data-d="긴 문서를 넣으면 조항별로 요약한다. 문서 파싱 → LLM 호출 → 구조화된 출력이 한 줄로 이어지는 구조 — 출력 형식을 고정하는 프롬프트가 배울 거리." data-g="계약서 1건을 올리면 조항별 요약과 &quot;주의할 조항&quot; 표시가 나온다. 같은 문서를 두 번 넣어도 형식이 같게 나오는 것까지.">계약서 요약기</button>
       <button class="chip" data-d="전시 부스 배치와 방문 순서를 짠다. 좌표와 순서를 어떻게 저장할지가 설계의 전부 — 드래그까지 가면 과욕이고 클릭 배치면 충분하다." data-g="부스를 화면에 배치하고 방문 순서를 저장한 뒤, 다른 기기에서 열어 같은 동선이 보이는 것까지.">페어 부스 동선 플래너</button><button class="chip" data-d="회의실 시간대 충돌을 막는 것이 전부. 예약 도메인의 고전 문제라 트랜잭션 · 제약조건 등 스택의 동시성 처리를 비교하기 좋다." data-g="예약 → 목록 표시가 돌고, 같은 방 · 같은 시간의 이중 예약이 거부된다. 두 브라우저에서 동시에 눌러도 하나만 성공하는 것까지.">사내 회의실 예약</button><button class="chip" data-d="같은 문장을 여러 번역 엔진에 넣고 나란히 본다. 호출은 쉽고 평가 기준을 정하는 게 어려운 부분 — 무엇이 &quot;더 낫다&quot;인지 팀이 정해야 한다." data-g="문장 1개를 엔진 3개에 돌려 나란히 보여주고, 어느 쪽이 나은지 투표나 별점으로 기록이 쌓이는 것까지.">번역 품질 비교기</button>
-      <button class="chip" data-d="제품 사진을 올리면 배경을 지우고 갈아끼운다. 업로드 → 처리 API → 저장이 한 줄로 이어지는 이미지 파이프라인의 기본형." data-g="사진 업로드 → 배경 제거 → 새 배경 합성본 다운로드까지 돈다. 처리 1장에 걸리는 시간과 장당 비용을 실측하는 것까지.">제품 사진 배경 교체기</button><button class="chip" data-d="사람 × 스킬 표를 만든다. 다대다 관계의 전형이라 S02와 같은 근육을 쓴다 — 태그가 늘어날 때 스키마가 버티는지가 관전 포인트." data-g="사람과 스킬을 등록하고, 스킬로 필터하면 누가 그걸 할 수 있는지 나온다. 한 사람에게 스킬 여러 개, 한 스킬에 사람 여러 명이 자연스럽게 붙는 것까지.">팀 스킬 매트릭스</button><button class="chip" data-d="이미지에서 대표색을 뽑아 팔레트로 모은다. 결과가 눈에 바로 보여서 데모가 쉬운 주제 — 색 추출은 라이브러리가 다 해준다." data-g="이미지를 올리면 대표색 5개가 뽑혀 팔레트 카드로 보드에 쌓인다. 색을 클릭하면 HEX 코드가 복사되는 것까지.">컬러 트렌드 무드보드</button>
+      <button class="chip" data-d="제품 사진을 올리면 배경을 지우고 갈아끼운다. 업로드 → 처리 API → 저장이 한 줄로 이어지는 이미지 파이프라인의 기본형." data-g="사진 업로드 → 배경 제거 → 새 배경 합성본 다운로드까지 돈다. 처리 1장에 걸리는 시간과 장당 비용을 실측하는 것까지.">제품 사진 배경 교체기</button><button class="chip" data-d="사람 × 스킬 표를 만든다. 다대다 관계의 전형이라 S02와 같은 근육을 쓴다 — 태그가 늘어날 때 스키마가 버티는지가 관전 포인트." data-g="사람과 스킬을 등록하고, 스킬로 필터하면 누가 그걸 할 수 있는지 나온다. 한 사람에게 스킬 여러 개, 한 스킬에 사람 여러 명이 자연스럽게 붙는 것까지.">팀 스킬 매트릭스</button>
     </div>
     <div class="chipdesc" hidden></div>
   </div>
