@@ -39,40 +39,34 @@
   button:disabled { opacity:.5; cursor:wait; }
   #msg { text-align:center; font-size:13px; color:var(--dim); min-height:1.4em; margin-top:10px; }
   #msg.err { color:#ff8f8f; }
-  /* 스프린트 바로가기 + 스택 필터 — 고정 헤더의 일부 */
+  /* 선택지가 늘어나도 고정 헤더는 한 줄 높이를 유지한다 */
   nav {
-    padding:12px 16px;
-    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
+    padding:10px 16px 14px; max-width:720px; margin:auto;
+    display:flex; gap:12px; justify-content:center; align-items:end;
   }
-  .chip {
-    font-family:"IBM Plex Mono",monospace; font-size:12px; padding:5px 13px; border-radius:999px;
-    border:1px solid var(--line); color:var(--dim); cursor:pointer; background:none;
-    font-weight:600; text-decoration:none;
+  .filter-field {
+    display:flex; flex-direction:column; gap:5px; min-width:0; text-align:left;
+    font-family:"IBM Plex Mono",monospace; font-size:10.5px; letter-spacing:.08em; color:var(--dim);
   }
-  .chip:hover { border-color:var(--green); color:var(--green); }
-  .chip.on { background:var(--green); border-color:var(--green); color:#0c1310; }
-  .chip-sep { width:1px; background:var(--line); margin:2px 4px; }
-  /* 축 이름 — 칩만 늘어놓으면 Jayden과 Vercel이 무슨 축인지 구분이 안 된다 */
-  .axis { align-self:center; font-family:"IBM Plex Mono",monospace; font-size:10.5px;
-    letter-spacing:.14em; color:#5b6672; margin-right:2px; }
-  .axis:not(:first-child) { margin-left:10px; }
-  /* 주차 바로가기 — 폭은 안내문에 맞춘다. 그냥 두면 가장 긴 옵션 길이만큼 벌어진다 */
-  #jump {
+  .week-field { width:180px; }
+  .who-field { width:150px; }
+  .stack-field { flex:1; max-width:330px; }
+  nav select {
     font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600;
-    padding:5px 26px 5px 13px; border-radius:999px; border:1px solid var(--line);
-    background:none; color:var(--dim); cursor:pointer; width:152px;
+    padding:9px 30px 9px 13px; border-radius:10px; border:1px solid var(--line);
+    background:var(--panel); color:var(--text); cursor:pointer; width:100%; height:36px;
     appearance:none; text-overflow:ellipsis;
     background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
-    background-position:calc(100% - 15px) 12px, calc(100% - 11px) 12px;
+    background-position:calc(100% - 17px) 16px, calc(100% - 13px) 16px;
     background-size:4px 4px, 4px 4px; background-repeat:no-repeat;
   }
-  #jump:hover, #jump:focus-visible { border-color:var(--green); color:var(--green); }
-  #jump option { background:var(--panel); color:var(--text); font-weight:400; }
+  nav select:hover, nav select:focus-visible { border-color:var(--green); outline:none; }
+  nav select option { background:var(--panel); color:var(--text); font-weight:400; }
   /* 타임라인 */
   main { max-width:980px; margin:36px auto 90px; position:relative; padding:0 24px; }
   main::before { content:""; position:absolute; left:50%; top:0; bottom:0; width:2px;
     background:linear-gradient(var(--green), var(--line)); transform:translateX(-50%); }
-  .node { position:relative; text-align:center; margin:34px 0 22px; scroll-margin-top:140px; }
+  .node { position:relative; text-align:center; margin:34px 0 22px; scroll-margin-top:215px; }
   .node .dot { display:inline-grid; place-items:center; width:64px; height:64px; border-radius:50%;
     background:var(--bg); border:2px solid var(--green); font-family:"IBM Plex Mono",monospace;
     font-weight:600; font-size:15px; color:var(--green); position:relative; z-index:1; }
@@ -121,13 +115,13 @@
     .eyebrow { font-size:10.5px; letter-spacing:.24em; }
     .sub { font-size:13px; }
     form { margin-top:16px; }
-    /* 사람·스택 칩이 늘어도 헤더가 부풀지 않게 — 한 줄로 눕히고 가로로 밀어 본다 */
+    /* 좁은 화면에서도 필터 세 개를 한 줄에 유지한다 */
     nav {
-      padding:10px 16px; flex-wrap:nowrap; overflow-x:auto; justify-content:flex-start;
-      scrollbar-width:none; -webkit-overflow-scrolling:touch;
+      padding:10px 16px 14px; display:grid; grid-template-columns:.9fr 1fr 1.3fr;
+      gap:8px; max-width:520px;
     }
-    nav::-webkit-scrollbar { display:none; }
-    nav > * { flex:0 0 auto; }
+    .week-field, .who-field, .stack-field { width:100%; max-width:none; }
+    nav select { font-size:11px; padding-left:9px; }
     main { margin-top:24px; }
     main::before { left:28px; }
     .node { text-align:left; }
@@ -265,30 +259,31 @@ function render() {
   $('tagline').innerHTML =
     `시작이 모이는 곳 — <b>${ALL.length}개의 시작</b> · 목 18:00 마감 <b>D-${dday()}</b>`;
 
-  // 스프린트 바로가기 + 스택 필터 칩.
-  // 칩은 화면에 실제로 그려진 마디(rows)만 — 필터로 사라진 마디는 눌러도 갈 곳이 없다.
+  // 주차는 화면에 실제로 그려진 마디(rows)만 — 필터로 사라진 마디는 눌러도 갈 곳이 없다.
   // 정렬은 타임라인과 같은 오름차순(미분류는 맨 뒤).
   const sprints = [...new Set(rows.map(r => r.sprint || '미분류'))]
     .sort((a, b) => a === '미분류' ? 1 : b === '미분류' ? -1 : a.localeCompare(b));
-  // 사람·스택 칩은 언제나 전체 기준으로 그린다 — 하나를 고른 뒤에도 다른 값으로 갈아탈 수 있어야 한다
+  // 사람·스택 메뉴는 언제나 전체 기준 — 하나를 고른 뒤에도 다른 값으로 갈아탈 수 있다.
   const opts = [...new Set(ALL.map(r => r.stack_option).filter(Boolean))];
   const whos = [...new Set(ALL.map(r => r.author).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ko'));
   // 주차 바로가기는 드랍다운으로 — 주차마다 무슨 주였는지 한 줄 설명이 같이 보인다
   const jump = sprints.length
-    ? `<select id="jump" aria-label="주차로 이동">
+    ? `<label class="filter-field week-field"><span>주차</span><select id="jump" aria-label="주차로 이동">
         <option value="">주차로 이동…</option>` +
       sprints.map(s => {
         const ri = roadOf(s);
         return `<option value="sp-${esc(s)}">${esc(ri ? `${s} · ${ri[3]} · ${ri[4]}` : s)}</option>`;
-      }).join('') + `</select>`
+      }).join('') + `</select></label>`
     : '';
   $('nav').hidden = !ALL.length;
   $('nav').innerHTML =
-    (jump ? `<span class="axis">주차</span>${jump}` : '') +
-    (whos.length ? '<span class="axis">사람</span>' : '') +
-    whos.map(w => `<button class="chip who${WHO === w ? ' on' : ''}" data-w="${esc(w)}">${esc(w)}</button>`).join('') +
-    (opts.length ? '<span class="axis">스택</span>' : '') +
-    opts.map(o => `<button class="chip${FILTER === o ? ' on' : ''}" data-f="${esc(o)}">${esc(o)}</button>`).join('');
+    jump +
+    `<label class="filter-field who-field"><span>사람</span><select id="who-filter" aria-label="사람 필터">
+      <option value="">전체</option>${whos.map(w => `<option value="${esc(w)}"${WHO === w ? ' selected' : ''}>${esc(w)}</option>`).join('')}
+    </select></label>` +
+    `<label class="filter-field stack-field"><span>스택</span><select id="stack-filter" aria-label="스택 필터">
+      <option value="">전체</option>${opts.map(o => `<option value="${esc(o)}"${FILTER === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}
+    </select></label>`;
 
   if (!rows.length) {
     $('main').innerHTML = `<div class="state">${ALL.length ? '이 조건에 맞는 시작이 없다.' : '아직 제출이 없다. 첫 URL을 드랍해보자.'}</div>`;
@@ -308,7 +303,7 @@ function render() {
   const started = ROAD.filter(r => new Date(r[1]) <= new Date());
   const cur = started[started.length - 1];                    // 이미 시작한 스프린트 중 가장 최근
   const nxt = ROAD.find(r => new Date(r[1]) > new Date());     // 다음 스프린트 (시즌 끝나면 없음)
-  const up = cur && !bySprint.has(cur[0]) ? cur : nxt && !bySprint.has(nxt[0]) ? nxt : null;
+  const up = WHO || FILTER ? null : cur && !bySprint.has(cur[0]) ? cur : nxt && !bySprint.has(nxt[0]) ? nxt : null;
   const upWhen = up === cur ? '이번 주' : '다음 주';
   $('main').innerHTML = keys.map(k => {
     const ri = roadOf(k);
@@ -376,19 +371,22 @@ $('dropform').addEventListener('submit', async e => {
 });
 
 document.addEventListener('click', e => {
-  const w = e.target.closest('[data-w]');
-  if (w) { WHO = WHO === w.dataset.w ? null : w.dataset.w; animatedRender(); return; }
-  const f = e.target.closest('[data-f]');
-  if (f) { FILTER = FILTER === f.dataset.f ? null : f.dataset.f; animatedRender(); return; }
   const card = e.target.closest('.entry');
   if (card && !e.target.closest('a')) window.open(card.dataset.url, '_blank', 'noopener');
 });
 
-// 주차 드랍다운에서 고르면 그 마디로 이동한다 (고른 값은 다시 비워 재선택 가능하게)
+// 필터는 드랍다운에서 교체하거나 '전체'로 해제한다.
 document.addEventListener('change', e => {
-  if (e.target.id !== 'jump' || !e.target.value) return;
-  document.getElementById(e.target.value)?.scrollIntoView({ block: 'start' });
-  e.target.value = '';
+  const id = e.target.id;
+  if (id === 'who-filter' || id === 'stack-filter') {
+    if (id === 'who-filter') WHO = e.target.value || null;
+    else FILTER = e.target.value || null;
+    animatedRender();
+    $(id)?.focus();
+  } else if (id === 'jump' && e.target.value) {
+    document.getElementById(e.target.value)?.scrollIntoView({ block: 'start' });
+    e.target.value = '';
+  }
 });
 
 // 카드 위에서 Enter·Space로도 열린다 (마우스 없이 쓰는 사람용)
