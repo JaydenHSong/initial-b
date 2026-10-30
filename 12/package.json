@@ -1,0 +1,26 @@
+{
+  "name": "initial-b12-gallery-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "start": "tsx stdio.ts",
+    "dev": "tsx dev.ts",
+    "inspect:list": "mcp-inspector --cli node --import tsx stdio.ts --method tools/list",
+    "inspect:call": "mcp-inspector --cli node --import tsx stdio.ts --method tools/call --tool-name get_gallery_submissions --tool-arg sprint=S11"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "2.12.0",
+    "@types/node": "26.6.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

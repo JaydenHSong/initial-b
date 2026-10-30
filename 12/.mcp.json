@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gallery": {
+      "type": "http",
+      "url": "https://initial-b12.vercel.app/api/mcp"
+    }
+  }
+}
